@@ -101,7 +101,7 @@
   </div>
 
   <div class="nav">
-    <button onclick="switchTab(event, 'panduan')"><span class="icon">📖</span> Panduan</button>
+    <button class="active" onclick="switchTab(event, 'panduan')"><span class="icon">📖</span> Panduan</button>
     <button onclick="switchTab(event, 'jalan')"><span class="icon">🚶</span> Jalan</button>
     <button onclick="switchTab(event, 'napas')"><span class="icon">🫁</span> Napas</button>
     <button onclick="switchTab(event, 'bmi')"><span class="icon">⚖️</span> BMI</button>
@@ -112,7 +112,7 @@
   </div>
 
   <!-- TAB_KALORI -->
-  <div id="tab-kalori" class="tab-content active"><div class="card"><h2>🔥 Hitung Kalori Harian</h2>
+  <div id="tab-kalori" class="tab-content"><div class="card"><h2>🔥 Hitung Kalori Harian</h2>
   <div class="form-group"><label>Nama Makanan</label><input type="text" id="foodName" placeholder="Contoh: Nasi goreng"></div>
   <div class="row"><div class="form-group"><label>Kalori (kkal)</label><input type="number" id="foodCal" placeholder="kkal"></div><div class="form-group"><label>Porsi (gram)</label><input type="number" id="foodPortion" placeholder="gram" value="100"></div></div>
   <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
@@ -215,7 +215,7 @@
   </div>
 
   <!-- TAB_PANDUAN -->
-  <div id="tab-panduan" class="tab-content"><div class="card"><h2>📖 Panduan Latihan</h2>
+  <div id="tab-panduan" class="tab-content active"><div class="card"><h2>📖 Panduan Latihan</h2>
   <div class="guide-nav"><button class="active" onclick="showGuide('jalan', this)">🚶 Jalan</button><button onclick="showGuide('napas', this)">🫁 Pernapasan</button></div>
   <div id="guideContent"></div></div></div>
 </div>
@@ -717,7 +717,7 @@ function renderHistory() { const h = getHistory(); document.getElementById('hist
 function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.removeItem('healthHistory'); renderHistory(); } }
 
 // Init
-renderHistory(); resetWalkUI(); loadBiodata(); renderVoiceToggle();
+renderHistory(); resetWalkUI(); loadBiodata(); renderVoiceToggle(); renderGuide();
 
 // ===== PWA SERVICE WORKER (hanya di web; di APK aset sudah dibundel) =====
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !Shenx.isNative()) {
