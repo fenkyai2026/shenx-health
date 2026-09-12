@@ -12,7 +12,7 @@ on:
         default: debug
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -91,3 +91,12 @@ jobs:
           path: out/*.apk
           retention-days: 30
           if-no-files-found: error
+
+      - name: Buat GitHub Release (untuk auto-update di app)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.run_number }}" out/*.apk \
+            --repo "${{ github.repository }}" \
+            --title "SHENX HEALTH v1.0.${{ github.run_number }}" \
+            --notes "Build otomatis dari commit ${{ github.sha }}"

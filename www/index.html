@@ -668,6 +668,43 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
 });
+
+// ===== CEK UPDATE (khusus APK) =====
+const UPDATE_REPO = 'fenkyai2026/shenx-health';
+async function checkForUpdate() {
+  try {
+    if (!Shenx.isNative()) return;
+    const plugin = window.Capacitor.Plugins.Shenx;
+    const info = await plugin.getAppVersion();
+    const res = await fetch('https://api.github.com/repos/' + UPDATE_REPO + '/releases/latest');
+    if (!res.ok) return;
+    const rel = await res.json();
+    const latestCode = parseInt(rel.tag_name, 10);
+    if (!latestCode || latestCode <= info.versionCode) return;
+    const asset = (rel.assets || []).find(a => a.name.endsWith('.apk'));
+    if (!asset) return;
+    showUpdateBar(rel.tag_name, asset.browser_download_url);
+  } catch (e) {}
+}
+function showUpdateBar(version, url) {
+  if (document.getElementById('updateBar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'updateBar';
+  bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;background:#1b5e20;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:0.85rem;z-index:9999;box-shadow:0 -2px 12px rgba(0,0,0,0.15);';
+  bar.innerHTML = '<span>🔄 Update tersedia (build ' + version + ')</span><button id="updateBtn" style="background:#fff;color:#1b5e20;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;flex-shrink:0;">Update</button>';
+  document.body.appendChild(bar);
+  document.getElementById('updateBtn').onclick = async function () {
+    const btn = document.getElementById('updateBtn');
+    btn.textContent = 'Mengunduh...'; btn.disabled = true;
+    try {
+      await window.Capacitor.Plugins.Shenx.downloadAndInstall({ url: url });
+    } catch (e) {
+      alert('Gagal update: ' + (e && e.message ? e.message : e));
+      btn.textContent = 'Update'; btn.disabled = false;
+    }
+  };
+}
+if (Shenx.isNative()) checkForUpdate();
 </script>
 
 <script>
