@@ -285,21 +285,47 @@ window.Shenx = (function () {
 // ===== DATA PANDUAN =====
 const guides = {
   jalan: [
-    { title:'🔄 3:3 Dasar', tag:'walk', text:'3 menit jalan santai diikuti 3 menit jalan cepat. Total 6 menit per putaran. Cocok untuk pemula. Estimasi ~720 langkah per putaran.' },
-    { title:'⚡ Interval 1:2', tag:'walk', text:'1 menit santai lalu 2 menit cepat. Total 3 menit per putaran. Fase cepat lebih dominan — intens untuk bakar kalori dan kardio.' },
-    { title:'🔥 Interval 2:1', tag:'walk', text:'2 menit santai lalu 1 menit cepat. Total 3 menit. Cocok untuk pemanasan atau pemula yang ingin naik intensitas bertahap.' },
-    { title:'🦵 Jalan di Tempat', tag:'walk', text:'1,5 menit angkat lutut pelan lalu 1,5 menit angkat lutut cepat. Bisa di dalam ruangan. Efektif bakar kalori dan latih otot kaki.' }
+    { title:'🔄 3:3 Dasar', tag:'walk', text:'3 menit jalan santai diikuti 3 menit jalan cepat. Total 6 menit per putaran. Estimasi ~720 langkah per putaran.',
+      fungsi:'Pergantian santai-cepat melatih jantung naik-turun detaknya secara bertahap tanpa kelelahan berlebih.',
+      tujuan:'Membangun kebiasaan olahraga bagi pemula, menjaga stamina harian, dan membakar kalori secara konsisten.' },
+    { title:'⚡ Interval 1:2', tag:'walk', text:'1 menit santai lalu 2 menit cepat. Total 3 menit per putaran. Fase cepat lebih dominan.',
+      fungsi:'Fase cepat yang lebih panjang memacu detak jantung ke zona latihan lebih tinggi dalam waktu singkat.',
+      tujuan:'Membakar kalori maksimal dan meningkatkan kapasitas kardio bagi yang sudah terbiasa jalan cepat.' },
+    { title:'🔥 Interval 2:1', tag:'walk', text:'2 menit santai lalu 1 menit cepat. Total 3 menit per putaran.',
+      fungsi:'Fase santai yang lebih panjang berfungsi sebagai pemanasan dan pemulihan sebelum beban meningkat.',
+      tujuan:'Cocok untuk pemanasan atau bagi pemula yang ingin menaikkan intensitas secara bertahap.' },
+    { title:'🦵 Jalan di Tempat', tag:'walk', text:'1,5 menit angkat lutut pelan lalu 1,5 menit angkat lutut cepat. Bisa dilakukan di dalam ruangan.',
+      fungsi:'Gerakan angkat lutut mengaktifkan otot paha, betis, dan inti tubuh tanpa perlu ruang luas.',
+      tujuan:'Alternatif olahraga kardio saat cuaca buruk atau ruang terbatas, tetap efektif membakar kalori dan melatih otot kaki.' }
   ],
   napas: [
-    { title:'🧊 Box Breathing (4-4-4-4)', tag:'breath', text:'Tarik 4 detik, tahan 4, buang 4, tahan 4. Dipakai Navy SEAL. Bagus untuk fokus, kurangi stres, kontrol emosi.' },
-    { title:'😴 4-7-8 Breathing', tag:'breath', text:'Tarik 4 detik, tahan 7, buang 8 lewat mulut. Oleh Dr. Andrew Weil. Bantu tidur cepat, redakan cemas, turunkan detak jantung.' },
-    { title:'💨 Pursed Lip Breathing', tag:'breath', text:'Tarik 2 detik lewat hidung, buang 4 detik lewat mulut dengan bibir mengerucut. Jaga saluran napas terbuka. Cocok untuk asma, PPOK, pemulihan olahraga.' },
-    { title:'⚖️ Equal Breathing', tag:'breath', text:'Tarik dan buang 5 detik sama panjang. Menyeimbangkan sistem saraf. Sederhana tapi efektif untuk meditasi harian.' },
-    { title:'🌊 Resonant / Coherent Breathing', tag:'breath', text:'Tarik 5,5 detik, buang 5,5 detik. ~5,5 napas/menit — frekuensi resonansi alami tubuh. Turunkan tekanan darah, tingkatkan HRV, seimbangkan saraf otonom.' },
-    { title:'❄️ Wim Hof Breathing', tag:'breath', text:'30 kali napas cepat-dalam, lalu buang napas dan tahan selama mungkin, tarik dalam dan tahan 15 detik. Tingkatkan energi dan ketahanan dingin. JANGAN dilakukan di air atau saat mengemudi. Hentikan jika pusing.' },
-    { title:'👃 Alternate Nostril (Nadi Shodhana)', tag:'breath', text:'Tutup lubang hidung bergantian: tarik kiri 4 detik, tahan 4, buang kanan 8, lalu sebaliknya. Rasio 4-4-8. Seimbangkan otak kiri-kanan, tenangkan pikiran.' },
-    { title:'🫃 Diaphragmatic / Belly Breathing', tag:'breath', text:'Tarik 4 detik lewat hidung (perut mengembang), buang 6 detik lewat mulut (perut mengempis). Latih diafragma, tingkatkan kapasitas paru, kurangi ketegangan leher.' },
-    { title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut. Tingkatkan energi, bersihkan saluran napas, kuatkan otot perut. Hentikan jika pusing. Tidak untuk ibu hamil/epilepsi.' }
+    { title:'🧊 Box Breathing (4-4-4-4)', tag:'breath', text:'Tarik 4 detik, tahan 4, buang 4, tahan 4. Dipakai Navy SEAL.', maxInfo:'6 putaran/sesi (~2 menit)',
+      fungsi:'Jeda tahan yang sama panjang di tiap fase menstabilkan ritme napas dan menenangkan sistem saraf otonom.',
+      tujuan:'Meningkatkan fokus, meredakan stres akut, dan mengontrol emosi sebelum situasi menegangkan.' },
+    { title:'😴 4-7-8 Breathing', tag:'breath', text:'Tarik 4 detik, tahan 7, buang 8 lewat mulut. Oleh Dr. Andrew Weil.', maxInfo:'8 putaran/sesi',
+      fungsi:'Fase buang napas yang jauh lebih panjang dari tarikan mengaktifkan respons rileksasi (parasimpatis).',
+      tujuan:'Membantu tidur lebih cepat, meredakan kecemasan, dan menurunkan detak jantung.' },
+    { title:'💨 Pursed Lip Breathing', tag:'breath', text:'Tarik 2 detik lewat hidung, buang 4 detik lewat mulut dengan bibir mengerucut.', maxInfo:'10 putaran/sesi',
+      fungsi:'Buang napas terkontrol lewat bibir mengerucut menjaga saluran napas tetap terbuka lebih lama.',
+      tujuan:'Membantu penderita asma/PPOK bernapas lebih efisien, dan mempercepat pemulihan napas usai aktivitas fisik.' },
+    { title:'⚖️ Equal Breathing', tag:'breath', text:'Tarik dan buang 5 detik sama panjang.', maxInfo:'15 putaran/sesi',
+      fungsi:'Tarik dan buang yang sama panjang menjaga aliran oksigen dan CO2 tetap seimbang.',
+      tujuan:'Latihan dasar meditasi harian yang sederhana untuk menenangkan pikiran.' },
+    { title:'🌊 Resonant / Coherent Breathing', tag:'breath', text:'Tarik 5,5 detik, buang 5,5 detik — ~5,5 napas/menit.', maxInfo:'20 putaran/sesi (~3,5 menit)',
+      fungsi:'Napas pada frekuensi resonansi alami tubuh menyelaraskan variabilitas detak jantung (HRV).',
+      tujuan:'Menurunkan tekanan darah, meningkatkan HRV, dan menyeimbangkan sistem saraf otonom dalam jangka panjang.' },
+    { title:'❄️ Wim Hof Breathing', tag:'breath', text:'30 kali napas cepat-dalam, lalu buang napas dan tahan selama mungkin, tarik dalam dan tahan 15 detik.', maxInfo:'3 putaran/sesi (protokol standar)',
+      fungsi:'Hiperventilasi terkontrol diikuti tahan napas memicu perubahan kadar oksigen dan CO2 sementara di tubuh.',
+      tujuan:'Meningkatkan energi dan ketahanan terhadap dingin/stres. JANGAN dilakukan di air atau saat mengemudi — hentikan jika pusing.' },
+    { title:'👃 Alternate Nostril (Nadi Shodhana)', tag:'breath', text:'Tutup lubang hidung bergantian: tarik kiri 4 detik, tahan 4, buang kanan 8, lalu sebaliknya.', maxInfo:'8 putaran/sesi',
+      fungsi:'Napas bergantian lewat lubang hidung kiri-kanan menyeimbangkan aktivitas dua sisi otak (tradisi yoga).',
+      tujuan:'Menenangkan pikiran dan meningkatkan konsentrasi sebelum meditasi atau kerja yang butuh fokus.' },
+    { title:'🫃 Diaphragmatic / Belly Breathing', tag:'breath', text:'Tarik 4 detik lewat hidung (perut mengembang), buang 6 detik lewat mulut (perut mengempis).', maxInfo:'12 putaran/sesi',
+      fungsi:'Melatih otot diafragma bekerja penuh, bukan sekadar napas dada yang dangkal.',
+      tujuan:'Meningkatkan kapasitas paru dan mengurangi ketegangan di leher/bahu akibat napas dangkal.' },
+    { title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut.', maxInfo:'3 putaran/sesi',
+      fungsi:'Kontraksi perut yang cepat memompa napas pendek-kuat dan menstimulasi organ-organ perut.',
+      tujuan:'Meningkatkan energi dan fokus secara cepat. Hentikan jika pusing — tidak untuk ibu hamil/penderita epilepsi.' }
   ]
 };
 
@@ -314,7 +340,11 @@ function showGuide(type, btn) {
 
 function renderGuide() {
   document.getElementById('guideContent').innerHTML = guides[currentGuide].map(g =>
-    '<div class="guide-section"><h3>' + g.title + '<span class="tag tag-' + g.tag + '">' + (g.tag==='walk'?'Jalan':'Napas') + '</span></h3><p>' + g.text + '</p></div>'
+    '<div class="guide-section"><h3>' + g.title + '<span class="tag tag-' + g.tag + '">' + (g.tag==='walk'?'Jalan':'Napas') + '</span></h3>' +
+    '<p>' + g.text + (g.maxInfo ? ' <strong>Maks: ' + g.maxInfo + '.</strong>' : '') + '</p>' +
+    '<p><strong>Fungsi:</strong> ' + g.fungsi + '</p>' +
+    '<p><strong>Tujuan:</strong> ' + g.tujuan + '</p>' +
+    '</div>'
   ).join('');
 }
 
@@ -526,38 +556,38 @@ function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound
 
 // ===== PERNAPASAN =====
 const breathModes = {
-  box: { name:'Box Breathing', pattern:[
+  box: { name:'Box Breathing', max:6, pattern:[
     { step:'Tarik Napas', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' },
     { step:'Buang Napas', sec:4, cls:'exhale', color:'#2e7d32' }, { step:'Tahan', sec:4, cls:'pause', color:'#5c6bc0' }
   ]},
-  '478': { name:'4-7-8 Breathing', pattern:[
+  '478': { name:'4-7-8 Breathing', max:8, pattern:[
     { step:'Tarik Napas', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:7, cls:'hold', color:'#ffa726' },
     { step:'Buang Napas', sec:8, cls:'exhale', color:'#2e7d32' }
   ]},
-  pursed: { name:'Pursed Lip', pattern:[
+  pursed: { name:'Pursed Lip', max:10, pattern:[
     { step:'Tarik (hidung)', sec:2, cls:'inhale', color:'#43a047' }, { step:'Buang (mulut)', sec:4, cls:'exhale', color:'#2e7d32' }
   ]},
-  equal: { name:'Equal Breathing', pattern:[
+  equal: { name:'Equal Breathing', max:15, pattern:[
     { step:'Tarik Napas', sec:5, cls:'inhale', color:'#43a047' }, { step:'Buang Napas', sec:5, cls:'exhale', color:'#2e7d32' }
   ]},
-  resonant: { name:'Resonant Breathing', pattern:[
+  resonant: { name:'Resonant Breathing', max:20, pattern:[
     { step:'Tarik Napas', sec:5.5, cls:'inhale', color:'#43a047' }, { step:'Buang Napas', sec:5.5, cls:'exhale', color:'#2e7d32' }
   ]},
-  wimhof: { name:'Wim Hof', pattern:[
+  wimhof: { name:'Wim Hof', max:3, pattern:[
     { step:'Napas Cepat-Dalam (30x)', sec:30, cls:'inhale', color:'#43a047' },
     { step:'Buang & TAHAN Napas', sec:15, cls:'hold', color:'#ffa726' },
     { step:'Tarik Dalam & Tahan', sec:15, cls:'pause', color:'#5c6bc0' }
   ]},
-  nostril: { name:'Alternate Nostril', pattern:[
+  nostril: { name:'Alternate Nostril', max:8, pattern:[
     { step:'Tarik (kiri)', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' },
     { step:'Buang (kanan)', sec:8, cls:'exhale', color:'#2e7d32' }, { step:'Tarik (kanan)', sec:4, cls:'inhale', color:'#43a047' },
     { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' }, { step:'Buang (kiri)', sec:8, cls:'exhale', color:'#2e7d32' }
   ]},
-  diaphragm: { name:'Diaphragmatic', pattern:[
+  diaphragm: { name:'Diaphragmatic', max:12, pattern:[
     { step:'Tarik (perut kembang)', sec:4, cls:'inhale', color:'#43a047' },
     { step:'Buang (perut kempis)', sec:6, cls:'exhale', color:'#2e7d32' }
   ]},
-  'k-fire': { name:'Breath of Fire', pattern:[
+  'k-fire': { name:'Breath of Fire', max:3, pattern:[
     { step:'Buang Napas Cepat 30x', sec:15, cls:'inhale', color:'#ef5350' },
     { step:'Istirahat', sec:15, cls:'pause', color:'#5c6bc0' }
   ]}
@@ -568,7 +598,7 @@ function selectBreathMode(mode, btn) {
   if (breathRunning) return; breathMode = mode;
   document.querySelectorAll('#breathModeSelect button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('breathInfo').textContent = breathModes[mode].name + ' — ' + breathModes[mode].pattern.map(p => p.sec).join('-') + ' detik';
+  document.getElementById('breathInfo').textContent = breathModes[mode].name + ' — ' + breathModes[mode].pattern.map(p => p.sec).join('-') + ' detik | Maks ' + breathModes[mode].max + ' putaran/sesi';
   resetBreathUI();
 }
 function resetBreathUI() {
@@ -588,7 +618,10 @@ function startBreath() {
 }
 function runBreathPhase() {
   const mode = breathModes[breathMode];
-  if (breathPhaseIdx >= mode.pattern.length) { breathPhaseIdx = 0; breathRounds++; addHistory('Napas ' + mode.name + ': ' + breathRounds + ' putaran'); }
+  if (breathPhaseIdx >= mode.pattern.length) {
+    breathPhaseIdx = 0; breathRounds++;
+    if (mode.max && breathRounds >= mode.max) { finishBreathSession(); return; }
+  }
   const ph = mode.pattern[breathPhaseIdx]; breathPhaseSec = ph.sec;
   const c = document.getElementById('breathCircle');
   speak(ph.step);
@@ -608,10 +641,24 @@ function updateBreathDisplay() {
   const mode = breathModes[breathMode], ph = mode.pattern[breathPhaseIdx];
   document.getElementById('breathTimer').textContent = '00:' + String(Math.max(0, Math.ceil(breathPhaseSec))).padStart(2,'0');
   document.getElementById('breathProgress').style.width = (((ph.sec - breathPhaseSec) / ph.sec) * 100) + '%';
-  document.getElementById('breathInfo').textContent = mode.name + ' | Putaran ' + (breathRounds+1) + ' | ' + ph.step;
+  document.getElementById('breathInfo').textContent = mode.name + ' | Putaran ' + (breathRounds+1) + '/' + mode.max + ' | ' + ph.step;
+}
+function finishBreathSession() {
+  const mode = breathModes[breathMode];
+  clearInterval(breathTimer); breathTimer = null; breathRunning = false;
+  speak('Sesi selesai. ' + breathRounds + ' putaran tercapai. Kerja bagus');
+  Shenx.vibrate([200, 100, 200, 100, 200]);
+  addHistory('Napas ' + mode.name + ': sesi selesai (' + breathRounds + '/' + mode.max + ' putaran)');
+  const c = document.getElementById('breathCircle');
+  c.textContent = '✅ Selesai'; c.className = 'breath-circle'; c.style.backgroundColor = '#2e7d32'; c.style.transitionDuration = '0.4s'; c.style.transform = 'scale(1)';
+  document.getElementById('breathStepText').textContent = 'Sesi selesai — ' + breathRounds + '/' + mode.max + ' putaran (batas aman tercapai)';
+  document.getElementById('breathProgress').style.width = '100%';
+  document.getElementById('breathInfo').textContent = mode.name + ' | Sesi selesai (' + breathRounds + '/' + mode.max + ')';
+  document.getElementById('breathStartBtn').textContent = '▶️ Mulai';
+  document.getElementById('breathStartBtn').onclick = startBreath;
 }
 function pauseBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); document.getElementById('breathStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('breathStartBtn').onclick = startBreath; }
-function stopBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); if (breathRounds > 0) addHistory('Napas ' + breathModes[breathMode].name + ': dihentikan (' + breathRounds + ' putaran)'); resetBreathUI(); }
+function stopBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); if (breathRounds > 0) addHistory('Napas ' + breathModes[breathMode].name + ': dihentikan (' + breathRounds + '/' + breathModes[breathMode].max + ' putaran)'); resetBreathUI(); }
 
 // ===== BIODATA =====
 function saveBiodata() {
