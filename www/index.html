@@ -91,6 +91,10 @@
   .voice-toggle { border: none; background: #e8f5e9; color: #2e7d32; padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .voice-toggle:active { transform: scale(0.97); }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .exercise-tile { border-radius: 14px; padding: 24px 16px; text-align: center; margin-bottom: 12px; cursor: pointer; transition: transform 0.15s; }
+  .exercise-tile:last-child { margin-bottom: 0; }
+  .exercise-tile:active { transform: scale(0.97); }
+  .water-cup { background: none; border: none; cursor: pointer; font-size: 1.6rem; padding: 2px; transition: opacity 0.2s; }
 </style>
 </head>
 <body>
@@ -101,14 +105,29 @@
   </div>
 
   <div class="nav">
-    <button class="active" onclick="switchTab(event, 'panduan')"><span class="icon">📖</span> Panduan</button>
-    <button onclick="switchTab(event, 'jalan')"><span class="icon">🚶</span> Jalan</button>
-    <button onclick="switchTab(event, 'napas')"><span class="icon">🫁</span> Napas</button>
-    <button onclick="switchTab(event, 'bmi')"><span class="icon">⚖️</span> BMI</button>
-    <button onclick="switchTab(event, 'kalori')"><span class="icon">🔥</span> Kalori</button>
-    <button onclick="switchTab(event, 'biodata')"><span class="icon">👤</span> Biodata</button>
-    <button onclick="switchTab(event, 'setting')"><span class="icon">⚙️</span> Setting</button>
+    <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="icon">🏠</span> Dashboard</button>
+    <button data-tab="panduan" onclick="switchTab('panduan')"><span class="icon">📖</span> Panduan</button>
+    <button data-tab="exercise" onclick="switchTab('exercise')"><span class="icon">🏋️</span> Exercise</button>
+    <button data-tab="kalori" onclick="switchTab('kalori')"><span class="icon">🔥</span> Kalori</button>
+    <button data-tab="biodata" onclick="switchTab('biodata')"><span class="icon">👤</span> Biodata</button>
+    <button data-tab="setting" onclick="switchTab('setting')"><span class="icon">⚙️</span> Setting</button>
     <button onclick="exitApp()" style="color:#c62828;"><span class="icon">🚪</span> Keluar</button>
+  </div>
+
+  <!-- TAB_DASHBOARD -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="card" style="text-align:center;">
+      <h2 id="dashGreeting" style="font-size:1.3rem;">Halo! 👋</h2>
+      <p style="color:#888;font-size:0.85rem;" id="dashDate"></p>
+    </div>
+    <div class="card">
+      <h2>⚖️ BMI Kamu</h2>
+      <div id="dashBmi"></div>
+    </div>
+    <div class="card">
+      <h2>💧 Kebutuhan Minum Air</h2>
+      <div id="waterWidget"></div>
+    </div>
   </div>
 
   <!-- TAB_KALORI -->
@@ -118,15 +137,24 @@
   <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
   <div style="margin-top:16px;"><h2 style="font-size:1rem;">📝 Daftar Makanan</h2><div class="food-list" id="foodList"><p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p></div><div class="summary"><span>Total Kalori:</span><span id="totalCal" style="font-weight:700;">0 kkal</span></div></div></div></div>
 
-  <!-- TAB_BMI -->
-  <div id="tab-bmi" class="tab-content"><div class="card"><h2>⚖️ Hitung IMT</h2>
-  <div class="form-group"><label>Jenis Kelamin</label><select id="gender"><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div>
-  <div class="row"><div class="form-group"><label>Berat (kg)</label><input type="number" id="weight" placeholder="kg" step="0.1"></div><div class="form-group"><label>Tinggi (cm)</label><input type="number" id="height" placeholder="cm"></div></div>
-  <div class="form-group"><label>Usia (tahun)</label><input type="number" id="age" placeholder="tahun"></div>
-  <button class="btn" onclick="calcBMI()">🔍 Hitung BMI</button><div id="bmiResult"></div></div></div>
+  <!-- TAB_EXERCISE -->
+  <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
+  <h2 style="margin-bottom:12px;">🏋️ Pilih Latihan</h2>
+  <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
+    <div style="font-size:3rem;">🚶</div>
+    <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
+    <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
+  </div>
+  <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
+    <div style="font-size:3rem;">🫁</div>
+    <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
+    <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+  </div></div></div>
 
   <!-- TAB_JALAN -->
-  <div id="tab-jalan" class="tab-content"><div class="card"><h2>🚶 Latihan Jalan</h2>
+  <div id="tab-jalan" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="switchTab('exercise')">← Exercise</button>
+  <h2>🚶 Latihan Jalan</h2>
   <div class="mode-select" id="walkModeSelect">
     <button class="active" onclick="selectWalkMode('basic', this)">🔄 3:3 Dasar<div class="bm">3 mnt santai | 3 mnt cepat</div></button>
     <button onclick="selectWalkMode('interval1', this)">⚡ Interval 1:2<div class="bm">1 mnt santai | 2 mnt cepat</div></button>
@@ -142,7 +170,9 @@
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
   <!-- TAB_NAPAS -->
-  <div id="tab-napas" class="tab-content"><div class="card"><h2>🫁 Latihan Pernapasan</h2>
+  <div id="tab-napas" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="switchTab('exercise')">← Exercise</button>
+  <h2>🫁 Latihan Pernapasan</h2>
   <div class="mode-select" id="breathModeSelect">
     <button class="active" onclick="selectBreathMode('box', this)">🧊 Box<div class="bm">4-4-4-4</div></button>
     <button onclick="selectBreathMode('478', this)">😴 4-7-8<div class="bm">4-7-8</div></button>
@@ -163,13 +193,36 @@
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
   <!-- TAB_BIODATA -->
-  <div id="tab-biodata" class="tab-content"><div class="card"><h2>👤 Biodata Diri</h2>
-  <div class="form-group"><label>Nama Lengkap</label><input type="text" id="bioName" placeholder="Nama lengkap"></div>
-  <div class="row"><div class="form-group"><label>Usia</label><input type="number" id="bioAge" placeholder="tahun"></div><div class="form-group"><label>Jenis Kelamin</label><select id="bioGender"><option value="">Pilih</option><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div></div>
-  <div class="row"><div class="form-group"><label>Berat (kg)</label><input type="number" id="bioWeight" placeholder="kg" step="0.1"></div><div class="form-group"><label>Tinggi (cm)</label><input type="number" id="bioHeight" placeholder="cm"></div></div>
-  <div class="form-group"><label>Golongan Darah</label><select id="bioBlood"><option value="">Pilih</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
-  <div class="form-group"><label>Riwayat Penyakit / Alergi</label><input type="text" id="bioMedical" placeholder="Contoh: diabetes, alergi seafood"></div>
-  <button class="btn" onclick="saveBiodata()">💾 Simpan Biodata</button><div id="biodataSaved" style="margin-top:12px;"></div></div></div>
+  <div id="tab-biodata" class="tab-content"><div class="card">
+  <div id="biodataOnboardingIntro" style="display:none;margin-bottom:16px;padding:12px;background:#e8f5e9;border-radius:12px;">
+    <strong style="color:#1b5e20;">👋 Selamat datang di SHENX HEALTH!</strong>
+    <p style="color:#555;font-size:0.85rem;margin-top:4px;">Lengkapi biodata di bawah ini dulu untuk memulai. Nama, tanggal lahir, tinggi, dan berat badan wajib diisi.</p>
+  </div>
+
+  <div id="biodataView">
+    <h2>👤 Biodata Diri</h2>
+    <div id="biodataViewContent"></div>
+    <button class="btn" style="margin-top:12px;" onclick="editBiodata()">✏️ Edit Biodata</button>
+  </div>
+
+  <div id="biodataForm" style="display:none;">
+    <h2><span id="biodataFormTitle">Edit Biodata</span></h2>
+    <div class="form-group"><label>Nama Lengkap *</label><input type="text" id="bioName" placeholder="Nama lengkap"></div>
+    <div class="row">
+      <div class="form-group"><label>Tempat Lahir</label><input type="text" id="bioBirthPlace" placeholder="Contoh: Jakarta"></div>
+      <div class="form-group"><label>Tanggal Lahir *</label><input type="date" id="bioBirthDate" onchange="updateAgePreview()"></div>
+    </div>
+    <div class="form-group" id="bioAgePreview" style="font-size:0.85rem;color:#666;"></div>
+    <div class="form-group"><label>Jenis Kelamin</label><select id="bioGender"><option value="">Pilih</option><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div>
+    <div class="row"><div class="form-group"><label>Berat (kg) *</label><input type="number" id="bioWeight" placeholder="kg" step="0.1"></div><div class="form-group"><label>Tinggi (cm) *</label><input type="number" id="bioHeight" placeholder="cm"></div></div>
+    <div class="form-group"><label>Golongan Darah</label><select id="bioBlood"><option value="">Pilih</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
+    <div class="form-group"><label>Alamat (opsional)</label><input type="text" id="bioAddress" placeholder="Alamat tempat tinggal"></div>
+    <div class="form-group"><label>Riwayat Penyakit / Alergi</label><input type="text" id="bioMedical" placeholder="Contoh: diabetes, alergi seafood"></div>
+    <button class="btn" onclick="saveBiodata()">💾 Simpan Biodata</button>
+    <button class="btn" id="biodataCancelBtn" style="margin-top:8px;background:#999;" onclick="cancelEditBiodata()">Batal</button>
+    <div id="biodataSaved" style="margin-top:12px;"></div>
+  </div>
+  </div></div>
 
   <!-- TAB_SETTING -->
   <div id="tab-setting" class="tab-content">
@@ -215,7 +268,7 @@
   </div>
 
   <!-- TAB_PANDUAN -->
-  <div id="tab-panduan" class="tab-content active"><div class="card"><h2>📖 Panduan Latihan</h2>
+  <div id="tab-panduan" class="tab-content"><div class="card"><h2>📖 Panduan Latihan</h2>
   <div class="guide-nav"><button class="active" onclick="showGuide('jalan', this)">🚶 Jalan</button><button onclick="showGuide('napas', this)">🫁 Pernapasan</button></div>
   <div id="guideContent"></div></div></div>
 </div>
@@ -352,15 +405,17 @@ function renderGuide() {
 }
 
 // TAB NAVIGATION
-function switchTab(e, tab) {
-  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-  e.target.closest('button').classList.add('active');
+function switchTab(tab) {
+  const highlightTab = (tab === 'jalan' || tab === 'napas') ? 'exercise' : tab;
+  document.querySelectorAll('.nav button[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === highlightTab));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const el = document.getElementById('tab-' + tab);
+  if (el) el.classList.add('active');
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
   if (tab === 'panduan') renderGuide();
   if (tab === 'setting') showMenu();
+  if (tab === 'dashboard') renderDashboard();
 }
 
 // ===== PENGATURAN =====
@@ -373,7 +428,6 @@ function showSub(sub) {
   document.getElementById('pengaturanMenu').style.display = 'none';
   document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
   document.getElementById('sub-' + sub).style.display = 'block';
-  if (sub === 'biodata') loadBiodata();
   if (sub === 'riwayat') renderHistory();
   if (sub === 'about') renderAboutVersion();
 }
@@ -419,8 +473,8 @@ function handleImport(e) {
       if (data.biodata) localStorage.setItem('biodata', JSON.stringify(data.biodata));
       if (data.history) localStorage.setItem('healthHistory', JSON.stringify(data.history));
       document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
-      loadBiodata();
       renderHistory();
+      initApp();
     } catch (err) {
       document.getElementById('dataMsg').innerHTML = '<div class="result danger">❌ File tidak valid. Pastikan file JSON yang benar.</div>';
     }
@@ -439,6 +493,7 @@ function resetAllData() {
     totalCalories = 0;
     foodItems = [];
     renderFoodList();
+    initApp();
   }
 }
 
@@ -468,23 +523,104 @@ function renderFoodList() {
   t.textContent = totalCalories + ' kkal';
 }
 
-// ===== BMI =====
-function calcBMI() {
-  const w = parseFloat(document.getElementById('weight').value);
-  const h = parseFloat(document.getElementById('height').value) / 100;
-  const a = parseInt(document.getElementById('age').value);
-  if (!w || !h || !a) { alert('Isi semua data'); return; }
-  const bmi = w / (h * h), br = bmi.toFixed(1);
-  let cat, cls, adv;
-  if (bmi < 18.5) { cat = 'Kurus'; cls = 'warning'; adv = 'Tingkatkan asupan gizi.'; }
-  else if (bmi < 25) { cat = 'Normal/Ideal'; cls = 'normal'; adv = 'Pertahankan pola hidup sehat!'; }
-  else if (bmi < 30) { cat = 'Kelebihan BB'; cls = 'warning'; adv = 'Kurangi kalori & tingkatkan aktivitas.'; }
-  else { cat = 'Obesitas'; cls = 'danger'; adv = 'Konsultasikan dengan dokter.'; }
-  addHistory('BMI: ' + br + ' (' + cat + ') — ' + w + 'kg / ' + (h*100) + 'cm');
-  document.getElementById('bmiResult').innerHTML =
-    '<div class="result ' + cls + '"><div style="font-size:2.5rem;font-weight:700;">' + br + '</div><div>BMI: ' + cat + '</div><div style="font-size:0.85rem;margin-top:8px;font-weight:400;">' + adv + '</div>' +
-    '<div class="bmi-scale" style="margin-top:12px;"><div style="flex:1;background:#42a5f5;"></div><div style="flex:2;background:#66bb6a;"></div><div style="flex:1.5;background:#ffa726;"></div><div style="flex:1;background:#ef5350;"></div></div>' +
-    '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-top:2px;"><span>Kurus</span><span>Normal</span><span>Berlebih</span><span>Obesitas</span></div></div>';
+// ===== DASHBOARD (BMI otomatis dari biodata + air minum) =====
+function computeBMI(w, hcm) {
+  const h = hcm / 100;
+  const bmi = w / (h * h);
+  let cat, cls, advice;
+  if (bmi < 18.5) { cat = 'Kurus'; cls = 'warning'; advice = 'Tingkatkan asupan gizi.'; }
+  else if (bmi < 25) { cat = 'Normal/Ideal'; cls = 'normal'; advice = 'Pertahankan pola hidup sehat!'; }
+  else if (bmi < 30) { cat = 'Kelebihan BB'; cls = 'warning'; advice = 'Kurangi kalori & tingkatkan aktivitas.'; }
+  else { cat = 'Obesitas'; cls = 'danger'; advice = 'Konsultasikan dengan dokter.'; }
+  return { bmi: bmi.toFixed(1), cat, cls, advice };
+}
+function renderDashboard() {
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  const firstName = b && b.name ? b.name.trim().split(' ')[0] : 'Sobat Sehat';
+  document.getElementById('dashGreeting').textContent = 'Halo, ' + firstName + '! 👋';
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const bmiEl = document.getElementById('dashBmi');
+  if (b && b.weight && b.height) {
+    const r = computeBMI(parseFloat(b.weight), parseFloat(b.height));
+    bmiEl.innerHTML =
+      '<div class="result ' + r.cls + '"><div style="font-size:2.5rem;font-weight:700;">' + r.bmi + '</div><div>BMI: ' + r.cat + '</div>' +
+      '<div style="font-size:0.85rem;margin-top:8px;font-weight:400;">' + r.advice + '</div>' +
+      '<div class="bmi-scale" style="margin-top:12px;"><div style="flex:1;background:#42a5f5;"></div><div style="flex:2;background:#66bb6a;"></div><div style="flex:1.5;background:#ffa726;"></div><div style="flex:1;background:#ef5350;"></div></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-top:2px;"><span>Kurus</span><span>Normal</span><span>Berlebih</span><span>Obesitas</span></div></div>';
+  } else {
+    bmiEl.innerHTML = '<p style="color:#999;text-align:center;padding:12px;">Lengkapi berat & tinggi badan di <strong>Biodata</strong> untuk melihat BMI.</p>';
+  }
+  renderWaterWidget();
+}
+
+// ===== AIR MINUM =====
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function getWaterTarget() {
+  try {
+    const b = JSON.parse(localStorage.getItem('biodata'));
+    const w = b && parseFloat(b.weight);
+    const ml = (w && w > 0 ? w : 60) * 30;
+    return Math.max(4, Math.round(ml / 250));
+  } catch (e) { return 8; }
+}
+function getWaterState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('waterIntake'));
+    if (s && s.date === todayStr()) return s;
+  } catch (e) {}
+  return { date: todayStr(), glasses: 0 };
+}
+function saveWaterState(s) { try { localStorage.setItem('waterIntake', JSON.stringify(s)); } catch (e) {} }
+function addWaterGlass() {
+  const target = getWaterTarget();
+  const s = getWaterState();
+  s.glasses = Math.min(target + 2, s.glasses + 1);
+  saveWaterState(s);
+  renderWaterWidget();
+}
+function toggleWaterCup(i) {
+  const s = getWaterState();
+  s.glasses = (i + 1 === s.glasses) ? i : i + 1;
+  saveWaterState(s);
+  renderWaterWidget();
+}
+function renderWaterWidget() {
+  const el = document.getElementById('waterWidget');
+  if (!el) return;
+  const target = getWaterTarget();
+  const s = getWaterState();
+  const pct = Math.min(1, s.glasses / target);
+  const circumference = 263.9;
+  const offset = circumference * (1 - pct);
+  const ml = s.glasses * 250;
+  let cups = '';
+  for (let i = 0; i < target; i++) {
+    const filled = i < s.glasses;
+    cups += '<button class="water-cup" onclick="toggleWaterCup(' + i + ')" style="opacity:' + (filled ? '1' : '0.3') + ';">' + (filled ? '🥤' : '🥛') + '</button>';
+  }
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;gap:16px;">' +
+      '<div style="position:relative;width:110px;height:110px;flex-shrink:0;">' +
+        '<svg viewBox="0 0 100 100" width="110" height="110">' +
+          '<circle cx="50" cy="50" r="42" stroke="#e3f2fd" stroke-width="10" fill="none"/>' +
+          '<circle cx="50" cy="50" r="42" stroke="#1565c0" stroke-width="10" fill="none" stroke-linecap="round" ' +
+            'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" transform="rotate(-90 50 50)"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+          '<div style="font-weight:700;color:#1565c0;font-size:1.1rem;">' + s.glasses + '/' + target + '</div>' +
+          '<div style="font-size:0.7rem;color:#888;">gelas</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:0.85rem;color:#666;margin-bottom:8px;">' + ml + ' ml hari ini</div>' +
+        '<button class="btn" style="padding:10px;" onclick="addWaterGlass()">➕ Tambah Gelas</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:14px;justify-content:center;">' + cups + '</div>';
 }
 
 // ===== JALAN =====
@@ -678,19 +814,128 @@ function pauseBreath() { clearInterval(breathTimer); breathTimer = null; breathR
 function stopBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); if (breathRounds > 0) addHistory('Napas ' + breathModes[breathMode].name + ': dihentikan (' + breathRounds + '/' + breathModes[breathMode].max + ' putaran)'); resetBreathUI(); }
 
 // ===== BIODATA =====
-function saveBiodata() {
-  const b = { name:document.getElementById('bioName').value.trim(), age:document.getElementById('bioAge').value, gender:document.getElementById('bioGender').value, weight:document.getElementById('bioWeight').value, height:document.getElementById('bioHeight').value, blood:document.getElementById('bioBlood').value, medical:document.getElementById('bioMedical').value.trim() };
-  localStorage.setItem('biodata', JSON.stringify(b));
-  document.getElementById('biodataSaved').innerHTML = '<div class="result normal">✅ Biodata berhasil disimpan!</div>';
-  addHistory('Biodata diperbarui');
+function computeAge(dobStr) {
+  if (!dobStr) return null;
+  const dob = new Date(dobStr + 'T00:00:00');
+  if (isNaN(dob.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+  return age >= 0 ? age : null;
 }
-function loadBiodata() {
-  try { const b = JSON.parse(localStorage.getItem('biodata')); if (!b) return;
-    document.getElementById('bioName').value = b.name||''; document.getElementById('bioAge').value = b.age||'';
-    document.getElementById('bioGender').value = b.gender||''; document.getElementById('bioWeight').value = b.weight||'';
-    document.getElementById('bioHeight').value = b.height||''; document.getElementById('bioBlood').value = b.blood||'';
-    document.getElementById('bioMedical').value = b.medical||'';
-  } catch(e) {}
+function updateAgePreview() {
+  const age = computeAge(document.getElementById('bioBirthDate').value);
+  document.getElementById('bioAgePreview').textContent = age !== null ? ('Usia: ' + age + ' tahun') : '';
+}
+function formatDateID(dateStr) {
+  if (!dateStr) return '-';
+  try { return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }); }
+  catch (e) { return dateStr; }
+}
+function isOnboardingComplete() {
+  try {
+    const b = JSON.parse(localStorage.getItem('biodata'));
+    return !!(b && b.name && b.birthDate && b.height && b.weight);
+  } catch (e) { return false; }
+}
+function fillBiodataForm() {
+  try {
+    const b = JSON.parse(localStorage.getItem('biodata'));
+    if (!b) return;
+    document.getElementById('bioName').value = b.name || '';
+    document.getElementById('bioBirthPlace').value = b.birthPlace || '';
+    document.getElementById('bioBirthDate').value = b.birthDate || '';
+    document.getElementById('bioGender').value = b.gender || '';
+    document.getElementById('bioWeight').value = b.weight || '';
+    document.getElementById('bioHeight').value = b.height || '';
+    document.getElementById('bioBlood').value = b.blood || '';
+    document.getElementById('bioAddress').value = b.address || '';
+    document.getElementById('bioMedical').value = b.medical || '';
+    updateAgePreview();
+  } catch (e) {}
+}
+function renderBiodataView() {
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  document.getElementById('biodataForm').style.display = 'none';
+  document.getElementById('biodataView').style.display = 'block';
+  const content = document.getElementById('biodataViewContent');
+  if (!b) { content.innerHTML = '<p style="color:#999;">Biodata belum diisi.</p>'; return; }
+  const age = computeAge(b.birthDate);
+  const genderLabel = b.gender === 'male' ? 'Laki-laki' : (b.gender === 'female' ? 'Perempuan' : '-');
+  content.innerHTML =
+    '<p><strong>Nama:</strong> ' + b.name + '</p>' +
+    '<p><strong>Tempat, Tanggal Lahir:</strong> ' + (b.birthPlace || '-') + ', ' + formatDateID(b.birthDate) + '</p>' +
+    '<p><strong>Usia:</strong> ' + (age !== null ? age + ' tahun' : '-') + '</p>' +
+    '<p><strong>Jenis Kelamin:</strong> ' + genderLabel + '</p>' +
+    '<p><strong>Tinggi / Berat:</strong> ' + (b.height||'-') + ' cm / ' + (b.weight||'-') + ' kg</p>' +
+    '<p><strong>Golongan Darah:</strong> ' + (b.blood || '-') + '</p>' +
+    '<p><strong>Alamat:</strong> ' + (b.address || '-') + '</p>' +
+    '<p><strong>Riwayat Penyakit/Alergi:</strong> ' + (b.medical || '-') + '</p>';
+}
+function editBiodata() {
+  fillBiodataForm();
+  document.getElementById('biodataSaved').innerHTML = '';
+  document.getElementById('biodataView').style.display = 'none';
+  document.getElementById('biodataForm').style.display = 'block';
+  document.getElementById('biodataCancelBtn').style.display = '';
+  document.getElementById('biodataFormTitle').textContent = 'Edit Biodata';
+}
+function cancelEditBiodata() {
+  document.getElementById('biodataSaved').innerHTML = '';
+  renderBiodataView();
+}
+function saveBiodata() {
+  const name = document.getElementById('bioName').value.trim();
+  const birthDate = document.getElementById('bioBirthDate').value;
+  const weight = document.getElementById('bioWeight').value;
+  const height = document.getElementById('bioHeight').value;
+  if (!name || !birthDate || !weight || !height) {
+    document.getElementById('biodataSaved').innerHTML = '<div class="result danger">⚠️ Nama, Tanggal Lahir, Berat, dan Tinggi wajib diisi.</div>';
+    return;
+  }
+  const wasOnboarding = document.querySelector('.nav').style.display === 'none';
+  const b = {
+    name: name,
+    birthPlace: document.getElementById('bioBirthPlace').value.trim(),
+    birthDate: birthDate,
+    gender: document.getElementById('bioGender').value,
+    weight: weight,
+    height: height,
+    blood: document.getElementById('bioBlood').value,
+    address: document.getElementById('bioAddress').value.trim(),
+    medical: document.getElementById('bioMedical').value.trim()
+  };
+  localStorage.setItem('biodata', JSON.stringify(b));
+  addHistory('Biodata diperbarui');
+  if (wasOnboarding) {
+    document.querySelector('.nav').style.display = '';
+    document.getElementById('biodataOnboardingIntro').style.display = 'none';
+    document.getElementById('biodataCancelBtn').style.display = '';
+    renderBiodataView();
+    switchTab('dashboard');
+  } else {
+    document.getElementById('biodataSaved').innerHTML = '';
+    renderBiodataView();
+  }
+}
+
+// ===== GERBANG ONBOARDING (biodata wajib diisi sebelum masuk dashboard) =====
+function initApp() {
+  if (!isOnboardingComplete()) {
+    document.querySelector('.nav').style.display = 'none';
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-biodata').classList.add('active');
+    document.getElementById('biodataOnboardingIntro').style.display = 'block';
+    document.getElementById('biodataView').style.display = 'none';
+    document.getElementById('biodataForm').style.display = 'block';
+    document.getElementById('biodataFormTitle').textContent = 'Lengkapi Biodata';
+    document.getElementById('biodataCancelBtn').style.display = 'none';
+    fillBiodataForm();
+  } else {
+    renderBiodataView();
+    switchTab('dashboard');
+  }
 }
 
 // ===== SUARA PANDUAN =====
@@ -717,7 +962,7 @@ function renderHistory() { const h = getHistory(); document.getElementById('hist
 function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.removeItem('healthHistory'); renderHistory(); } }
 
 // Init
-renderHistory(); resetWalkUI(); loadBiodata(); renderVoiceToggle(); renderGuide();
+renderHistory(); resetWalkUI(); renderVoiceToggle(); renderGuide(); initApp();
 
 // ===== PWA SERVICE WORKER (hanya di web; di APK aset sudah dibundel) =====
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !Shenx.isNative()) {
