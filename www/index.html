@@ -108,6 +108,7 @@
     <button onclick="switchTab(event, 'kalori')"><span class="icon">🔥</span> Kalori</button>
     <button onclick="switchTab(event, 'biodata')"><span class="icon">👤</span> Biodata</button>
     <button onclick="switchTab(event, 'setting')"><span class="icon">⚙️</span> Setting</button>
+    <button onclick="exitApp()" style="color:#c62828;"><span class="icon">🚪</span> Keluar</button>
   </div>
 
   <!-- TAB_KALORI -->
@@ -175,6 +176,8 @@
     <div class="pengaturan-menu" id="pengaturanMenu">
       <button class="menu-item" onclick="showSub('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
       <button class="menu-item" onclick="showSub('data')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
+      <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
+      <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
       <button class="menu-item" onclick="showSub('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
     </div>
 
@@ -204,7 +207,7 @@
       <div class="card" style="text-align:center;">
         <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
         <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
-        <p style="color:#666;">Versi <strong>1.0.0</strong></p>
+        <p style="color:#666;">Versi <strong id="aboutVersion">1.0.0</strong></p>
         <p style="color:#666;">Dibuat oleh <strong>Fenky</strong></p>
         <p style="color:#999;font-size:0.8rem;margin-top:16px;">© 2026 Shenx Health. All rights reserved.</p>
       </div>
@@ -372,6 +375,20 @@ function showSub(sub) {
   document.getElementById('sub-' + sub).style.display = 'block';
   if (sub === 'biodata') loadBiodata();
   if (sub === 'riwayat') renderHistory();
+  if (sub === 'about') renderAboutVersion();
+}
+
+async function renderAboutVersion() {
+  const el = document.getElementById('aboutVersion');
+  if (!el) return;
+  if (Shenx.isNative()) {
+    try {
+      const info = await window.Capacitor.Plugins.Shenx.getAppVersion();
+      el.textContent = info.versionName;
+      return;
+    } catch (e) {}
+  }
+  el.textContent = '1.0.0 (web)';
 }
 
 function exportData() {
@@ -718,20 +735,24 @@ window.addEventListener('beforeinstallprompt', e => {
 
 // ===== CEK UPDATE (khusus APK) =====
 const UPDATE_REPO = 'fenkyai2026/shenx-health';
-async function checkForUpdate() {
+async function checkForUpdate(silent) {
+  const msgEl = document.getElementById('updateCheckMsg');
+  const setMsg = function (t) { if (!silent && msgEl) msgEl.textContent = t; };
   try {
-    if (!Shenx.isNative()) return;
+    if (!Shenx.isNative()) { setMsg('Cek update hanya berlaku di aplikasi Android (APK), bukan di browser.'); return; }
+    setMsg('🔄 Memeriksa update...');
     const plugin = window.Capacitor.Plugins.Shenx;
     const info = await plugin.getAppVersion();
     const res = await fetch('https://api.github.com/repos/' + UPDATE_REPO + '/releases/latest');
-    if (!res.ok) return;
+    if (!res.ok) { setMsg('⚠️ Gagal memeriksa update, coba lagi nanti.'); return; }
     const rel = await res.json();
     const latestCode = parseInt(rel.tag_name, 10);
-    if (!latestCode || latestCode <= info.versionCode) return;
+    if (!latestCode || latestCode <= info.versionCode) { setMsg('✅ Sudah versi terbaru (v' + info.versionName + ').'); return; }
     const asset = (rel.assets || []).find(a => a.name.endsWith('.apk'));
-    if (!asset) return;
+    if (!asset) { setMsg('⚠️ Rilis terbaru belum punya file APK.'); return; }
+    setMsg('');
     showUpdateBar(rel.tag_name, asset.browser_download_url);
-  } catch (e) {}
+  } catch (e) { setMsg('⚠️ Gagal memeriksa update, coba lagi nanti.'); }
 }
 function showUpdateBar(version, url) {
   if (document.getElementById('updateBar')) return;
@@ -751,7 +772,17 @@ function showUpdateBar(version, url) {
     }
   };
 }
-if (Shenx.isNative()) checkForUpdate();
+if (Shenx.isNative()) checkForUpdate(true);
+
+// ===== KELUAR APLIKASI =====
+function exitApp() {
+  if (!confirm('Keluar dari aplikasi?')) return;
+  if (Shenx.isNative() && window.Capacitor.Plugins.Shenx.exitApp) {
+    window.Capacitor.Plugins.Shenx.exitApp();
+  } else {
+    window.close();
+  }
+}
 </script>
 
 <script>

@@ -52,6 +52,16 @@ public class ShenxPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void exitApp(final PluginCall call) {
+        call.resolve();
+        final Activity activity = getActivity();
+        if (activity != null) {
+            activity.finishAffinity();
+        }
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    @PluginMethod
     public void getAppVersion(final PluginCall call) {
         try {
             PackageInfo info = getContext().getPackageManager()

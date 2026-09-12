@@ -10,3 +10,4 @@ android/*.keystore
 *.log
 .DS_Store
 out/
+.claude/
