@@ -104,16 +104,6 @@
     <p>Pantau kesehatanmu setiap hari</p>
   </div>
 
-  <div class="nav">
-    <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="icon">🏠</span> Dashboard</button>
-    <button data-tab="panduan" onclick="switchTab('panduan')"><span class="icon">📖</span> Panduan</button>
-    <button data-tab="exercise" onclick="switchTab('exercise')"><span class="icon">🏋️</span> Exercise</button>
-    <button data-tab="kalori" onclick="switchTab('kalori')"><span class="icon">🔥</span> Kalori</button>
-    <button data-tab="biodata" onclick="switchTab('biodata')"><span class="icon">👤</span> Biodata</button>
-    <button data-tab="setting" onclick="switchTab('setting')"><span class="icon">⚙️</span> Setting</button>
-    <button onclick="exitApp()" style="color:#c62828;"><span class="icon">🚪</span> Keluar</button>
-  </div>
-
   <!-- TAB_DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
     <div class="card" style="text-align:center;">
@@ -128,39 +118,54 @@
       <h2>💧 Kebutuhan Minum Air</h2>
       <div id="waterWidget"></div>
     </div>
+    <div class="card">
+      <h2>🔥 Hitung Kalori Harian</h2>
+      <div class="form-group"><label>Nama Makanan</label><input type="text" id="foodName" placeholder="Contoh: Nasi goreng"></div>
+      <div class="row"><div class="form-group"><label>Kalori (kkal)</label><input type="number" id="foodCal" placeholder="kkal"></div><div class="form-group"><label>Porsi (gram)</label><input type="number" id="foodPortion" placeholder="gram" value="100"></div></div>
+      <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
+      <div style="margin-top:16px;"><h2 style="font-size:1rem;">📝 Daftar Makanan</h2><div class="food-list" id="foodList"><p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p></div><div class="summary"><span>Total Kalori:</span><span id="totalCal" style="font-weight:700;">0 kkal</span></div></div>
+    </div>
+    <div class="card" style="padding:12px;">
+      <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
+      <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
+        <div style="font-size:3rem;">🚶</div>
+        <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
+        <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
+      </div>
+      <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
+        <div style="font-size:3rem;">🫁</div>
+        <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
+        <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>⚙️ Pengaturan</h2>
+      <div class="pengaturan-menu">
+        <button class="menu-item" onclick="switchTab('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
+        <button class="menu-item" onclick="switchTab('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
+        <button class="menu-item" onclick="switchTab('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
+        <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
+        <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
+        <button class="menu-item" onclick="switchTab('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
+      </div>
+    </div>
+    <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
-
-  <!-- TAB_KALORI -->
-  <div id="tab-kalori" class="tab-content"><div class="card"><h2>🔥 Hitung Kalori Harian</h2>
-  <div class="form-group"><label>Nama Makanan</label><input type="text" id="foodName" placeholder="Contoh: Nasi goreng"></div>
-  <div class="row"><div class="form-group"><label>Kalori (kkal)</label><input type="number" id="foodCal" placeholder="kkal"></div><div class="form-group"><label>Porsi (gram)</label><input type="number" id="foodPortion" placeholder="gram" value="100"></div></div>
-  <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
-  <div style="margin-top:16px;"><h2 style="font-size:1rem;">📝 Daftar Makanan</h2><div class="food-list" id="foodList"><p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p></div><div class="summary"><span>Total Kalori:</span><span id="totalCal" style="font-weight:700;">0 kkal</span></div></div></div></div>
-
-  <!-- TAB_EXERCISE -->
-  <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
-  <h2 style="margin-bottom:12px;">🏋️ Pilih Latihan</h2>
-  <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
-    <div style="font-size:3rem;">🚶</div>
-    <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
-    <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
-  </div>
-  <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
-    <div style="font-size:3rem;">🫁</div>
-    <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
-    <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
-  </div></div></div>
 
   <!-- TAB_JALAN -->
   <div id="tab-jalan" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('exercise')">← Exercise</button>
+  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
   <h2>🚶 Latihan Jalan</h2>
-  <div class="mode-select" id="walkModeSelect">
-    <button class="active" onclick="selectWalkMode('basic', this)">🔄 3:3 Dasar<div class="bm">3 mnt santai | 3 mnt cepat</div></button>
-    <button onclick="selectWalkMode('interval1', this)">⚡ Interval 1:2<div class="bm">1 mnt santai | 2 mnt cepat</div></button>
-    <button onclick="selectWalkMode('interval2', this)">🔥 Interval 2:1<div class="bm">2 mnt santai | 1 mnt cepat</div></button>
-    <button onclick="selectWalkMode('march', this)">🦵 Jalan di Tempat<div class="bm">Angkat lutut | indoor</div></button>
+  <div class="form-group">
+    <label>Pilih Mode</label>
+    <select id="walkModeSelect" onchange="selectWalkMode(this.value)">
+      <option value="basic">🔄 3:3 Dasar — 3 mnt santai | 3 mnt cepat</option>
+      <option value="interval1">⚡ Interval 1:2 — 1 mnt santai | 2 mnt cepat</option>
+      <option value="interval2">🔥 Interval 2:1 — 2 mnt santai | 1 mnt cepat</option>
+      <option value="march">🦵 Jalan di Tempat — Angkat lutut | indoor</option>
+    </select>
   </div>
+  <div class="guide-section" id="walkGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="phase-indicator phase-rest" id="phaseText">Siap untuk mulai?</div>
   <div class="timer-display" id="timerDisplay">00:00</div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -171,19 +176,23 @@
 
   <!-- TAB_NAPAS -->
   <div id="tab-napas" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('exercise')">← Exercise</button>
+  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
   <h2>🫁 Latihan Pernapasan</h2>
-  <div class="mode-select" id="breathModeSelect">
-    <button class="active" onclick="selectBreathMode('box', this)">🧊 Box<div class="bm">4-4-4-4</div></button>
-    <button onclick="selectBreathMode('478', this)">😴 4-7-8<div class="bm">4-7-8</div></button>
-    <button onclick="selectBreathMode('pursed', this)">💨 Pursed Lip<div class="bm">2-4</div></button>
-    <button onclick="selectBreathMode('equal', this)">⚖️ Equal<div class="bm">5-5</div></button>
-    <button onclick="selectBreathMode('resonant', this)">🌊 Resonant<div class="bm">5,5-5,5</div></button>
-    <button onclick="selectBreathMode('wimhof', this)">❄️ Wim Hof<div class="bm">30x + tahan</div></button>
-    <button onclick="selectBreathMode('nostril', this)">👃 Alt. Nostril<div class="bm">4-4-8</div></button>
-    <button onclick="selectBreathMode('diaphragm', this)">🫃 Diaphragm<div class="bm">4-6</div></button>
-    <button onclick="selectBreathMode('k-fire', this)">🔥 Breath of Fire<div class="bm">30x buang</div></button>
+  <div class="form-group">
+    <label>Pilih Mode</label>
+    <select id="breathModeSelect" onchange="selectBreathMode(this.value)">
+      <option value="box">🧊 Box — 4-4-4-4</option>
+      <option value="478">😴 4-7-8 — 4-7-8</option>
+      <option value="pursed">💨 Pursed Lip — 2-4</option>
+      <option value="equal">⚖️ Equal — 5-5</option>
+      <option value="resonant">🌊 Resonant — 5,5-5,5</option>
+      <option value="wimhof">❄️ Wim Hof — 30x + tahan</option>
+      <option value="nostril">👃 Alt. Nostril — 4-4-8</option>
+      <option value="diaphragm">🫃 Diaphragm — 4-6</option>
+      <option value="k-fire">🔥 Breath of Fire — 30x buang</option>
+    </select>
   </div>
+  <div class="guide-section" id="breathGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="breath-step-text" id="breathStepText">Siap untuk mulai</div>
   <div class="breath-circle-wrap"><div class="breath-circle" id="breathCircle">Mulai</div></div>
   <div class="timer-display" id="breathTimer" style="font-size:2.5rem;">00:00</div>
@@ -194,6 +203,7 @@
 
   <!-- TAB_BIODATA -->
   <div id="tab-biodata" class="tab-content"><div class="card">
+  <button class="back-btn" id="biodataBackBtn" onclick="switchTab('dashboard')">← Dashboard</button>
   <div id="biodataOnboardingIntro" style="display:none;margin-bottom:16px;padding:12px;background:#e8f5e9;border-radius:12px;">
     <strong style="color:#1b5e20;">👋 Selamat datang di SHENX HEALTH!</strong>
     <p style="color:#555;font-size:0.85rem;margin-top:4px;">Lengkapi biodata di bawah ini dulu untuk memulai. Nama, tanggal lahir, tinggi, dan berat badan wajib diisi.</p>
@@ -224,53 +234,35 @@
   </div>
   </div></div>
 
-  <!-- TAB_SETTING -->
-  <div id="tab-setting" class="tab-content">
-    <div class="pengaturan-menu" id="pengaturanMenu">
-      <button class="menu-item" onclick="showSub('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
-      <button class="menu-item" onclick="showSub('data')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
-      <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
-      <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
-      <button class="menu-item" onclick="showSub('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
-    </div>
+  <!-- TAB_RIWAYAT -->
+  <div id="tab-riwayat" class="tab-content"><div class="card">
+    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <h2>📋 Riwayat Aktivitas</h2>
+    <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
+    <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
+  </div></div>
 
-    <!-- SUB: RIWAYAT -->
-    <div id="sub-riwayat" class="sub-content" style="display:none;">
-      <button class="back-btn" onclick="showMenu()">← Kembali</button>
-      <div class="card"><h2>📋 Riwayat Aktivitas</h2>
-      <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
-      <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button></div>
-    </div>
+  <!-- TAB_DATAMGMT -->
+  <div id="tab-datamgmt" class="tab-content"><div class="card">
+    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <h2>💾 Data & Cadangan</h2>
+    <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
+    <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
+    <button class="btn" onclick="importData()" style="margin-bottom:8px;background:#1565c0;">📥 Impor Data (JSON)</button>
+    <button class="btn" onclick="resetAllData()" style="background:#c62828;">🗑️ Reset Semua Data</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
+    <div id="dataMsg" style="margin-top:12px;"></div>
+  </div></div>
 
-    <!-- SUB: EKSPOR / IMPOR / RESET -->
-    <div id="sub-data" class="sub-content" style="display:none;">
-      <button class="back-btn" onclick="showMenu()">← Kembali</button>
-      <div class="card"><h2>💾 Data & Cadangan</h2>
-      <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
-      <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
-      <button class="btn" onclick="importData()" style="margin-bottom:8px;background:#1565c0;">📥 Impor Data (JSON)</button>
-      <button class="btn" onclick="resetAllData()" style="background:#c62828;">🗑️ Reset Semua Data</button>
-      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
-      <div id="dataMsg" style="margin-top:12px;"></div></div>
-    </div>
-
-    <!-- SUB: ABOUT -->
-    <div id="sub-about" class="sub-content" style="display:none;">
-      <button class="back-btn" onclick="showMenu()">← Kembali</button>
-      <div class="card" style="text-align:center;">
-        <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
-        <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
-        <p style="color:#666;">Versi <strong id="aboutVersion">1.0.0</strong></p>
-        <p style="color:#666;">Dibuat oleh <strong>Fenky</strong></p>
-        <p style="color:#999;font-size:0.8rem;margin-top:16px;">© 2026 Shenx Health. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB_PANDUAN -->
-  <div id="tab-panduan" class="tab-content"><div class="card"><h2>📖 Panduan Latihan</h2>
-  <div class="guide-nav"><button class="active" onclick="showGuide('jalan', this)">🚶 Jalan</button><button onclick="showGuide('napas', this)">🫁 Pernapasan</button></div>
-  <div id="guideContent"></div></div></div>
+  <!-- TAB_ABOUT -->
+  <div id="tab-about" class="tab-content"><div class="card" style="text-align:center;">
+    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
+    <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
+    <p style="color:#666;">Versi <strong id="aboutVersion">1.0.0</strong></p>
+    <p style="color:#666;">Dibuat oleh <strong>Fenky</strong></p>
+    <p style="color:#999;font-size:0.8rem;margin-top:16px;">© 2026 Shenx Health. All rights reserved.</p>
+  </div></div>
 </div>
 <script>
 /* ===== SHENX NATIVE BRIDGE =====
@@ -341,95 +333,77 @@ window.Shenx = (function () {
 // ===== DATA PANDUAN =====
 const guides = {
   jalan: [
-    { title:'🔄 3:3 Dasar', tag:'walk', text:'3 menit jalan santai diikuti 3 menit jalan cepat. Total 6 menit per putaran. Estimasi ~720 langkah per putaran.',
+    { key:'basic', title:'🔄 3:3 Dasar', tag:'walk', text:'3 menit jalan santai diikuti 3 menit jalan cepat. Total 6 menit per putaran. Estimasi ~720 langkah per putaran.',
       fungsi:'Pergantian santai-cepat melatih jantung naik-turun detaknya secara bertahap tanpa kelelahan berlebih.',
       tujuan:'Membangun kebiasaan olahraga bagi pemula, menjaga stamina harian, dan membakar kalori secara konsisten.' },
-    { title:'⚡ Interval 1:2', tag:'walk', text:'1 menit santai lalu 2 menit cepat. Total 3 menit per putaran. Fase cepat lebih dominan.',
+    { key:'interval1', title:'⚡ Interval 1:2', tag:'walk', text:'1 menit santai lalu 2 menit cepat. Total 3 menit per putaran. Fase cepat lebih dominan.',
       fungsi:'Fase cepat yang lebih panjang memacu detak jantung ke zona latihan lebih tinggi dalam waktu singkat.',
       tujuan:'Membakar kalori maksimal dan meningkatkan kapasitas kardio bagi yang sudah terbiasa jalan cepat.' },
-    { title:'🔥 Interval 2:1', tag:'walk', text:'2 menit santai lalu 1 menit cepat. Total 3 menit per putaran.',
+    { key:'interval2', title:'🔥 Interval 2:1', tag:'walk', text:'2 menit santai lalu 1 menit cepat. Total 3 menit per putaran.',
       fungsi:'Fase santai yang lebih panjang berfungsi sebagai pemanasan dan pemulihan sebelum beban meningkat.',
       tujuan:'Cocok untuk pemanasan atau bagi pemula yang ingin menaikkan intensitas secara bertahap.' },
-    { title:'🦵 Jalan di Tempat', tag:'walk', text:'1,5 menit angkat lutut pelan lalu 1,5 menit angkat lutut cepat. Bisa dilakukan di dalam ruangan.',
+    { key:'march', title:'🦵 Jalan di Tempat', tag:'walk', text:'1,5 menit angkat lutut pelan lalu 1,5 menit angkat lutut cepat. Bisa dilakukan di dalam ruangan.',
       fungsi:'Gerakan angkat lutut mengaktifkan otot paha, betis, dan inti tubuh tanpa perlu ruang luas.',
       tujuan:'Alternatif olahraga kardio saat cuaca buruk atau ruang terbatas, tetap efektif membakar kalori dan melatih otot kaki.' }
   ],
   napas: [
-    { title:'🧊 Box Breathing (4-4-4-4)', tag:'breath', text:'Tarik 4 detik, tahan 4, buang 4, tahan 4. Dipakai Navy SEAL.', maxInfo:'6 putaran/sesi (~2 menit)',
+    { key:'box', title:'🧊 Box Breathing (4-4-4-4)', tag:'breath', text:'Tarik 4 detik, tahan 4, buang 4, tahan 4. Dipakai Navy SEAL.', maxInfo:'6 putaran/sesi (~2 menit)',
       fungsi:'Jeda tahan yang sama panjang di tiap fase menstabilkan ritme napas dan menenangkan sistem saraf otonom.',
       tujuan:'Meningkatkan fokus, meredakan stres akut, dan mengontrol emosi sebelum situasi menegangkan.' },
-    { title:'😴 4-7-8 Breathing', tag:'breath', text:'Tarik 4 detik, tahan 7, buang 8 lewat mulut. Oleh Dr. Andrew Weil.', maxInfo:'8 putaran/sesi',
+    { key:'478', title:'😴 4-7-8 Breathing', tag:'breath', text:'Tarik 4 detik, tahan 7, buang 8 lewat mulut. Oleh Dr. Andrew Weil.', maxInfo:'8 putaran/sesi',
       fungsi:'Fase buang napas yang jauh lebih panjang dari tarikan mengaktifkan respons rileksasi (parasimpatis).',
       tujuan:'Membantu tidur lebih cepat, meredakan kecemasan, dan menurunkan detak jantung.' },
-    { title:'💨 Pursed Lip Breathing', tag:'breath', text:'Tarik 2 detik lewat hidung, buang 4 detik lewat mulut dengan bibir mengerucut.', maxInfo:'10 putaran/sesi',
+    { key:'pursed', title:'💨 Pursed Lip Breathing', tag:'breath', text:'Tarik 2 detik lewat hidung, buang 4 detik lewat mulut dengan bibir mengerucut.', maxInfo:'10 putaran/sesi',
       fungsi:'Buang napas terkontrol lewat bibir mengerucut menjaga saluran napas tetap terbuka lebih lama.',
       tujuan:'Membantu penderita asma/PPOK bernapas lebih efisien, dan mempercepat pemulihan napas usai aktivitas fisik.' },
-    { title:'⚖️ Equal Breathing', tag:'breath', text:'Tarik dan buang 5 detik sama panjang.', maxInfo:'15 putaran/sesi',
+    { key:'equal', title:'⚖️ Equal Breathing', tag:'breath', text:'Tarik dan buang 5 detik sama panjang.', maxInfo:'15 putaran/sesi',
       fungsi:'Tarik dan buang yang sama panjang menjaga aliran oksigen dan CO2 tetap seimbang.',
       tujuan:'Latihan dasar meditasi harian yang sederhana untuk menenangkan pikiran.' },
-    { title:'🌊 Resonant / Coherent Breathing', tag:'breath', text:'Tarik 5,5 detik, buang 5,5 detik — ~5,5 napas/menit.', maxInfo:'20 putaran/sesi (~3,5 menit)',
+    { key:'resonant', title:'🌊 Resonant / Coherent Breathing', tag:'breath', text:'Tarik 5,5 detik, buang 5,5 detik — ~5,5 napas/menit.', maxInfo:'20 putaran/sesi (~3,5 menit)',
       fungsi:'Napas pada frekuensi resonansi alami tubuh menyelaraskan variabilitas detak jantung (HRV).',
       tujuan:'Menurunkan tekanan darah, meningkatkan HRV, dan menyeimbangkan sistem saraf otonom dalam jangka panjang.' },
-    { title:'❄️ Wim Hof Breathing', tag:'breath', text:'30 kali napas cepat-dalam, lalu buang napas dan tahan selama mungkin, tarik dalam dan tahan 15 detik.', maxInfo:'3 putaran/sesi (protokol standar)',
+    { key:'wimhof', title:'❄️ Wim Hof Breathing', tag:'breath', text:'30 kali napas cepat-dalam, lalu buang napas dan tahan selama mungkin, tarik dalam dan tahan 15 detik.', maxInfo:'3 putaran/sesi (protokol standar)',
       fungsi:'Hiperventilasi terkontrol diikuti tahan napas memicu perubahan kadar oksigen dan CO2 sementara di tubuh.',
       tujuan:'Meningkatkan energi dan ketahanan terhadap dingin/stres. JANGAN dilakukan di air atau saat mengemudi — hentikan jika pusing.' },
-    { title:'👃 Alternate Nostril (Nadi Shodhana)', tag:'breath', text:'Tutup lubang hidung bergantian: tarik kiri 4 detik, tahan 4, buang kanan 8, lalu sebaliknya.', maxInfo:'8 putaran/sesi',
+    { key:'nostril', title:'👃 Alternate Nostril (Nadi Shodhana)', tag:'breath', text:'Tutup lubang hidung bergantian: tarik kiri 4 detik, tahan 4, buang kanan 8, lalu sebaliknya.', maxInfo:'8 putaran/sesi',
       fungsi:'Napas bergantian lewat lubang hidung kiri-kanan menyeimbangkan aktivitas dua sisi otak (tradisi yoga).',
       tujuan:'Menenangkan pikiran dan meningkatkan konsentrasi sebelum meditasi atau kerja yang butuh fokus.' },
-    { title:'🫃 Diaphragmatic / Belly Breathing', tag:'breath', text:'Tarik 4 detik lewat hidung (perut mengembang), buang 6 detik lewat mulut (perut mengempis).', maxInfo:'12 putaran/sesi',
+    { key:'diaphragm', title:'🫃 Diaphragmatic / Belly Breathing', tag:'breath', text:'Tarik 4 detik lewat hidung (perut mengembang), buang 6 detik lewat mulut (perut mengempis).', maxInfo:'12 putaran/sesi',
       fungsi:'Melatih otot diafragma bekerja penuh, bukan sekadar napas dada yang dangkal.',
       tujuan:'Meningkatkan kapasitas paru dan mengurangi ketegangan di leher/bahu akibat napas dangkal.' },
-    { title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut.', maxInfo:'3 putaran/sesi',
+    { key:'k-fire', title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut.', maxInfo:'3 putaran/sesi',
       fungsi:'Kontraksi perut yang cepat memompa napas pendek-kuat dan menstimulasi organ-organ perut.',
       tujuan:'Meningkatkan energi dan fokus secara cepat. Hentikan jika pusing — tidak untuk ibu hamil/penderita epilepsi.' }
   ]
 };
 
-let currentGuide = 'jalan';
-
-function showGuide(type, btn) {
-  currentGuide = type;
-  document.querySelectorAll('.guide-nav button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderGuide();
+function renderWalkGuide() {
+  const g = guides.jalan.find(x => x.key === walkMode);
+  const el = document.getElementById('walkGuideInfo');
+  if (!el) return;
+  el.innerHTML = !g ? '' : '<p style="font-size:0.85rem;color:#555;"><strong>Fungsi:</strong> ' + g.fungsi + '</p><p style="font-size:0.85rem;color:#555;margin-top:6px;"><strong>Tujuan:</strong> ' + g.tujuan + '</p>';
 }
-
-function renderGuide() {
-  document.getElementById('guideContent').innerHTML = guides[currentGuide].map(g =>
-    '<div class="guide-section"><h3>' + g.title + '<span class="tag tag-' + g.tag + '">' + (g.tag==='walk'?'Jalan':'Napas') + '</span></h3>' +
-    '<p>' + g.text + (g.maxInfo ? ' <strong>Maks: ' + g.maxInfo + '.</strong>' : '') + '</p>' +
-    '<p><strong>Fungsi:</strong> ' + g.fungsi + '</p>' +
-    '<p><strong>Tujuan:</strong> ' + g.tujuan + '</p>' +
-    '</div>'
-  ).join('');
+function renderBreathGuide() {
+  const g = guides.napas.find(x => x.key === breathMode);
+  const el = document.getElementById('breathGuideInfo');
+  if (!el) return;
+  el.innerHTML = !g ? '' : '<p style="font-size:0.85rem;color:#555;"><strong>Fungsi:</strong> ' + g.fungsi + '</p><p style="font-size:0.85rem;color:#555;margin-top:6px;"><strong>Tujuan:</strong> ' + g.tujuan + '</p>';
 }
 
 // TAB NAVIGATION
 function switchTab(tab) {
-  const highlightTab = (tab === 'jalan' || tab === 'napas') ? 'exercise' : tab;
-  document.querySelectorAll('.nav button[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === highlightTab));
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   const el = document.getElementById('tab-' + tab);
   if (el) el.classList.add('active');
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
-  if (tab === 'panduan') renderGuide();
-  if (tab === 'setting') showMenu();
   if (tab === 'dashboard') renderDashboard();
-}
-
-// ===== PENGATURAN =====
-function showMenu() {
-  document.getElementById('pengaturanMenu').style.display = 'flex';
-  document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
-}
-
-function showSub(sub) {
-  document.getElementById('pengaturanMenu').style.display = 'none';
-  document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
-  document.getElementById('sub-' + sub).style.display = 'block';
-  if (sub === 'riwayat') renderHistory();
-  if (sub === 'about') renderAboutVersion();
+  if (tab === 'riwayat') renderHistory();
+  if (tab === 'about') renderAboutVersion();
+  if (tab === 'biodata' && !onboardingActive) renderBiodataView();
+  if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
+  if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
+  window.scrollTo(0, 0);
 }
 
 async function renderAboutVersion() {
@@ -635,10 +609,11 @@ let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, w
 // Suara
 function speak(text) { Shenx.speak(text); }
 
-function selectWalkMode(m, btn) {
-  if (isWalking) return; walkMode = m;
-  document.querySelectorAll('#walkModeSelect button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active'); resetWalkUI();
+function selectWalkMode(m) {
+  if (isWalking) { document.getElementById('walkModeSelect').value = walkMode; return; }
+  walkMode = m;
+  resetWalkUI();
+  renderWalkGuide();
 }
 function resetWalkUI() {
   const m = walkModes[walkMode]; walkSec = m.slow + m.fast; walkTotal = walkSec; isWalking = false;
@@ -747,12 +722,12 @@ const breathModes = {
 };
 let breathMode='box', breathTimer=null, breathRunning=false, breathPhaseIdx=0, breathPhaseSec=0, breathRounds=0;
 
-function selectBreathMode(mode, btn) {
-  if (breathRunning) return; breathMode = mode;
-  document.querySelectorAll('#breathModeSelect button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function selectBreathMode(mode) {
+  if (breathRunning) { document.getElementById('breathModeSelect').value = breathMode; return; }
+  breathMode = mode;
   document.getElementById('breathInfo').textContent = breathModes[mode].name + ' — ' + breathModes[mode].pattern.map(p => p.sec).join('-') + ' detik | Maks ' + breathModes[mode].max + ' putaran/sesi';
   resetBreathUI();
+  renderBreathGuide();
 }
 function resetBreathUI() {
   const c = document.getElementById('breathCircle');
@@ -894,7 +869,7 @@ function saveBiodata() {
     document.getElementById('biodataSaved').innerHTML = '<div class="result danger">⚠️ Nama, Tanggal Lahir, Berat, dan Tinggi wajib diisi.</div>';
     return;
   }
-  const wasOnboarding = document.querySelector('.nav').style.display === 'none';
+  const wasOnboarding = onboardingActive;
   const b = {
     name: name,
     birthPlace: document.getElementById('bioBirthPlace').value.trim(),
@@ -909,9 +884,10 @@ function saveBiodata() {
   localStorage.setItem('biodata', JSON.stringify(b));
   addHistory('Biodata diperbarui');
   if (wasOnboarding) {
-    document.querySelector('.nav').style.display = '';
+    onboardingActive = false;
     document.getElementById('biodataOnboardingIntro').style.display = 'none';
     document.getElementById('biodataCancelBtn').style.display = '';
+    document.getElementById('biodataBackBtn').style.display = '';
     renderBiodataView();
     switchTab('dashboard');
   } else {
@@ -921,11 +897,13 @@ function saveBiodata() {
 }
 
 // ===== GERBANG ONBOARDING (biodata wajib diisi sebelum masuk dashboard) =====
+let onboardingActive = false;
 function initApp() {
   if (!isOnboardingComplete()) {
-    document.querySelector('.nav').style.display = 'none';
+    onboardingActive = true;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-biodata').classList.add('active');
+    document.getElementById('biodataBackBtn').style.display = 'none';
     document.getElementById('biodataOnboardingIntro').style.display = 'block';
     document.getElementById('biodataView').style.display = 'none';
     document.getElementById('biodataForm').style.display = 'block';
@@ -933,6 +911,7 @@ function initApp() {
     document.getElementById('biodataCancelBtn').style.display = 'none';
     fillBiodataForm();
   } else {
+    onboardingActive = false;
     renderBiodataView();
     switchTab('dashboard');
   }
@@ -962,7 +941,7 @@ function renderHistory() { const h = getHistory(); document.getElementById('hist
 function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.removeItem('healthHistory'); renderHistory(); } }
 
 // Init
-renderHistory(); resetWalkUI(); renderVoiceToggle(); renderGuide(); initApp();
+renderHistory(); resetWalkUI(); renderVoiceToggle(); initApp();
 
 // ===== PWA SERVICE WORKER (hanya di web; di APK aset sudah dibundel) =====
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !Shenx.isNative()) {
