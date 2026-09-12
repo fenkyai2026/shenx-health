@@ -20,7 +20,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Keystore debug TETAP, dipakai di semua build CI supaya tanda tangannya sama
+    // dan Android mau menimpa (update) app lama, bukan menolaknya diam-diam.
+    def debugKeystore = file("${projectDir}/debug-ci.keystore")
+
     signingConfigs {
+        debug {
+            if (debugKeystore.exists()) {
+                storeFile debugKeystore
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+            }
+        }
         release {
             if (shenxKeystore.exists()) {
                 storeFile shenxKeystore
@@ -32,6 +44,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (debugKeystore.exists()) {
+                signingConfig signingConfigs.debug
+            }
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
