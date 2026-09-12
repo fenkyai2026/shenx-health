@@ -1,0 +1,15 @@
+{
+  "appId": "id.shenx.health",
+  "appName": "SHENX HEALTH",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#e8f5e9"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "backgroundColor": "#2e7d32"
+    }
+  }
+}

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SHENX HEALTH</title>
+<meta name="description" content="Pantau kesehatanmu setiap hari — hitung kalori, BMI, latihan jalan & pernapasan">
+<meta name="theme-color" content="#2e7d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SHENX HEALTH">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%); min-height: 100vh; padding: 16px; display: flex; justify-content: center; }
+  .app { width: 100%; max-width: 420px; }
+  .header { text-align: center; padding: 24px 0 16px; }
+  .header h1 { font-size: 1.6rem; color: #1b5e20; }
+  .header p { color: #388e3c; font-size: 0.9rem; margin-top: 4px; }
+  .nav { display: flex; background: white; border-radius: 16px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow-x: auto; }
+  .nav button { flex-shrink: 0; padding: 12px 10px; border: none; background: white; cursor: pointer; font-size: 0.75rem; font-weight: 600; color: #666; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .nav button.active { background: #2e7d32; color: white; }
+  .nav button .icon { font-size: 1.2rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 1.1rem; color: #1b5e20; margin-bottom: 16px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px; font-weight: 500; }
+  .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1rem; transition: border 0.3s; outline: none; }
+  .form-group input:focus, .form-group select:focus { border-color: #2e7d32; }
+  .row { display: flex; gap: 10px; }
+  .row .form-group { flex: 1; }
+  .btn { width: 100%; padding: 14px; background: #2e7d32; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+  .btn:hover { background: #1b5e20; }
+  .btn:active { transform: scale(0.98); }
+  .result { margin-top: 16px; padding: 16px; border-radius: 12px; text-align: center; font-weight: 600; font-size: 1.1rem; }
+  .result.normal { background: #e8f5e9; color: #2e7d32; }
+  .result.warning { background: #fff3e0; color: #e65100; }
+  .result.danger { background: #ffebee; color: #c62828; }
+  .result.info { background: #e3f2fd; color: #1565c0; }
+  .timer-display { font-size: 3.5rem; text-align: center; font-weight: 700; color: #1b5e20; padding: 24px 0; font-variant-numeric: tabular-nums; letter-spacing: 2px; }
+  .phase-indicator { text-align: center; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 1rem; margin-bottom: 16px; }
+  .phase-walk { background: #e8f5e9; color: #2e7d32; }
+  .phase-fast { background: #fff3e0; color: #e65100; }
+  .phase-rest { background: #f3e5f5; color: #6a1b9a; }
+  .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .progress-fill { height: 100%; background: #2e7d32; border-radius: 8px; transition: width 1s linear; }
+  .food-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
+  .food-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f5f5f5; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+  .food-item .remove { color: #c62828; cursor: pointer; font-weight: bold; padding: 4px 8px; }
+  .summary { display: flex; justify-content: space-between; font-size: 0.9rem; color: #555; margin-top: 8px; }
+  .bmi-scale { display: flex; margin-top: 12px; height: 8px; border-radius: 8px; overflow: hidden; }
+  .bmi-scale div { height: 100%; }
+  .exercise-info { font-size: 0.85rem; color: #666; text-align: center; margin-top: 12px; }
+  .history { max-height: 180px; overflow-y: auto; }
+  .history-item { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; color: #555; }
+  .breath-circle-wrap { display: flex; justify-content: center; align-items: center; padding: 20px 0; }
+  .breath-circle { width: 180px; height: 180px; border-radius: 50%; background: #2e7d32; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; font-weight: 600; text-align: center; transition: all 0.1s ease-in-out; box-shadow: 0 0 30px rgba(46,125,50,0.3); }
+  .breath-circle.inhale { transform: scale(1.5); background: #43a047; }
+  .breath-circle.exhale { transform: scale(1); background: #2e7d32; }
+  .breath-circle.hold { transform: scale(1.5); background: #ffa726; }
+  .breath-circle.pause { transform: scale(1); background: #5c6bc0; }
+  .mode-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .mode-select button { padding: 12px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #555; transition: all 0.2s; text-align: left; }
+  .mode-select button.active { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
+  .mode-select button .bm { font-size: 0.7rem; color: #999; display: block; font-weight: 400; }
+  .mode-select button.active .bm { color: #2e7d32; }
+  .breath-step-text { text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 8px; }
+  .guide-section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 16px; }
+  .guide-section:last-child { border-bottom: none; margin-bottom: 0; }
+  .guide-section h3 { font-size: 1rem; color: #1b5e20; margin-bottom: 8px; }
+  .guide-section p { font-size: 0.85rem; color: #555; line-height: 1.6; }
+  .tag { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
+  .tag-walk { background: #e8f5e9; color: #2e7d32; }
+  .tag-breath { background: #e3f2fd; color: #1565c0; }
+  .guide-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+  .guide-nav button { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #555; transition: all 0.2s; }
+  .guide-nav button.active { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
+  .pengaturan-menu { display: flex; flex-direction: column; gap: 4px; }
+  .menu-item { display: flex; align-items: center; padding: 16px; background: white; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; text-align: left; width: 100%; transition: background 0.2s; color: #333; }
+  .menu-item:hover { background: #f5f5f5; }
+  .menu-item .icon { font-size: 1.3rem; margin-right: 12px; width: 32px; text-align: center; }
+  .menu-item .arrow { margin-left: auto; color: #ccc; font-size: 1.3rem; }
+  .sub-content { animation: fadeIn 0.2s ease; }
+  .back-btn { background: none; border: none; color: #2e7d32; font-size: 0.95rem; cursor: pointer; padding: 8px 0; margin-bottom: 12px; font-weight: 600; }
+  .back-btn:hover { opacity: 0.7; }
+  .voice-toggle { border: none; background: #e8f5e9; color: #2e7d32; padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .voice-toggle:active { transform: scale(0.97); }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🩺 SHENX HEALTH</h1>
+    <p>Pantau kesehatanmu setiap hari</p>
+  </div>
+
+  <div class="nav">
+    <button onclick="switchTab(event, 'panduan')"><span class="icon">📖</span> Panduan</button>
+    <button onclick="switchTab(event, 'jalan')"><span class="icon">🚶</span> Jalan</button>
+    <button onclick="switchTab(event, 'napas')"><span class="icon">🫁</span> Napas</button>
+    <button onclick="switchTab(event, 'bmi')"><span class="icon">⚖️</span> BMI</button>
+    <button onclick="switchTab(event, 'kalori')"><span class="icon">🔥</span> Kalori</button>
+    <button onclick="switchTab(event, 'biodata')"><span class="icon">👤</span> Biodata</button>
+    <button onclick="switchTab(event, 'setting')"><span class="icon">⚙️</span> Setting</button>
+  </div>
+
+  <!-- TAB_KALORI -->
+  <div id="tab-kalori" class="tab-content active"><div class="card"><h2>🔥 Hitung Kalori Harian</h2>
+  <div class="form-group"><label>Nama Makanan</label><input type="text" id="foodName" placeholder="Contoh: Nasi goreng"></div>
+  <div class="row"><div class="form-group"><label>Kalori (kkal)</label><input type="number" id="foodCal" placeholder="kkal"></div><div class="form-group"><label>Porsi (gram)</label><input type="number" id="foodPortion" placeholder="gram" value="100"></div></div>
+  <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
+  <div style="margin-top:16px;"><h2 style="font-size:1rem;">📝 Daftar Makanan</h2><div class="food-list" id="foodList"><p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p></div><div class="summary"><span>Total Kalori:</span><span id="totalCal" style="font-weight:700;">0 kkal</span></div></div></div></div>
+
+  <!-- TAB_BMI -->
+  <div id="tab-bmi" class="tab-content"><div class="card"><h2>⚖️ Hitung IMT</h2>
+  <div class="form-group"><label>Jenis Kelamin</label><select id="gender"><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div>
+  <div class="row"><div class="form-group"><label>Berat (kg)</label><input type="number" id="weight" placeholder="kg" step="0.1"></div><div class="form-group"><label>Tinggi (cm)</label><input type="number" id="height" placeholder="cm"></div></div>
+  <div class="form-group"><label>Usia (tahun)</label><input type="number" id="age" placeholder="tahun"></div>
+  <button class="btn" onclick="calcBMI()">🔍 Hitung BMI</button><div id="bmiResult"></div></div></div>
+
+  <!-- TAB_JALAN -->
+  <div id="tab-jalan" class="tab-content"><div class="card"><h2>🚶 Latihan Jalan</h2>
+  <div class="mode-select" id="walkModeSelect">
+    <button class="active" onclick="selectWalkMode('basic', this)">🔄 3:3 Dasar<div class="bm">3 mnt santai | 3 mnt cepat</div></button>
+    <button onclick="selectWalkMode('interval1', this)">⚡ Interval 1:2<div class="bm">1 mnt santai | 2 mnt cepat</div></button>
+    <button onclick="selectWalkMode('interval2', this)">🔥 Interval 2:1<div class="bm">2 mnt santai | 1 mnt cepat</div></button>
+    <button onclick="selectWalkMode('march', this)">🦵 Jalan di Tempat<div class="bm">Angkat lutut | indoor</div></button>
+  </div>
+  <div class="phase-indicator phase-rest" id="phaseText">Siap untuk mulai?</div>
+  <div class="timer-display" id="timerDisplay">00:00</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="row"><button class="btn" id="startBtn" onclick="startWalk()" style="flex:2;">▶️ Mulai</button><button class="btn" id="stopBtn" onclick="stopWalk()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="exercise-info"><span id="stepEstimate">± 0 langkah</span></div>
+  <div class="exercise-info" id="walkInfo" style="margin-top:4px;">3:3 Dasar — Total 6 menit per putaran</div>
+  <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
+
+  <!-- TAB_NAPAS -->
+  <div id="tab-napas" class="tab-content"><div class="card"><h2>🫁 Latihan Pernapasan</h2>
+  <div class="mode-select" id="breathModeSelect">
+    <button class="active" onclick="selectBreathMode('box', this)">🧊 Box<div class="bm">4-4-4-4</div></button>
+    <button onclick="selectBreathMode('478', this)">😴 4-7-8<div class="bm">4-7-8</div></button>
+    <button onclick="selectBreathMode('pursed', this)">💨 Pursed Lip<div class="bm">2-4</div></button>
+    <button onclick="selectBreathMode('equal', this)">⚖️ Equal<div class="bm">5-5</div></button>
+    <button onclick="selectBreathMode('resonant', this)">🌊 Resonant<div class="bm">5,5-5,5</div></button>
+    <button onclick="selectBreathMode('wimhof', this)">❄️ Wim Hof<div class="bm">30x + tahan</div></button>
+    <button onclick="selectBreathMode('nostril', this)">👃 Alt. Nostril<div class="bm">4-4-8</div></button>
+    <button onclick="selectBreathMode('diaphragm', this)">🫃 Diaphragm<div class="bm">4-6</div></button>
+    <button onclick="selectBreathMode('k-fire', this)">🔥 Breath of Fire<div class="bm">30x buang</div></button>
+  </div>
+  <div class="breath-step-text" id="breathStepText">Siap untuk mulai</div>
+  <div class="breath-circle-wrap"><div class="breath-circle" id="breathCircle">Mulai</div></div>
+  <div class="timer-display" id="breathTimer" style="font-size:2.5rem;">00:00</div>
+  <div class="progress-bar"><div class="progress-fill" id="breathProgress" style="width:0%"></div></div>
+  <div class="row"><button class="btn" id="breathStartBtn" onclick="startBreath()" style="flex:2;">▶️ Mulai</button><button class="btn" id="breathStopBtn" onclick="stopBreath()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="exercise-info" id="breathInfo">Pilih mode & tekan Mulai</div>
+  <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
+
+  <!-- TAB_BIODATA -->
+  <div id="tab-biodata" class="tab-content"><div class="card"><h2>👤 Biodata Diri</h2>
+  <div class="form-group"><label>Nama Lengkap</label><input type="text" id="bioName" placeholder="Nama lengkap"></div>
+  <div class="row"><div class="form-group"><label>Usia</label><input type="number" id="bioAge" placeholder="tahun"></div><div class="form-group"><label>Jenis Kelamin</label><select id="bioGender"><option value="">Pilih</option><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div></div>
+  <div class="row"><div class="form-group"><label>Berat (kg)</label><input type="number" id="bioWeight" placeholder="kg" step="0.1"></div><div class="form-group"><label>Tinggi (cm)</label><input type="number" id="bioHeight" placeholder="cm"></div></div>
+  <div class="form-group"><label>Golongan Darah</label><select id="bioBlood"><option value="">Pilih</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
+  <div class="form-group"><label>Riwayat Penyakit / Alergi</label><input type="text" id="bioMedical" placeholder="Contoh: diabetes, alergi seafood"></div>
+  <button class="btn" onclick="saveBiodata()">💾 Simpan Biodata</button><div id="biodataSaved" style="margin-top:12px;"></div></div></div>
+
+  <!-- TAB_SETTING -->
+  <div id="tab-setting" class="tab-content">
+    <div class="pengaturan-menu" id="pengaturanMenu">
+      <button class="menu-item" onclick="showSub('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showSub('data')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
+      <button class="menu-item" onclick="showSub('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
+    </div>
+
+    <!-- SUB: RIWAYAT -->
+    <div id="sub-riwayat" class="sub-content" style="display:none;">
+      <button class="back-btn" onclick="showMenu()">← Kembali</button>
+      <div class="card"><h2>📋 Riwayat Aktivitas</h2>
+      <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
+      <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button></div>
+    </div>
+
+    <!-- SUB: EKSPOR / IMPOR / RESET -->
+    <div id="sub-data" class="sub-content" style="display:none;">
+      <button class="back-btn" onclick="showMenu()">← Kembali</button>
+      <div class="card"><h2>💾 Data & Cadangan</h2>
+      <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
+      <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
+      <button class="btn" onclick="importData()" style="margin-bottom:8px;background:#1565c0;">📥 Impor Data (JSON)</button>
+      <button class="btn" onclick="resetAllData()" style="background:#c62828;">🗑️ Reset Semua Data</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
+      <div id="dataMsg" style="margin-top:12px;"></div></div>
+    </div>
+
+    <!-- SUB: ABOUT -->
+    <div id="sub-about" class="sub-content" style="display:none;">
+      <button class="back-btn" onclick="showMenu()">← Kembali</button>
+      <div class="card" style="text-align:center;">
+        <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
+        <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
+        <p style="color:#666;">Versi <strong>1.0.0</strong></p>
+        <p style="color:#666;">Dibuat oleh <strong>Fenky</strong></p>
+        <p style="color:#999;font-size:0.8rem;margin-top:16px;">© 2026 Shenx Health. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB_PANDUAN -->
+  <div id="tab-panduan" class="tab-content"><div class="card"><h2>📖 Panduan Latihan</h2>
+  <div class="guide-nav"><button class="active" onclick="showGuide('jalan', this)">🚶 Jalan</button><button onclick="showGuide('napas', this)">🫁 Pernapasan</button></div>
+  <div id="guideContent"></div></div></div>
+</div>
+<script>
+/* ===== SHENX NATIVE BRIDGE =====
+   Jembatan ke fitur native saat jalan sebagai APK (Capacitor),
+   dengan fallback otomatis ke API browser saat dibuka di web. */
+window.Shenx = (function () {
+  var wakeLock = null, wantAwake = false;
+  function tts() {
+    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) || null;
+  }
+  function isNative() {
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  }
+  async function acquire() {
+    try {
+      if (wantAwake && !wakeLock && navigator.wakeLock) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', function () { wakeLock = null; });
+      }
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && wantAwake) acquire();
+  });
+  return {
+    isNative: isNative,
+    speak: function (text) {
+      if (typeof isVoiceOn === 'function' && !isVoiceOn()) return;
+      text = String(text)
+        .replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, ' ')
+        .replace(/\((.*?)\)/g, '$1')
+        .replace(/(\d+)\s*x/gi, '$1 kali')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!text) return;
+      var t = tts();
+      if (t) {
+        t.stop().catch(function () {});
+        t.speak({ text: text, lang: 'id-ID', rate: 1.0, pitch: 1.0, volume: 1.0, category: 'ambient' })
+         .catch(function () {});
+        return;
+      }
+      if (!window.speechSynthesis) return;
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'id-ID'; u.rate = 0.9; u.pitch = 1;
+      speechSynthesis.speak(u);
+    },
+    stopSpeak: function () {
+      var t = tts();
+      if (t) { t.stop().catch(function () {}); return; }
+      if (window.speechSynthesis) speechSynthesis.cancel();
+    },
+    keepAwake: async function (on) {
+      wantAwake = !!on;
+      var native = (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Shenx) || null;
+      if (native && native.keepAwake) {
+        try { await native.keepAwake({ value: !!on }); return; } catch (e) {}
+      }
+      if (on) { acquire(); }
+      else if (wakeLock) { try { await wakeLock.release(); } catch (e) {} wakeLock = null; }
+    },
+    vibrate: function (p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  };
+})();
+</script>
+<script>
+// ===== DATA PANDUAN =====
+const guides = {
+  jalan: [
+    { title:'🔄 3:3 Dasar', tag:'walk', text:'3 menit jalan santai diikuti 3 menit jalan cepat. Total 6 menit per putaran. Cocok untuk pemula. Estimasi ~720 langkah per putaran.' },
+    { title:'⚡ Interval 1:2', tag:'walk', text:'1 menit santai lalu 2 menit cepat. Total 3 menit per putaran. Fase cepat lebih dominan — intens untuk bakar kalori dan kardio.' },
+    { title:'🔥 Interval 2:1', tag:'walk', text:'2 menit santai lalu 1 menit cepat. Total 3 menit. Cocok untuk pemanasan atau pemula yang ingin naik intensitas bertahap.' },
+    { title:'🦵 Jalan di Tempat', tag:'walk', text:'1,5 menit angkat lutut pelan lalu 1,5 menit angkat lutut cepat. Bisa di dalam ruangan. Efektif bakar kalori dan latih otot kaki.' }
+  ],
+  napas: [
+    { title:'🧊 Box Breathing (4-4-4-4)', tag:'breath', text:'Tarik 4 detik, tahan 4, buang 4, tahan 4. Dipakai Navy SEAL. Bagus untuk fokus, kurangi stres, kontrol emosi.' },
+    { title:'😴 4-7-8 Breathing', tag:'breath', text:'Tarik 4 detik, tahan 7, buang 8 lewat mulut. Oleh Dr. Andrew Weil. Bantu tidur cepat, redakan cemas, turunkan detak jantung.' },
+    { title:'💨 Pursed Lip Breathing', tag:'breath', text:'Tarik 2 detik lewat hidung, buang 4 detik lewat mulut dengan bibir mengerucut. Jaga saluran napas terbuka. Cocok untuk asma, PPOK, pemulihan olahraga.' },
+    { title:'⚖️ Equal Breathing', tag:'breath', text:'Tarik dan buang 5 detik sama panjang. Menyeimbangkan sistem saraf. Sederhana tapi efektif untuk meditasi harian.' },
+    { title:'🌊 Resonant / Coherent Breathing', tag:'breath', text:'Tarik 5,5 detik, buang 5,5 detik. ~5,5 napas/menit — frekuensi resonansi alami tubuh. Turunkan tekanan darah, tingkatkan HRV, seimbangkan saraf otonom.' },
+    { title:'❄️ Wim Hof Breathing', tag:'breath', text:'30 kali napas cepat-dalam, lalu buang napas dan tahan selama mungkin, tarik dalam dan tahan 15 detik. Tingkatkan energi dan ketahanan dingin. JANGAN dilakukan di air atau saat mengemudi. Hentikan jika pusing.' },
+    { title:'👃 Alternate Nostril (Nadi Shodhana)', tag:'breath', text:'Tutup lubang hidung bergantian: tarik kiri 4 detik, tahan 4, buang kanan 8, lalu sebaliknya. Rasio 4-4-8. Seimbangkan otak kiri-kanan, tenangkan pikiran.' },
+    { title:'🫃 Diaphragmatic / Belly Breathing', tag:'breath', text:'Tarik 4 detik lewat hidung (perut mengembang), buang 6 detik lewat mulut (perut mengempis). Latih diafragma, tingkatkan kapasitas paru, kurangi ketegangan leher.' },
+    { title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut. Tingkatkan energi, bersihkan saluran napas, kuatkan otot perut. Hentikan jika pusing. Tidak untuk ibu hamil/epilepsi.' }
+  ]
+};
+
+let currentGuide = 'jalan';
+
+function showGuide(type, btn) {
+  currentGuide = type;
+  document.querySelectorAll('.guide-nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGuide();
+}
+
+function renderGuide() {
+  document.getElementById('guideContent').innerHTML = guides[currentGuide].map(g =>
+    '<div class="guide-section"><h3>' + g.title + '<span class="tag tag-' + g.tag + '">' + (g.tag==='walk'?'Jalan':'Napas') + '</span></h3><p>' + g.text + '</p></div>'
+  ).join('');
+}
+
+// TAB NAVIGATION
+function switchTab(e, tab) {
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  e.target.closest('button').classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab !== 'napas') stopBreath();
+  if (tab !== 'jalan') stopWalk();
+  if (tab === 'panduan') renderGuide();
+  if (tab === 'setting') showMenu();
+}
+
+// ===== PENGATURAN =====
+function showMenu() {
+  document.getElementById('pengaturanMenu').style.display = 'flex';
+  document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
+}
+
+function showSub(sub) {
+  document.getElementById('pengaturanMenu').style.display = 'none';
+  document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
+  document.getElementById('sub-' + sub).style.display = 'block';
+  if (sub === 'biodata') loadBiodata();
+  if (sub === 'riwayat') renderHistory();
+}
+
+function exportData() {
+  const data = {
+    biodata: JSON.parse(localStorage.getItem('biodata') || 'null'),
+    history: JSON.parse(localStorage.getItem('healthHistory') || '[]'),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'shenx_health_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  document.getElementById('dataMsg').innerHTML = '<div class="result info">✅ Data berhasil diekspor!</div>';
+}
+
+function importData() {
+  document.getElementById('importFile').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.biodata) localStorage.setItem('biodata', JSON.stringify(data.biodata));
+      if (data.history) localStorage.setItem('healthHistory', JSON.stringify(data.history));
+      document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
+      loadBiodata();
+      renderHistory();
+    } catch (err) {
+      document.getElementById('dataMsg').innerHTML = '<div class="result danger">❌ File tidak valid. Pastikan file JSON yang benar.</div>';
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAllData() {
+  if (confirm('Yakin ingin menghapus SEMUA data?\n\nBiodata, riwayat, dan semua pengaturan akan dihapus permanen. Pastikan sudah ekspor data dulu.')) {
+    localStorage.removeItem('biodata');
+    localStorage.removeItem('healthHistory');
+    localStorage.removeItem('totalCalories');
+    localStorage.removeItem('foodItems');
+    document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
+    totalCalories = 0;
+    foodItems = [];
+    renderFoodList();
+  }
+}
+
+// ===== KALORI =====
+let totalCalories = 0;
+let foodItems = [];
+
+function addFood() {
+  const name = document.getElementById('foodName').value.trim();
+  const cal = parseInt(document.getElementById('foodCal').value);
+  const portion = parseInt(document.getElementById('foodPortion').value) || 100;
+  if (!name || !cal) { alert('Isi nama dan kalori'); return; }
+  const adj = Math.round(cal * (portion / 100));
+  foodItems.push({ name, cal: adj, portion, time: new Date().toLocaleTimeString('id-ID') });
+  totalCalories += adj;
+  renderFoodList();
+  document.getElementById('foodName').value = '';
+  document.getElementById('foodCal').value = '';
+  document.getElementById('foodPortion').value = '100';
+}
+function removeFood(idx) { totalCalories -= foodItems[idx].cal; foodItems.splice(idx, 1); renderFoodList(); }
+function renderFoodList() {
+  const l = document.getElementById('foodList'), t = document.getElementById('totalCal');
+  l.innerHTML = foodItems.length === 0
+    ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p>'
+    : foodItems.map((f,i) => '<div class="food-item"><span>' + f.name + ' (' + f.portion + 'g) — ' + f.cal + ' kkal</span><span class="remove" onclick="removeFood(' + i + ')">✕</span></div>').join('');
+  t.textContent = totalCalories + ' kkal';
+}
+
+// ===== BMI =====
+function calcBMI() {
+  const w = parseFloat(document.getElementById('weight').value);
+  const h = parseFloat(document.getElementById('height').value) / 100;
+  const a = parseInt(document.getElementById('age').value);
+  if (!w || !h || !a) { alert('Isi semua data'); return; }
+  const bmi = w / (h * h), br = bmi.toFixed(1);
+  let cat, cls, adv;
+  if (bmi < 18.5) { cat = 'Kurus'; cls = 'warning'; adv = 'Tingkatkan asupan gizi.'; }
+  else if (bmi < 25) { cat = 'Normal/Ideal'; cls = 'normal'; adv = 'Pertahankan pola hidup sehat!'; }
+  else if (bmi < 30) { cat = 'Kelebihan BB'; cls = 'warning'; adv = 'Kurangi kalori & tingkatkan aktivitas.'; }
+  else { cat = 'Obesitas'; cls = 'danger'; adv = 'Konsultasikan dengan dokter.'; }
+  addHistory('BMI: ' + br + ' (' + cat + ') — ' + w + 'kg / ' + (h*100) + 'cm');
+  document.getElementById('bmiResult').innerHTML =
+    '<div class="result ' + cls + '"><div style="font-size:2.5rem;font-weight:700;">' + br + '</div><div>BMI: ' + cat + '</div><div style="font-size:0.85rem;margin-top:8px;font-weight:400;">' + adv + '</div>' +
+    '<div class="bmi-scale" style="margin-top:12px;"><div style="flex:1;background:#42a5f5;"></div><div style="flex:2;background:#66bb6a;"></div><div style="flex:1.5;background:#ffa726;"></div><div style="flex:1;background:#ef5350;"></div></div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-top:2px;"><span>Kurus</span><span>Normal</span><span>Berlebih</span><span>Obesitas</span></div></div>';
+}
+
+// ===== JALAN =====
+const walkModes = {
+  basic: { name:'3:3 Dasar', slow:180, fast:180, slowL:'🚶 Jalan Santai', fastL:'🏃 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:140 },
+  interval1: { name:'Interval 1:2', slow:60, fast:120, slowL:'🚶 Jalan Santai', fastL:'⚡ Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:150 },
+  interval2: { name:'Interval 2:1', slow:120, fast:60, slowL:'🚶 Jalan Santai', fastL:'🔥 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:155 },
+  march: { name:'Jalan di Tempat', slow:90, fast:90, slowL:'🦵 Angkat Lutut Pelan', fastL:'🦵🦵 Angkat Lutut Cepat', slowV:'Angkat lutut pelan', fastV:'Angkat lutut cepat', slowR:80, fastR:120 }
+};
+let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, walkRound=0;
+
+// Suara
+function speak(text) { Shenx.speak(text); }
+
+function selectWalkMode(m, btn) {
+  if (isWalking) return; walkMode = m;
+  document.querySelectorAll('#walkModeSelect button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); resetWalkUI();
+}
+function resetWalkUI() {
+  const m = walkModes[walkMode]; walkSec = m.slow + m.fast; walkTotal = walkSec; isWalking = false;
+  clearInterval(walkTimer); walkTimer = null;
+  document.getElementById('timerDisplay').textContent = fmt(walkSec);
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('phaseText').textContent = 'Siap untuk mulai?';
+  document.getElementById('phaseText').className = 'phase-indicator phase-rest';
+  document.getElementById('stepEstimate').textContent = '± 0 langkah';
+  document.getElementById('startBtn').textContent = '▶️ Mulai';
+  document.getElementById('startBtn').onclick = startWalk;
+  document.getElementById('walkInfo').textContent = m.name + ' — Santai ' + (m.slow/60) + ' mnt | Cepat ' + (m.fast/60) + ' mnt';
+}
+function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+function updateWalkDisplay() {
+  const m = walkModes[walkMode], elapsed = walkTotal - walkSec;
+  document.getElementById('timerDisplay').textContent = fmt(walkSec);
+  document.getElementById('progressFill').style.width = ((elapsed/walkTotal)*100) + '%';
+  const p = document.getElementById('phaseText');
+  if (walkSec === walkTotal) { p.textContent = 'Siap untuk mulai?'; p.className = 'phase-indicator phase-rest'; }
+  else if (walkSec > m.fast) { p.textContent = m.slowL + ' — ' + fmt(walkSec - m.fast) + ' lagi'; p.className = 'phase-indicator phase-walk'; }
+  else if (walkSec > 0) { p.textContent = m.fastL + ' — ' + fmt(walkSec) + ' lagi'; p.className = 'phase-indicator phase-fast'; }
+  else { p.textContent = '✅ Selesai! Lanjut putaran...'; p.className = 'phase-indicator phase-rest'; }
+  const em = elapsed/60, sm = m.slow/60;
+  let steps = em <= sm ? Math.round(em*m.slowR) : Math.round(sm*m.slowR + (em-sm)*m.fastR);
+  document.getElementById('stepEstimate').textContent = '± ' + steps + ' langkah';
+}
+function startWalk() {
+  if (isWalking) return;
+  if (walkSec <= 0) { walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; }
+  isWalking = true;
+  document.getElementById('startBtn').textContent = '⏸️ Jeda';
+  document.getElementById('startBtn').onclick = pauseWalk;
+
+  // Aba-aba saat tombol ditekan: sebut fase yang sedang berjalan
+  const m0 = walkModes[walkMode];
+  if (walkSec === walkTotal) { walkRound = 0; speak('Mulai. ' + m0.slowV); }
+  else { speak('Lanjut. ' + (walkSec > m0.fast ? m0.slowV : m0.fastV)); }
+  Shenx.vibrate(100);
+
+  walkTimer = setInterval(function() {
+    const m = walkModes[walkMode];
+    walkSec--;
+    updateWalkDisplay();
+
+    if (walkSec === m.fast) {
+      // fase santai habis -> masuk fase cepat
+      speak(m.fastV);
+      Shenx.vibrate([180, 80, 180]);
+    } else if ((walkSec === m.fast + 10 && m.slow >= 30) || (walkSec === 10 && m.fast >= 30)) {
+      speak('Sepuluh detik lagi');
+    } else if (walkSec === m.fast + 3 || walkSec === m.fast + 2 || walkSec === m.fast + 1 ||
+               walkSec === 3 || walkSec === 2 || walkSec === 1) {
+      Shenx.vibrate(60);   // hitung mundur 3-2-1, getar saja biar tidak berisik
+    }
+
+    if (walkSec <= 0) {
+      walkRound++;
+      walkSec = walkTotal;
+      addHistory('Jalan ' + m.name + ': selesai putaran ' + walkRound);
+      speak('Putaran ' + walkRound + ' selesai. Lanjut. ' + m.slowV);
+      Shenx.vibrate([200, 100, 200]);
+    }
+  }, 1000);
+}
+function pauseWalk() { clearInterval(walkTimer); walkTimer = null; isWalking = false; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Lanjutkan'; document.getElementById('startBtn').onclick = startWalk; }
+function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan'); }
+
+// ===== PERNAPASAN =====
+const breathModes = {
+  box: { name:'Box Breathing', pattern:[
+    { step:'Tarik Napas', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' },
+    { step:'Buang Napas', sec:4, cls:'exhale', color:'#2e7d32' }, { step:'Tahan', sec:4, cls:'pause', color:'#5c6bc0' }
+  ]},
+  '478': { name:'4-7-8 Breathing', pattern:[
+    { step:'Tarik Napas', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:7, cls:'hold', color:'#ffa726' },
+    { step:'Buang Napas', sec:8, cls:'exhale', color:'#2e7d32' }
+  ]},
+  pursed: { name:'Pursed Lip', pattern:[
+    { step:'Tarik (hidung)', sec:2, cls:'inhale', color:'#43a047' }, { step:'Buang (mulut)', sec:4, cls:'exhale', color:'#2e7d32' }
+  ]},
+  equal: { name:'Equal Breathing', pattern:[
+    { step:'Tarik Napas', sec:5, cls:'inhale', color:'#43a047' }, { step:'Buang Napas', sec:5, cls:'exhale', color:'#2e7d32' }
+  ]},
+  resonant: { name:'Resonant Breathing', pattern:[
+    { step:'Tarik Napas', sec:5.5, cls:'inhale', color:'#43a047' }, { step:'Buang Napas', sec:5.5, cls:'exhale', color:'#2e7d32' }
+  ]},
+  wimhof: { name:'Wim Hof', pattern:[
+    { step:'Napas Cepat-Dalam (30x)', sec:30, cls:'inhale', color:'#43a047' },
+    { step:'Buang & TAHAN Napas', sec:15, cls:'hold', color:'#ffa726' },
+    { step:'Tarik Dalam & Tahan', sec:15, cls:'pause', color:'#5c6bc0' }
+  ]},
+  nostril: { name:'Alternate Nostril', pattern:[
+    { step:'Tarik (kiri)', sec:4, cls:'inhale', color:'#43a047' }, { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' },
+    { step:'Buang (kanan)', sec:8, cls:'exhale', color:'#2e7d32' }, { step:'Tarik (kanan)', sec:4, cls:'inhale', color:'#43a047' },
+    { step:'Tahan', sec:4, cls:'hold', color:'#ffa726' }, { step:'Buang (kiri)', sec:8, cls:'exhale', color:'#2e7d32' }
+  ]},
+  diaphragm: { name:'Diaphragmatic', pattern:[
+    { step:'Tarik (perut kembang)', sec:4, cls:'inhale', color:'#43a047' },
+    { step:'Buang (perut kempis)', sec:6, cls:'exhale', color:'#2e7d32' }
+  ]},
+  'k-fire': { name:'Breath of Fire', pattern:[
+    { step:'Buang Napas Cepat 30x', sec:15, cls:'inhale', color:'#ef5350' },
+    { step:'Istirahat', sec:15, cls:'pause', color:'#5c6bc0' }
+  ]}
+};
+let breathMode='box', breathTimer=null, breathRunning=false, breathPhaseIdx=0, breathPhaseSec=0, breathRounds=0;
+
+function selectBreathMode(mode, btn) {
+  if (breathRunning) return; breathMode = mode;
+  document.querySelectorAll('#breathModeSelect button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('breathInfo').textContent = breathModes[mode].name + ' — ' + breathModes[mode].pattern.map(p => p.sec).join('-') + ' detik';
+  resetBreathUI();
+}
+function resetBreathUI() {
+  const c = document.getElementById('breathCircle');
+  c.textContent = 'Mulai'; c.className = 'breath-circle'; c.style.backgroundColor = '#2e7d32'; c.style.transitionDuration = '0.4s'; c.style.transform = 'scale(1)';
+  document.getElementById('breathStepText').textContent = 'Siap untuk mulai';
+  document.getElementById('breathTimer').textContent = '00:00';
+  document.getElementById('breathProgress').style.width = '0%';
+  document.getElementById('breathStartBtn').textContent = '▶️ Mulai';
+  document.getElementById('breathStartBtn').onclick = startBreath;
+}
+function startBreath() {
+  if (breathRunning) return; breathRunning = true; breathPhaseIdx = 0; breathPhaseSec = 0; breathRounds = 0;
+  document.getElementById('breathStartBtn').textContent = '⏸️ Jeda';
+  document.getElementById('breathStartBtn').onclick = pauseBreath;
+  runBreathPhase();
+}
+function runBreathPhase() {
+  const mode = breathModes[breathMode];
+  if (breathPhaseIdx >= mode.pattern.length) { breathPhaseIdx = 0; breathRounds++; addHistory('Napas ' + mode.name + ': ' + breathRounds + ' putaran'); }
+  const ph = mode.pattern[breathPhaseIdx]; breathPhaseSec = ph.sec;
+  const c = document.getElementById('breathCircle');
+  speak(ph.step);
+  c.textContent = ph.step; c.className = 'breath-circle ' + ph.cls; c.style.backgroundColor = ph.color;
+  // animasi lingkaran mengikuti durasi fase (inline transform direset dulu, kalau tidak kelas .inhale tidak berefek)
+  c.style.transitionDuration = (ph.cls === 'inhale' || ph.cls === 'exhale') ? ph.sec + 's' : '0.4s';
+  c.style.transform = '';
+  document.getElementById('breathStepText').textContent = ph.step + ' — ' + ph.sec + ' detik';
+  updateBreathDisplay();
+  breathTimer = setInterval(function() {
+    breathPhaseSec = Math.round((breathPhaseSec - 0.1) * 10) / 10;
+    updateBreathDisplay();
+    if (breathPhaseSec <= 0) { clearInterval(breathTimer); breathPhaseIdx++; if (breathRunning) runBreathPhase(); }
+  }, 100);
+}
+function updateBreathDisplay() {
+  const mode = breathModes[breathMode], ph = mode.pattern[breathPhaseIdx];
+  document.getElementById('breathTimer').textContent = '00:' + String(Math.max(0, Math.ceil(breathPhaseSec))).padStart(2,'0');
+  document.getElementById('breathProgress').style.width = (((ph.sec - breathPhaseSec) / ph.sec) * 100) + '%';
+  document.getElementById('breathInfo').textContent = mode.name + ' | Putaran ' + (breathRounds+1) + ' | ' + ph.step;
+}
+function pauseBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); document.getElementById('breathStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('breathStartBtn').onclick = startBreath; }
+function stopBreath() { clearInterval(breathTimer); breathTimer = null; breathRunning = false; Shenx.stopSpeak(); if (breathRounds > 0) addHistory('Napas ' + breathModes[breathMode].name + ': dihentikan (' + breathRounds + ' putaran)'); resetBreathUI(); }
+
+// ===== BIODATA =====
+function saveBiodata() {
+  const b = { name:document.getElementById('bioName').value.trim(), age:document.getElementById('bioAge').value, gender:document.getElementById('bioGender').value, weight:document.getElementById('bioWeight').value, height:document.getElementById('bioHeight').value, blood:document.getElementById('bioBlood').value, medical:document.getElementById('bioMedical').value.trim() };
+  localStorage.setItem('biodata', JSON.stringify(b));
+  document.getElementById('biodataSaved').innerHTML = '<div class="result normal">✅ Biodata berhasil disimpan!</div>';
+  addHistory('Biodata diperbarui');
+}
+function loadBiodata() {
+  try { const b = JSON.parse(localStorage.getItem('biodata')); if (!b) return;
+    document.getElementById('bioName').value = b.name||''; document.getElementById('bioAge').value = b.age||'';
+    document.getElementById('bioGender').value = b.gender||''; document.getElementById('bioWeight').value = b.weight||'';
+    document.getElementById('bioHeight').value = b.height||''; document.getElementById('bioBlood').value = b.blood||'';
+    document.getElementById('bioMedical').value = b.medical||'';
+  } catch(e) {}
+}
+
+// ===== SUARA PANDUAN =====
+function isVoiceOn() { try { return localStorage.getItem('voiceOn') !== '0'; } catch (e) { return true; } }
+function renderVoiceToggle() {
+  const on = isVoiceOn();
+  document.querySelectorAll('.voice-toggle').forEach(function (b) {
+    b.textContent = on ? '🔊 Suara panduan: ON' : '🔇 Suara panduan: OFF';
+    b.style.background = on ? '#e8f5e9' : '#f5f5f5';
+    b.style.color = on ? '#2e7d32' : '#999';
+  });
+}
+function toggleVoice() {
+  const on = !isVoiceOn();
+  try { localStorage.setItem('voiceOn', on ? '1' : '0'); } catch (e) {}
+  if (!on) Shenx.stopSpeak();
+  renderVoiceToggle();
+}
+
+// ===== RIWAYAT =====
+function getHistory() { try { return JSON.parse(localStorage.getItem('healthHistory')||'[]'); } catch(e) { return []; } }
+function addHistory(e) { const h = getHistory(); h.unshift({ text:e, time:new Date().toLocaleString('id-ID') }); if (h.length>50) h.pop(); localStorage.setItem('healthHistory', JSON.stringify(h)); renderHistory(); }
+function renderHistory() { const h = getHistory(); document.getElementById('historyList').innerHTML = h.length===0 ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p>' : h.map(i => '<div class="history-item"><strong>' + i.text + '</strong><br><small>' + i.time + '</small></div>').join(''); }
+function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.removeItem('healthHistory'); renderHistory(); } }
+
+// Init
+renderHistory(); resetWalkUI(); loadBiodata(); renderVoiceToggle();
+
+// ===== PWA SERVICE WORKER (hanya di web; di APK aset sudah dibundel) =====
+if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !Shenx.isNative()) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+
+// ===== PWA INSTALL PROMPT =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+</script>
+
+<script>
+/* ===== PATCH APK: layar tetap nyala selama latihan ===== */
+(function () {
+  function wrap(name, before, after) {
+    var orig = window[name];
+    if (typeof orig !== 'function') return;
+    window[name] = function () {
+      if (before) before();
+      var r = orig.apply(this, arguments);
+      if (after) after();
+      return r;
+    };
+  }
+  var on = function () { Shenx.keepAwake(true); };
+  var off = function () { Shenx.keepAwake(false); };
+  ['startWalk', 'startBreath'].forEach(function (f) { wrap(f, null, on); });
+  ['pauseWalk', 'stopWalk', 'pauseBreath', 'stopBreath'].forEach(function (f) { wrap(f, null, off); });
+})();
+
+/* ===== PATCH APK: daftar makanan tersimpan (reset otomatis tiap hari) ===== */
+(function () {
+  var KEY = 'foodItems', DKEY = 'foodDate';
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(foodItems));
+      localStorage.setItem(DKEY, today());
+      localStorage.setItem('totalCalories', String(totalCalories));
+    } catch (e) {}
+  }
+  try {
+    if (localStorage.getItem(DKEY) === today()) {
+      var f = JSON.parse(localStorage.getItem(KEY) || '[]');
+      if (Array.isArray(f) && f.length) {
+        foodItems = f;
+        totalCalories = f.reduce(function (s, x) { return s + (Number(x.cal) || 0); }, 0);
+        renderFoodList();
+      }
+    }
+  } catch (e) {}
+  ['addFood', 'removeFood', 'resetAllData'].forEach(function (name) {
+    var orig = window[name];
+    if (typeof orig !== 'function') return;
+    window[name] = function () { var r = orig.apply(this, arguments); save(); return r; };
+  });
+})();
+</script>
+</body>
+</html>
