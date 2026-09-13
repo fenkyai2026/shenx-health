@@ -166,7 +166,7 @@
       <div class="tile-tint tint-exercise"></div>
       <div class="tile-content">
         <div style="font-size:3rem;">🏋️</div>
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Exercise</div>
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Olahraga</div>
         <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Latihan jalan & pernapasan</div>
       </div>
     </div>
@@ -622,7 +622,23 @@ const foodDatabase = [
   { name:'Keju Cheddar', kal:402, karbo:1.3, protein:25, lemak:33 },
   { name:'Kacang Tanah', kal:567, karbo:16, protein:26, lemak:49 },
   { name:'Gorengan (bakwan/tahu isi)', kal:280, karbo:25, protein:6, lemak:18 },
-  { name:'Kerupuk', kal:470, karbo:60, protein:5, lemak:20 }
+  { name:'Kerupuk', kal:470, karbo:60, protein:5, lemak:20 },
+  { name:'Edamame', kal:122, karbo:8, protein:11, lemak:5 },
+  { name:'Jamur Tumis', kal:35, karbo:4, protein:3, lemak:1 },
+  { name:'Alpukat', kal:160, karbo:8.5, protein:2, lemak:15 },
+  { name:'Quinoa Matang', kal:120, karbo:21, protein:4.4, lemak:1.9 },
+  { name:'Oatmeal', kal:71, karbo:12, protein:2.5, lemak:1.5 },
+  { name:'Susu Kedelai (100ml)', kal:33, karbo:1.8, protein:3.3, lemak:1.8 },
+  { name:'Susu Almond (100ml)', kal:17, karbo:0.6, protein:0.6, lemak:1.2 },
+  { name:'Tahu Sutra', kal:55, karbo:2, protein:5.5, lemak:2.7 },
+  { name:'Tempe Orek', kal:220, karbo:15, protein:14, lemak:12 },
+  { name:'Kacang Lentil Matang', kal:116, karbo:20, protein:9, lemak:0.4 },
+  { name:'Kacang Merah Matang', kal:127, karbo:22.8, protein:8.7, lemak:0.5 },
+  { name:'Kacang Hijau Matang', kal:105, karbo:19, protein:7, lemak:0.4 },
+  { name:'Selai Kacang', kal:588, karbo:20, protein:25, lemak:50 },
+  { name:'Mie Shirataki', kal:9, karbo:3, protein:0.1, lemak:0.1 },
+  { name:'Ubi Jalar Rebus', kal:86, karbo:20, protein:1.6, lemak:0.1 },
+  { name:'Salad Sayur (tanpa dressing)', kal:20, karbo:4, protein:1.5, lemak:0.2 }
 ];
 
 const MEALS = [
@@ -662,30 +678,31 @@ function grandFoodTotals() {
 function renderKaloriScreen() {
   const container = document.getElementById('kaloriMealsContainer');
   if (!container) return;
-  container.innerHTML = MEALS.map(m =>
-    '<div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:12px;">' +
-      '<h2 style="font-size:1rem;">' + m.label + '</h2>' +
-      '<div class="row">' +
-        '<div class="form-group" style="flex:2;"><select id="foodSelect-' + m.key + '"><option value="">Pilih makanan...</option>' +
-          foodDatabase.map((f,i) => '<option value="' + i + '">' + f.name + '</option>').join('') +
-        '</select></div>' +
-        '<div class="form-group" style="flex:1;"><input type="number" id="foodPortion-' + m.key + '" value="100" placeholder="gram"></div>' +
-      '</div>' +
-      '<button class="btn" style="padding:10px;margin-bottom:10px;" onclick="addFoodTo(\'' + m.key + '\')">➕ Tambah</button>' +
-      '<div id="foodList-' + m.key + '"></div>' +
-      '<div style="font-size:0.8rem;color:#666;text-align:right;margin-top:6px;" id="mealSubtotal-' + m.key + '"></div>' +
-    '</div>'
-  ).join('');
+  container.innerHTML =
+    '<datalist id="foodDatalist">' + foodDatabase.map(f => '<option value="' + f.name + '">').join('') + '</datalist>' +
+    MEALS.map(m =>
+      '<div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:12px;">' +
+        '<h2 style="font-size:1rem;">' + m.label + '</h2>' +
+        '<div class="row">' +
+          '<div class="form-group" style="flex:2;"><input type="text" id="foodSelect-' + m.key + '" list="foodDatalist" placeholder="Ketik atau pilih makanan..." autocomplete="off"></div>' +
+          '<div class="form-group" style="flex:1;"><input type="number" id="foodPortion-' + m.key + '" value="100" placeholder="gram"></div>' +
+        '</div>' +
+        '<button class="btn" style="padding:10px;margin-bottom:10px;" onclick="addFoodTo(\'' + m.key + '\')">➕ Tambah</button>' +
+        '<div id="foodList-' + m.key + '"></div>' +
+        '<div style="font-size:0.8rem;color:#666;text-align:right;margin-top:6px;" id="mealSubtotal-' + m.key + '"></div>' +
+      '</div>'
+    ).join('');
   MEALS.forEach(m => renderMealList(m.key));
   renderKaloriTotals();
 }
 
 function addFoodTo(meal) {
   const sel = document.getElementById('foodSelect-' + meal);
-  const idx = sel.value;
-  if (idx === '') { alert('Pilih makanan dulu'); return; }
+  const typed = sel.value.trim();
+  if (!typed) { alert('Ketik atau pilih nama makanan dulu'); return; }
+  const f = foodDatabase.find(x => x.name.toLowerCase() === typed.toLowerCase());
+  if (!f) { alert('Makanan "' + typed + '" tidak ada di daftar. Pilih salah satu saran yang muncul saat mengetik.'); return; }
   const portion = parseFloat(document.getElementById('foodPortion-' + meal).value) || 100;
-  const f = foodDatabase[idx];
   const factor = portion / 100;
   const state = getFoodState();
   state.meals[meal].push({
