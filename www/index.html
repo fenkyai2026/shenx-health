@@ -91,10 +91,28 @@
   .voice-toggle { border: none; background: #e8f5e9; color: #2e7d32; padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .voice-toggle:active { transform: scale(0.97); }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .exercise-tile { border-radius: 14px; padding: 24px 16px; text-align: center; margin-bottom: 12px; cursor: pointer; transition: transform 0.15s; }
+  .exercise-tile { position: relative; overflow: hidden; border-radius: 14px; padding: 24px 16px; text-align: center; margin-bottom: 12px; cursor: pointer; transition: transform 0.15s; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
   .exercise-tile:last-child { margin-bottom: 0; }
   .exercise-tile:active { transform: scale(0.97); }
+  .exercise-tile .tile-bg-icon { position: absolute; font-size: 6.5rem; opacity: 0.3; filter: blur(3px); right: -12px; bottom: -18px; line-height: 1; pointer-events: none; user-select: none; }
+  .exercise-tile .tile-content { position: relative; z-index: 1; }
   .water-cup { background: none; border: none; cursor: pointer; font-size: 1.6rem; padding: 2px; transition: opacity 0.2s; }
+
+  /* ===== Kartu gradasi + ikon blur (gaya modern) ===== */
+  .hero-card { position: relative; overflow: hidden; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 22px rgba(0,0,0,0.15); }
+  .hero-card .bg-icon { position: absolute; font-size: 7rem; opacity: 0.32; filter: blur(4px); line-height: 1; pointer-events: none; user-select: none; }
+  .hero-card .bg-icon.pos-br { right: -14px; bottom: -20px; }
+  .hero-card .bg-icon.pos-tr { right: -8px; top: -16px; }
+  .hero-card .hero-title { position: relative; z-index: 1; color: #fff; font-size: 1.05rem; margin-bottom: 14px; text-shadow: 0 1px 4px rgba(0,0,0,0.25); font-weight: 700; }
+  .hero-panel { position: relative; z-index: 1; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 14px; padding: 16px; }
+  .hero-greeting { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+  .hero-bmi { background: linear-gradient(135deg, #4facfe 0%, #00c9a7 100%); }
+  .hero-water { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); }
+  .hero-kalori { background: linear-gradient(135deg, #f7971e 0%, #ff5858 100%); }
+  .grad-exercise { background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%); }
+  .grad-setting { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  .grad-jalan { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+  .grad-napas { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
 </style>
 </head>
 <body>
@@ -106,32 +124,50 @@
 
   <!-- TAB_DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
-    <div class="card" style="text-align:center;">
-      <h2 id="dashGreeting" style="font-size:1.3rem;">Halo! 👋</h2>
-      <p style="color:#888;font-size:0.85rem;" id="dashDate"></p>
+    <div class="hero-card hero-greeting" style="text-align:center;">
+      <div class="bg-icon pos-tr">🌿</div>
+      <div class="hero-panel">
+        <h2 id="dashGreeting" style="font-size:1.3rem;color:#1b5e20;">Halo! 👋</h2>
+        <p style="color:#888;font-size:0.85rem;" id="dashDate"></p>
+      </div>
     </div>
-    <div class="card">
-      <h2>⚖️ BMI Kamu</h2>
-      <div id="dashBmi"></div>
-      <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
+    <div class="hero-card hero-bmi">
+      <div class="bg-icon pos-br">⚖️</div>
+      <h2 class="hero-title">⚖️ BMI Kamu</h2>
+      <div class="hero-panel">
+        <div id="dashBmi"></div>
+        <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
+      </div>
     </div>
-    <div class="card">
-      <h2>💧 Kebutuhan Minum Air</h2>
-      <div id="waterWidget"></div>
+    <div class="hero-card hero-water">
+      <div class="bg-icon pos-br">💧</div>
+      <h2 class="hero-title">💧 Kebutuhan Minum Air</h2>
+      <div class="hero-panel">
+        <div id="waterWidget"></div>
+      </div>
     </div>
-    <div class="card">
-      <h2>🔥 Kalori Hari Ini</h2>
-      <div id="dashKalori"></div>
+    <div class="hero-card hero-kalori">
+      <div class="bg-icon pos-br">🍽️</div>
+      <h2 class="hero-title">🔥 Kalori Hari Ini</h2>
+      <div class="hero-panel">
+        <div id="dashKalori"></div>
+      </div>
     </div>
-    <div class="exercise-tile" style="background:#fff3e0;" onclick="navigateTo('exercise')">
-      <div style="font-size:3rem;">🏋️</div>
-      <div style="font-weight:700;color:#e65100;font-size:1.2rem;">Exercise</div>
-      <div style="font-size:0.8rem;color:#666;">Latihan jalan & pernapasan</div>
+    <div class="exercise-tile grad-exercise" onclick="navigateTo('exercise')">
+      <div class="tile-bg-icon">🏃</div>
+      <div class="tile-content">
+        <div style="font-size:3rem;">🏋️</div>
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Exercise</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Latihan jalan & pernapasan</div>
+      </div>
     </div>
-    <div class="exercise-tile" style="background:#ede7f6;" onclick="navigateTo('settingmenu')">
-      <div style="font-size:3rem;">⚙️</div>
-      <div style="font-weight:700;color:#4527a0;font-size:1.2rem;">Pengaturan</div>
-      <div style="font-size:0.8rem;color:#666;">Biodata, riwayat, data, tentang</div>
+    <div class="exercise-tile grad-setting" onclick="navigateTo('settingmenu')">
+      <div class="tile-bg-icon">⚙️</div>
+      <div class="tile-content">
+        <div style="font-size:3rem;">⚙️</div>
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pengaturan</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Biodata, riwayat, data, tentang</div>
+      </div>
     </div>
     <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
@@ -140,15 +176,21 @@
   <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
   <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
-  <div class="exercise-tile" style="background:#e8f5e9;" onclick="navigateTo('jalan')">
-    <div style="font-size:3rem;">🚶</div>
-    <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
-    <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
+  <div class="exercise-tile grad-jalan" onclick="navigateTo('jalan')">
+    <div class="tile-bg-icon">🚶</div>
+    <div class="tile-content">
+      <div style="font-size:3rem;">🚶</div>
+      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Jalan</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Interval jalan santai & cepat</div>
+    </div>
   </div>
-  <div class="exercise-tile" style="background:#e3f2fd;" onclick="navigateTo('napas')">
-    <div style="font-size:3rem;">🫁</div>
-    <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
-    <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+  <div class="exercise-tile grad-napas" onclick="navigateTo('napas')">
+    <div class="tile-bg-icon">🧘</div>
+    <div class="tile-content">
+      <div style="font-size:3rem;">🫁</div>
+      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Pernapasan</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
+    </div>
   </div></div></div>
 
   <!-- TAB_SETTINGMENU -->
