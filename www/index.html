@@ -113,6 +113,7 @@
     <div class="card">
       <h2>⚖️ BMI Kamu</h2>
       <div id="dashBmi"></div>
+      <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="switchTab('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
     </div>
     <div class="card">
       <h2>💧 Kebutuhan Minum Air</h2>
@@ -122,21 +123,30 @@
       <h2>🔥 Kalori Hari Ini</h2>
       <div id="dashKalori"></div>
     </div>
-    <div class="card" style="padding:12px;">
-      <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
-      <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
-        <div style="font-size:3rem;">🚶</div>
-        <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
-        <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
-      </div>
-      <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
-        <div style="font-size:3rem;">🫁</div>
-        <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
-        <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <button class="menu-item" style="justify-content:space-between;padding:18px 20px;" onclick="toggleSection('exercise')">
+        <span style="display:flex;align-items:center;gap:10px;font-weight:700;color:#1b5e20;font-size:1.1rem;"><span class="icon">🏋️</span> Exercise</span>
+        <span class="arrow" id="exerciseArrow">›</span>
+      </button>
+      <div id="exerciseBody" style="display:none;padding:0 12px 12px;">
+        <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
+          <div style="font-size:3rem;">🚶</div>
+          <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
+          <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
+        </div>
+        <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
+          <div style="font-size:3rem;">🫁</div>
+          <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
+          <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+        </div>
       </div>
     </div>
-    <div class="card">
-      <h2>⚙️ Pengaturan</h2>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <button class="menu-item" style="justify-content:space-between;padding:18px 20px;" onclick="toggleSection('setting')">
+        <span style="display:flex;align-items:center;gap:10px;font-weight:700;color:#1b5e20;font-size:1.1rem;"><span class="icon">⚙️</span> Pengaturan</span>
+        <span class="arrow" id="settingArrow">›</span>
+      </button>
+      <div id="settingBody" style="display:none;padding:0 12px 12px;">
       <div class="pengaturan-menu">
         <button class="menu-item" onclick="switchTab('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
         <button class="menu-item" onclick="switchTab('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
@@ -145,9 +155,17 @@
         <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
         <button class="menu-item" onclick="switchTab('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
       </div>
+      </div>
     </div>
     <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
+
+  <!-- TAB_BMIDETAIL -->
+  <div id="tab-bmidetail" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <h2>📋 Detail Perhitungan Kesehatan</h2>
+  <div id="bmiDetailContent"></div>
+  </div></div>
 
   <!-- TAB_KALORI -->
   <div id="tab-kalori" class="tab-content"><div class="card">
@@ -403,6 +421,7 @@ function switchTab(tab) {
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
   if (tab === 'dashboard') renderDashboard();
+  if (tab === 'bmidetail') renderBmiDetail();
   if (tab === 'kalori') renderKaloriScreen();
   if (tab === 'riwayat') renderHistory();
   if (tab === 'about') renderAboutVersion();
@@ -649,6 +668,66 @@ function computeBMI(w, hcm) {
   else if (bmi < 30) { cat = 'Kelebihan BB'; cls = 'warning'; advice = 'Kurangi kalori & tingkatkan aktivitas.'; }
   else { cat = 'Obesitas'; cls = 'danger'; advice = 'Konsultasikan dengan dokter.'; }
   return { bmi: bmi.toFixed(1), cat, cls, advice };
+}
+
+// ===== DETAIL PERHITUNGAN KESEHATAN (BMR, TDEE, lemak tubuh, dll) =====
+function computeHealthMetrics(b) {
+  const w = parseFloat(b.weight), hcm = parseFloat(b.height), h = hcm / 100;
+  const age = computeAge(b.birthDate) || 0;
+  const isMale = b.gender === 'male';
+  const bmiVal = w / (h * h);
+  const bmr = isMale ? (10*w + 6.25*hcm - 5*age + 5) : (10*w + 6.25*hcm - 5*age - 161);
+  const tdee = bmr * 1.2; // asumsi aktivitas ringan/sedentari (belum ada data level aktivitas)
+  const bodyFatRaw = 1.20*bmiVal + 0.23*age - 10.8*(isMale ? 1 : 0) - 5.4; // rumus Deurenberg
+  const bodyFat = Math.max(3, Math.min(60, bodyFatRaw));
+  const leanMass = w * (1 - bodyFat/100);
+  const fatMass = w - leanMass;
+  const healthyMin = 18.5 * h * h, healthyMax = 25 * h * h;
+  const heightIn = hcm / 2.54;
+  const idealWeight = isMale ? (50 + 2.3*(heightIn-60)) : (45.5 + 2.3*(heightIn-60));
+  const waterNeed = w * 30 / 1000; // liter/hari, konsisten dgn widget air minum
+  const proteinNeed = w * 1.2; // g/hari, target umum kebugaran
+  return { bmi:bmiVal, bmr, tdee, bodyFat, leanMass, fatMass, healthyMin, healthyMax, idealWeight, waterNeed, proteinNeed, age };
+}
+function healthRow(label, value) {
+  return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;"><span style="color:#666;">' + label + '</span><strong>' + value + '</strong></div>';
+}
+function renderBmiDetail() {
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  const el = document.getElementById('bmiDetailContent');
+  if (!el) return;
+  if (!b || !b.weight || !b.height) { el.innerHTML = '<p style="color:#999;">Lengkapi berat & tinggi badan di Biodata dulu.</p>'; return; }
+  const m = computeHealthMetrics(b);
+  const bmiInfo = computeBMI(parseFloat(b.weight), parseFloat(b.height));
+  const f1 = n => Math.round(n * 10) / 10;
+  el.innerHTML =
+    '<div class="guide-section"><h3 style="color:#1565c0;">📋 Detail Perhitungan</h3>' +
+      healthRow('Berat Ideal', f1(m.idealWeight) + ' kg') +
+      healthRow('Berat Sehat (BMI Normal)', f1(m.healthyMin) + ' - ' + f1(m.healthyMax) + ' kg') +
+      healthRow('Massa Tanpa Lemak', f1(m.leanMass) + ' kg') +
+      healthRow('Massa Lemak', f1(m.fatMass) + ' kg') +
+      healthRow('Estimasi Lemak Tubuh', f1(m.bodyFat) + ' %') +
+      healthRow('Kebutuhan Air', f1(m.waterNeed) + ' L/hari') +
+      healthRow('Kebutuhan Protein', f1(m.proteinNeed) + ' g/hari') +
+      healthRow('BMR (Kalori Istirahat)', Math.round(m.bmr) + ' kkal') +
+      healthRow('TDEE (Kebutuhan Harian)', Math.round(m.tdee) + ' kkal') +
+      healthRow('Usia', m.age + ' tahun') +
+    '</div>' +
+    '<div class="guide-section"><h3 style="color:#1565c0;">💡 Interpretasi Hasil</h3>' +
+      '<p>• BMI ' + f1(m.bmi) + ' termasuk kategori <strong>' + bmiInfo.cat + '</strong> — perbandingan berat terhadap tinggi badan.</p>' +
+      '<p style="margin-top:8px;">• BMR ' + Math.round(m.bmr) + ' kkal adalah kebutuhan kalori minimum tubuh saat istirahat total.</p>' +
+      '<p style="margin-top:8px;">• TDEE ' + Math.round(m.tdee) + ' kkal adalah estimasi kebutuhan kalori harian dengan asumsi aktivitas ringan/sedentari.</p>' +
+      '<p style="margin-top:8px;">• Lemak tubuh ' + f1(m.bodyFat) + '% adalah estimasi komposisi lemak (rumus Deurenberg). Kadar normal untuk ' + (b.gender==='male' ? 'pria sekitar 10-20%' : 'wanita sekitar 18-28%') + '.</p>' +
+      '<p style="margin-top:8px;color:#999;font-size:0.8rem;">Catatan: semua angka adalah estimasi berbasis rumus umum (Mifflin-St Jeor, Deurenberg, Devine), bukan pengukuran medis.</p>' +
+    '</div>';
+}
+function toggleSection(id) {
+  const body = document.getElementById(id + 'Body');
+  const arrow = document.getElementById(id + 'Arrow');
+  if (!body) return;
+  const opening = body.style.display === 'none';
+  body.style.display = opening ? 'block' : 'none';
+  if (arrow) arrow.textContent = opening ? '⌄' : '›';
 }
 function renderDashboard() {
   const b = JSON.parse(localStorage.getItem('biodata') || 'null');
