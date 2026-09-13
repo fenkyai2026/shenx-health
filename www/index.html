@@ -113,7 +113,7 @@
     <div class="card">
       <h2>⚖️ BMI Kamu</h2>
       <div id="dashBmi"></div>
-      <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="switchTab('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
+      <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
     </div>
     <div class="card">
       <h2>💧 Kebutuhan Minum Air</h2>
@@ -123,53 +123,58 @@
       <h2>🔥 Kalori Hari Ini</h2>
       <div id="dashKalori"></div>
     </div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <button class="menu-item" style="justify-content:space-between;padding:18px 20px;" onclick="toggleSection('exercise')">
-        <span style="display:flex;align-items:center;gap:10px;font-weight:700;color:#1b5e20;font-size:1.1rem;"><span class="icon">🏋️</span> Exercise</span>
-        <span class="arrow" id="exerciseArrow">›</span>
-      </button>
-      <div id="exerciseBody" style="display:none;padding:0 12px 12px;">
-        <div class="exercise-tile" style="background:#e8f5e9;" onclick="switchTab('jalan')">
-          <div style="font-size:3rem;">🚶</div>
-          <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
-          <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
-        </div>
-        <div class="exercise-tile" style="background:#e3f2fd;" onclick="switchTab('napas')">
-          <div style="font-size:3rem;">🫁</div>
-          <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
-          <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
-        </div>
-      </div>
+    <div class="exercise-tile" style="background:#fff3e0;" onclick="navigateTo('exercise')">
+      <div style="font-size:3rem;">🏋️</div>
+      <div style="font-weight:700;color:#e65100;font-size:1.2rem;">Exercise</div>
+      <div style="font-size:0.8rem;color:#666;">Latihan jalan & pernapasan</div>
     </div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <button class="menu-item" style="justify-content:space-between;padding:18px 20px;" onclick="toggleSection('setting')">
-        <span style="display:flex;align-items:center;gap:10px;font-weight:700;color:#1b5e20;font-size:1.1rem;"><span class="icon">⚙️</span> Pengaturan</span>
-        <span class="arrow" id="settingArrow">›</span>
-      </button>
-      <div id="settingBody" style="display:none;padding:0 12px 12px;">
-      <div class="pengaturan-menu">
-        <button class="menu-item" onclick="switchTab('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
-        <button class="menu-item" onclick="switchTab('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
-        <button class="menu-item" onclick="switchTab('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
-        <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
-        <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
-        <button class="menu-item" onclick="switchTab('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
-      </div>
-      </div>
+    <div class="exercise-tile" style="background:#ede7f6;" onclick="navigateTo('settingmenu')">
+      <div style="font-size:3rem;">⚙️</div>
+      <div style="font-weight:700;color:#4527a0;font-size:1.2rem;">Pengaturan</div>
+      <div style="font-size:0.8rem;color:#666;">Biodata, riwayat, data, tentang</div>
     </div>
     <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
 
+  <!-- TAB_EXERCISE -->
+  <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
+  <div class="exercise-tile" style="background:#e8f5e9;" onclick="navigateTo('jalan')">
+    <div style="font-size:3rem;">🚶</div>
+    <div style="font-weight:700;color:#2e7d32;font-size:1.1rem;">Latihan Jalan</div>
+    <div style="font-size:0.8rem;color:#666;">Interval jalan santai & cepat</div>
+  </div>
+  <div class="exercise-tile" style="background:#e3f2fd;" onclick="navigateTo('napas')">
+    <div style="font-size:3rem;">🫁</div>
+    <div style="font-weight:700;color:#1565c0;font-size:1.1rem;">Latihan Pernapasan</div>
+    <div style="font-size:0.8rem;color:#666;">9 teknik pernapasan terpandu</div>
+  </div></div></div>
+
+  <!-- TAB_SETTINGMENU -->
+  <div id="tab-settingmenu" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <h2>⚙️ Pengaturan</h2>
+  <div class="pengaturan-menu">
+    <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
+    <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
+    <button class="menu-item" onclick="navigateTo('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
+  </div>
+  </div></div>
+
   <!-- TAB_BMIDETAIL -->
   <div id="tab-bmidetail" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2>📋 Detail Perhitungan Kesehatan</h2>
   <div id="bmiDetailContent"></div>
   </div></div>
 
   <!-- TAB_KALORI -->
   <div id="tab-kalori" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2>🔥 Kalori Harian</h2>
   <div id="kaloriMealsContainer"></div>
   <div class="result info" id="kaloriGrandTotal"></div>
@@ -177,7 +182,7 @@
 
   <!-- TAB_JALAN -->
   <div id="tab-jalan" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2>🚶 Latihan Jalan</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -199,7 +204,7 @@
 
   <!-- TAB_NAPAS -->
   <div id="tab-napas" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2>🫁 Latihan Pernapasan</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -226,7 +231,7 @@
 
   <!-- TAB_BIODATA -->
   <div id="tab-biodata" class="tab-content"><div class="card">
-  <button class="back-btn" id="biodataBackBtn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <button class="back-btn" id="biodataBackBtn" onclick="goBack()">← Dashboard</button>
   <div id="biodataOnboardingIntro" style="display:none;margin-bottom:16px;padding:12px;background:#e8f5e9;border-radius:12px;">
     <strong style="color:#1b5e20;">👋 Selamat datang di SHENX HEALTH!</strong>
     <p style="color:#555;font-size:0.85rem;margin-top:4px;">Lengkapi biodata di bawah ini dulu untuk memulai. Nama, tanggal lahir, tinggi, dan berat badan wajib diisi.</p>
@@ -259,7 +264,7 @@
 
   <!-- TAB_RIWAYAT -->
   <div id="tab-riwayat" class="tab-content"><div class="card">
-    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <button class="back-btn" onclick="goBack()">← Dashboard</button>
     <h2>📋 Riwayat Aktivitas</h2>
     <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
     <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
@@ -267,7 +272,7 @@
 
   <!-- TAB_DATAMGMT -->
   <div id="tab-datamgmt" class="tab-content"><div class="card">
-    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <button class="back-btn" onclick="goBack()">← Dashboard</button>
     <h2>💾 Data & Cadangan</h2>
     <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
     <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
@@ -279,7 +284,7 @@
 
   <!-- TAB_ABOUT -->
   <div id="tab-about" class="tab-content"><div class="card" style="text-align:center;">
-    <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+    <button class="back-btn" onclick="goBack()">← Dashboard</button>
     <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
     <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
     <p style="color:#666;">Versi <strong id="aboutVersion">1.0.0</strong></p>
@@ -430,6 +435,27 @@ function switchTab(tab) {
   if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
   window.scrollTo(0, 0);
 }
+
+// ===== NAVIGASI + RIWAYAT BROWSER (biar swipe/tombol back HP balik ke Dashboard, bukan keluar app) =====
+function navigateTo(tab) {
+  history.pushState({ tab: tab }, '', '#' + tab);
+  switchTab(tab);
+}
+function goBack() {
+  if (history.state && history.state.tab && history.state.tab !== 'dashboard') {
+    history.back();
+  } else {
+    switchTab('dashboard');
+  }
+}
+function goHome() {
+  history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
+  switchTab('dashboard');
+}
+window.addEventListener('popstate', function (e) {
+  const tab = (e.state && e.state.tab) || 'dashboard';
+  switchTab(tab);
+});
 
 async function renderAboutVersion() {
   const el = document.getElementById('aboutVersion');
@@ -655,7 +681,7 @@ function renderDashboardKalori(t) {
       '<div><strong>' + t.protein + 'g</strong><br>Protein</div>' +
       '<div><strong>' + t.lemak + 'g</strong><br>Lemak</div>' +
     '</div>' +
-    '<button class="btn" onclick="switchTab(\'kalori\')">➕ Kelola Makanan</button>';
+    '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>';
 }
 
 // ===== DASHBOARD (BMI otomatis dari biodata + air minum) =====
@@ -720,14 +746,6 @@ function renderBmiDetail() {
       '<p style="margin-top:8px;">• Lemak tubuh ' + f1(m.bodyFat) + '% adalah estimasi komposisi lemak (rumus Deurenberg). Kadar normal untuk ' + (b.gender==='male' ? 'pria sekitar 10-20%' : 'wanita sekitar 18-28%') + '.</p>' +
       '<p style="margin-top:8px;color:#999;font-size:0.8rem;">Catatan: semua angka adalah estimasi berbasis rumus umum (Mifflin-St Jeor, Deurenberg, Devine), bukan pengukuran medis.</p>' +
     '</div>';
-}
-function toggleSection(id) {
-  const body = document.getElementById(id + 'Body');
-  const arrow = document.getElementById(id + 'Arrow');
-  if (!body) return;
-  const opening = body.style.display === 'none';
-  body.style.display = opening ? 'block' : 'none';
-  if (arrow) arrow.textContent = opening ? '⌄' : '›';
 }
 function renderDashboard() {
   const b = JSON.parse(localStorage.getItem('biodata') || 'null');
@@ -1111,7 +1129,7 @@ function saveBiodata() {
     document.getElementById('biodataCancelBtn').style.display = '';
     document.getElementById('biodataBackBtn').style.display = '';
     renderBiodataView();
-    switchTab('dashboard');
+    goHome();
   } else {
     document.getElementById('biodataSaved').innerHTML = '';
     renderBiodataView();
@@ -1135,7 +1153,7 @@ function initApp() {
   } else {
     onboardingActive = false;
     renderBiodataView();
-    switchTab('dashboard');
+    goHome();
   }
 }
 
