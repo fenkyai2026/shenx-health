@@ -142,6 +142,10 @@
         <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
       </div>
     </div>
+    <div class="card">
+      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
+      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
+    </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-water.jpg');"></div>
       <div class="hero-tint tint-water"></div>
@@ -157,10 +161,6 @@
       <div class="hero-panel">
         <div id="dashKalori"></div>
       </div>
-    </div>
-    <div class="card">
-      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
-      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
     </div>
     <div class="exercise-tile" onclick="navigateTo('exercise')">
       <div class="tile-bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
@@ -899,8 +899,8 @@ function renderHabitTracker() {
   const items = [
     { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), action:"navigateTo('exercise')" },
     { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('kalori')" },
-    { icon:'😴', label:'Tidur', done: h.tidur, action:"toggleHabit('tidur')" },
     { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"document.getElementById('waterWidget').scrollIntoView({behavior:'smooth',block:'center'})" },
+    { icon:'😴', label:'Tidur', done: h.tidur, action:"toggleHabit('tidur')" },
     { icon:'😊', label:'Positif', done: h.positif, action:"toggleHabit('positif')" }
   ];
   const doneCount = items.filter(i => i.done).length;
