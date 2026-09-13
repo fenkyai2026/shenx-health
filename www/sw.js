@@ -1,6 +1,6 @@
 /* SHENX HEALTH — service worker (khusus versi web/PWA).
    Cache-first supaya aplikasi tetap jalan tanpa internet. */
-const CACHE = 'shenx-health-v2';
+const CACHE = 'shenx-health-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,10 @@ const ASSETS = [
   './images/bg-exercise.jpg',
   './images/bg-jalan.jpg',
   './images/bg-napas.jpg',
-  './images/bg-setting.jpg'
+  './images/bg-setting.jpg',
+  './images/bg-bodyweight.jpg',
+  './images/bg-tidur.jpg',
+  './images/bg-positif.jpg'
 ];
 
 self.addEventListener('install', e => {

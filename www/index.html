@@ -114,6 +114,8 @@
   .tint-jalan { background: linear-gradient(135deg, rgba(86,171,47,0.55), rgba(168,224,99,0.55)); }
   .tint-napas { background: linear-gradient(135deg, rgba(79,172,254,0.6), rgba(0,242,254,0.5)); }
   .tint-bodyweight { background: linear-gradient(135deg, rgba(233,64,87,0.65), rgba(240,152,25,0.6)); }
+  .tint-tidur { background: linear-gradient(135deg, rgba(63,55,120,0.68), rgba(96,86,170,0.6)); }
+  .tint-positif { background: linear-gradient(135deg, rgba(255,193,7,0.55), rgba(255,145,0,0.55)); }
 </style>
 </head>
 <body>
@@ -146,6 +148,23 @@
       <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
       <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
     </div>
+    <div class="exercise-tile" onclick="navigateTo('exercise')">
+      <div class="tile-bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
+      <div class="tile-tint tint-exercise"></div>
+      <div class="tile-content">
+        <div style="font-size:3rem;">🏋️</div>
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Olahraga</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Latihan jalan & pernapasan</div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-kalori.jpg');"></div>
+      <div class="hero-tint tint-kalori"></div>
+      <h2 class="hero-title">🔥 Nutrisi (Kalori Hari Ini)</h2>
+      <div class="hero-panel">
+        <div id="dashKalori"></div>
+      </div>
+    </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-water.jpg');"></div>
       <div class="hero-tint tint-water"></div>
@@ -155,20 +174,19 @@
       </div>
     </div>
     <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-kalori.jpg');"></div>
-      <div class="hero-tint tint-kalori"></div>
-      <h2 class="hero-title">🔥 Kalori Hari Ini</h2>
+      <div class="bg-photo" style="background-image:url('images/bg-tidur.jpg');"></div>
+      <div class="hero-tint tint-tidur"></div>
+      <h2 class="hero-title">😴 Tidur</h2>
       <div class="hero-panel">
-        <div id="dashKalori"></div>
+        <div id="dashTidur"></div>
       </div>
     </div>
-    <div class="exercise-tile" onclick="navigateTo('exercise')">
-      <div class="tile-bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
-      <div class="tile-tint tint-exercise"></div>
-      <div class="tile-content">
-        <div style="font-size:3rem;">🏋️</div>
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Olahraga</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Latihan jalan & pernapasan</div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-positif.jpg');"></div>
+      <div class="hero-tint tint-positif"></div>
+      <h2 class="hero-title">😊 Positif</h2>
+      <div class="hero-panel">
+        <div id="dashPositif"></div>
       </div>
     </div>
     <div class="exercise-tile" onclick="navigateTo('settingmenu')">
@@ -621,7 +639,8 @@ function resetAllData() {
     localStorage.removeItem('kaloriState');
     localStorage.removeItem('waterIntake');
     localStorage.removeItem('burnedState');
-    localStorage.removeItem('habitState');
+    localStorage.removeItem('sleepState');
+    localStorage.removeItem('moodState');
     localStorage.removeItem('exerciseDoneDate');
     document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
     renderKaloriTotals();
@@ -877,31 +896,82 @@ function renderDashboardKalori(t) {
     '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>';
 }
 
-// ===== TRACK KEBIASAAN HARIAN (5 kategori) =====
-function getHabitState() {
+// ===== TIDUR =====
+const SLEEP_TARGET = 7;
+function getSleepState() {
   try {
-    const s = JSON.parse(localStorage.getItem('habitState'));
+    const s = JSON.parse(localStorage.getItem('sleepState'));
     if (s && s.date === todayStr()) return s;
   } catch (e) {}
-  return { date: todayStr(), tidur: false, positif: false };
+  return { date: todayStr(), hours: 0 };
 }
-function saveHabitState(s) { try { localStorage.setItem('habitState', JSON.stringify(s)); } catch (e) {} }
-function toggleHabit(key) {
-  const s = getHabitState();
-  s[key] = !s[key];
-  saveHabitState(s);
+function saveSleepState(s) { try { localStorage.setItem('sleepState', JSON.stringify(s)); } catch (e) {} }
+function logSleep() {
+  const val = parseFloat(document.getElementById('sleepHoursInput').value);
+  if (!val || val <= 0 || val > 24) { alert('Isi jam tidur yang valid (0-24)'); return; }
+  saveSleepState({ date: todayStr(), hours: val });
+  renderDashTidur();
   renderHabitTracker();
 }
+function renderDashTidur() {
+  const el = document.getElementById('dashTidur');
+  if (!el) return;
+  const s = getSleepState();
+  const pct = Math.min(1, s.hours / SLEEP_TARGET);
+  el.innerHTML =
+    (s.hours > 0
+      ? '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#5c4fa8;">' + s.hours + '</div><div style="color:#888;font-size:0.85rem;">jam tidur malam ini</div></div>' +
+        '<div class="progress-bar" style="margin-bottom:12px;"><div class="progress-fill" style="width:' + (pct*100) + '%;background:#5c4fa8;"></div></div>'
+      : '<p style="color:#999;text-align:center;padding:8px 0;margin-bottom:8px;">Belum dicatat hari ini</p>') +
+    '<div class="row"><div class="form-group" style="flex:2;margin-bottom:0;"><input type="number" id="sleepHoursInput" step="0.5" min="0" max="24" placeholder="Jam tidur (misal 7.5)" value="' + (s.hours || '') + '"></div>' +
+    '<button class="btn" style="flex:1;margin-bottom:0;padding:12px;" onclick="logSleep()">💾</button></div>' +
+    '<div style="font-size:0.7rem;color:#999;text-align:center;margin-top:8px;">Target ' + SLEEP_TARGET + ' jam/malam</div>';
+}
+
+// ===== POSITIF (mood harian) =====
+function getMoodState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('moodState'));
+    if (s && s.date === todayStr()) return s;
+  } catch (e) {}
+  return { date: todayStr(), mood: '' };
+}
+function saveMoodState(s) { try { localStorage.setItem('moodState', JSON.stringify(s)); } catch (e) {} }
+function logMood(mood) {
+  saveMoodState({ date: todayStr(), mood: mood });
+  renderDashPositif();
+  renderHabitTracker();
+}
+function renderDashPositif() {
+  const el = document.getElementById('dashPositif');
+  if (!el) return;
+  const s = getMoodState();
+  const moods = [
+    { key:'kurang', icon:'😞', label:'Kurang' },
+    { key:'biasa', icon:'😐', label:'Biasa' },
+    { key:'baik', icon:'😊', label:'Baik' },
+    { key:'semangat', icon:'🤩', label:'Semangat' }
+  ];
+  el.innerHTML =
+    '<p style="text-align:center;color:#666;margin-bottom:12px;">Bagaimana perasaanmu hari ini?</p>' +
+    '<div style="display:flex;justify-content:space-around;">' +
+      moods.map(m => '<button onclick="logMood(\'' + m.key + '\')" style="background:none;border:none;text-align:center;cursor:pointer;padding:6px;">' +
+        '<div style="width:48px;height:48px;border-radius:50%;background:' + (s.mood === m.key ? '#fff3e0' : '#f5f5f5') + ';display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 4px;border:2px solid ' + (s.mood === m.key ? '#ffa726' : '#e0e0e0') + ';">' + m.icon + '</div>' +
+        '<div style="font-size:0.65rem;color:#666;">' + m.label + '</div>' +
+      '</button>').join('') +
+    '</div>';
+}
+
+// ===== TRACK KEBIASAAN HARIAN (5 kategori, semua otomatis dari data lain) =====
 function renderHabitTracker() {
   const el = document.getElementById('habitTracker');
   if (!el) return;
-  const h = getHabitState();
   const items = [
     { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), action:"navigateTo('exercise')" },
     { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('kalori')" },
     { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"document.getElementById('waterWidget').scrollIntoView({behavior:'smooth',block:'center'})" },
-    { icon:'😴', label:'Tidur', done: h.tidur, action:"toggleHabit('tidur')" },
-    { icon:'😊', label:'Positif', done: h.positif, action:"toggleHabit('positif')" }
+    { icon:'😴', label:'Tidur', done: getSleepState().hours >= SLEEP_TARGET, action:"document.getElementById('dashTidur').scrollIntoView({behavior:'smooth',block:'center'})" },
+    { icon:'😊', label:'Positif', done: !!getMoodState().mood, action:"document.getElementById('dashPositif').scrollIntoView({behavior:'smooth',block:'center'})" }
   ];
   const doneCount = items.filter(i => i.done).length;
   const countEl = document.getElementById('habitCount');
@@ -996,6 +1066,8 @@ function renderDashboard() {
   }
   renderWaterWidget();
   renderDashboardKalori();
+  renderDashTidur();
+  renderDashPositif();
   renderHabitTracker();
 }
 
