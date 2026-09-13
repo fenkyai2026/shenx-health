@@ -157,6 +157,10 @@
         <div id="dashKalori"></div>
       </div>
     </div>
+    <div class="card">
+      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
+      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
+    </div>
     <div class="exercise-tile" onclick="navigateTo('exercise')">
       <div class="tile-bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
       <div class="tile-tint tint-exercise"></div>
@@ -567,6 +571,9 @@ function resetAllData() {
     localStorage.removeItem('healthHistory');
     localStorage.removeItem('kaloriState');
     localStorage.removeItem('waterIntake');
+    localStorage.removeItem('burnedState');
+    localStorage.removeItem('habitState');
+    localStorage.removeItem('exerciseDoneDate');
     document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
     renderKaloriTotals();
     initApp();
@@ -720,18 +727,125 @@ function renderKaloriTotals() {
   if (totalEl) totalEl.innerHTML = '<strong>Total Hari Ini:</strong> ' + t.kal + ' kkal<br>Karbohidrat: ' + t.karbo + 'g &nbsp;|&nbsp; Protein: ' + t.protein + 'g &nbsp;|&nbsp; Lemak: ' + t.lemak + 'g';
   renderDashboardKalori(t);
 }
+// ===== KALORI TERBAKAR (estimasi dari sesi Latihan Jalan, MET x berat x durasi) =====
+function getBurnedState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('burnedState'));
+    if (s && s.date === todayStr()) return s;
+  } catch (e) {}
+  return { date: todayStr(), kcal: 0 };
+}
+function saveBurnedState(s) { try { localStorage.setItem('burnedState', JSON.stringify(s)); } catch (e) {} }
+function addBurnedTick(met) {
+  try {
+    const b = JSON.parse(localStorage.getItem('biodata'));
+    const w = (b && parseFloat(b.weight)) || 60;
+    const s = getBurnedState();
+    s.kcal += (met * 3.5 * w / 200 / 60); // kkal untuk 1 detik pada MET ini
+    saveBurnedState(s);
+    renderDashboardKalori();
+  } catch (e) {}
+}
+function markExerciseDoneToday() { try { localStorage.setItem('exerciseDoneDate', todayStr()); } catch (e) {} }
+function isExerciseDoneToday() { try { return localStorage.getItem('exerciseDoneDate') === todayStr(); } catch (e) { return false; } }
+
+function getCalorieGoal() {
+  try {
+    const b = JSON.parse(localStorage.getItem('biodata'));
+    if (b && b.weight && b.height && b.birthDate) return Math.round(computeHealthMetrics(b).tdee);
+  } catch (e) {}
+  return 2000;
+}
+
 function renderDashboardKalori(t) {
   t = t || grandFoodTotals();
   const el = document.getElementById('dashKalori');
   if (!el) return;
+  const goal = getCalorieGoal();
+  const burned = Math.round(getBurnedState().kcal);
+  const eaten = t.kal;
+  const remaining = Math.max(0, goal - eaten + burned);
+  const allowance = goal + burned;
+  const pct = allowance > 0 ? Math.min(1, eaten / allowance) : 0;
+  const circumference = 263.9;
+  const offset = circumference * (1 - pct);
+  const carbTarget = Math.max(1, Math.round(goal * 0.5 / 4));
+  const proteinTarget = Math.max(1, Math.round(goal * 0.2 / 4));
+  const fatTarget = Math.max(1, Math.round(goal * 0.3 / 9));
+  function macroBar(label, value, target, color) {
+    const p = Math.min(1, value / target);
+    return '<div style="flex:1;text-align:center;">' +
+      '<div style="font-size:0.75rem;color:#666;margin-bottom:4px;">' + label + '</div>' +
+      '<div style="height:5px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:4px;"><div style="height:100%;width:' + (p*100) + '%;background:' + color + ';"></div></div>' +
+      '<div style="font-weight:700;font-size:0.9rem;">' + Math.round(value) + '<span style="font-size:0.7rem;color:#999;font-weight:400;">/' + target + 'g</span></div>' +
+    '</div>';
+  }
   el.innerHTML =
-    '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#e65100;">' + t.kal + '</div><div style="color:#888;font-size:0.85rem;">kkal hari ini</div></div>' +
-    '<div style="display:flex;justify-content:space-around;text-align:center;font-size:0.85rem;color:#555;margin-bottom:12px;">' +
-      '<div><strong>' + t.karbo + 'g</strong><br>Karbo</div>' +
-      '<div><strong>' + t.protein + 'g</strong><br>Protein</div>' +
-      '<div><strong>' + t.lemak + 'g</strong><br>Lemak</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+      '<div style="text-align:center;flex:1;">' +
+        '<div style="font-size:1.4rem;">🥗</div><div style="font-size:0.8rem;color:#666;">Makan</div>' +
+        '<div style="font-weight:700;">' + eaten + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
+      '</div>' +
+      '<div style="position:relative;width:110px;height:110px;flex-shrink:0;">' +
+        '<svg viewBox="0 0 100 100" width="110" height="110">' +
+          '<circle cx="50" cy="50" r="42" stroke="#f0e4dc" stroke-width="9" fill="none"/>' +
+          '<circle cx="50" cy="50" r="42" stroke="#e65100" stroke-width="9" fill="none" stroke-linecap="round" ' +
+            'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" transform="rotate(-90 50 50)"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+          '<div style="font-weight:700;font-size:1.25rem;color:#e65100;">' + remaining + '</div>' +
+          '<div style="font-size:0.62rem;color:#888;text-align:center;">kkal<br>tersisa</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="text-align:center;flex:1;">' +
+        '<div style="font-size:1.4rem;">🔥</div><div style="font-size:0.8rem;color:#666;">Bakar</div>' +
+        '<div style="font-weight:700;">' + burned + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
+      '</div>' +
     '</div>' +
+    '<div style="display:flex;gap:10px;margin-bottom:14px;">' +
+      macroBar('Karbo', t.karbo, carbTarget, '#42a5f5') +
+      macroBar('Protein', t.protein, proteinTarget, '#66bb6a') +
+      macroBar('Lemak', t.lemak, fatTarget, '#ffa726') +
+    '</div>' +
+    '<div style="font-size:0.7rem;color:#999;text-align:center;margin-bottom:10px;">Target ' + goal + ' kkal/hari (dari TDEE Biodata)</div>' +
     '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>';
+}
+
+// ===== TRACK KEBIASAAN HARIAN (5 kategori) =====
+function getHabitState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('habitState'));
+    if (s && s.date === todayStr()) return s;
+  } catch (e) {}
+  return { date: todayStr(), tidur: false, positif: false };
+}
+function saveHabitState(s) { try { localStorage.setItem('habitState', JSON.stringify(s)); } catch (e) {} }
+function toggleHabit(key) {
+  const s = getHabitState();
+  s[key] = !s[key];
+  saveHabitState(s);
+  renderHabitTracker();
+}
+function renderHabitTracker() {
+  const el = document.getElementById('habitTracker');
+  if (!el) return;
+  const h = getHabitState();
+  const items = [
+    { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), action:"navigateTo('exercise')" },
+    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('kalori')" },
+    { icon:'😴', label:'Tidur', done: h.tidur, action:"toggleHabit('tidur')" },
+    { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"document.getElementById('waterWidget').scrollIntoView({behavior:'smooth',block:'center'})" },
+    { icon:'😊', label:'Positif', done: h.positif, action:"toggleHabit('positif')" }
+  ];
+  const doneCount = items.filter(i => i.done).length;
+  const countEl = document.getElementById('habitCount');
+  if (countEl) countEl.textContent = 'Track ' + doneCount + ' dari 5';
+  el.innerHTML = items.map(i =>
+    '<button onclick="' + i.action + '" style="background:none;border:none;text-align:center;flex:1;cursor:pointer;padding:4px;">' +
+      '<div style="width:52px;height:52px;border-radius:50%;background:' + (i.done ? '#e8f5e9' : '#f5f5f5') + ';display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 6px;border:2px solid ' + (i.done ? '#66bb6a' : '#e0e0e0') + ';">' + i.icon + '</div>' +
+      '<div style="font-size:0.72rem;color:#666;">' + i.label + '</div>' +
+    '</button>'
+  ).join('');
 }
 
 // ===== DASHBOARD (BMI otomatis dari biodata + air minum) =====
@@ -816,6 +930,7 @@ function renderDashboard() {
   }
   renderWaterWidget();
   renderDashboardKalori();
+  renderHabitTracker();
 }
 
 // ===== AIR MINUM =====
@@ -889,10 +1004,10 @@ function renderWaterWidget() {
 
 // ===== JALAN =====
 const walkModes = {
-  basic: { name:'3:3 Dasar', slow:180, fast:180, slowL:'🚶 Jalan Santai', fastL:'🏃 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:140 },
-  interval1: { name:'Interval 1:2', slow:60, fast:120, slowL:'🚶 Jalan Santai', fastL:'⚡ Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:150 },
-  interval2: { name:'Interval 2:1', slow:120, fast:60, slowL:'🚶 Jalan Santai', fastL:'🔥 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:155 },
-  march: { name:'Jalan di Tempat', slow:90, fast:90, slowL:'🦵 Angkat Lutut Pelan', fastL:'🦵🦵 Angkat Lutut Cepat', slowV:'Angkat lutut pelan', fastV:'Angkat lutut cepat', slowR:80, fastR:120 }
+  basic: { name:'3:3 Dasar', slow:180, fast:180, slowL:'🚶 Jalan Santai', fastL:'🏃 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:140, slowMET:3.0, fastMET:4.5 },
+  interval1: { name:'Interval 1:2', slow:60, fast:120, slowL:'🚶 Jalan Santai', fastL:'⚡ Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:150, slowMET:3.0, fastMET:5.0 },
+  interval2: { name:'Interval 2:1', slow:120, fast:60, slowL:'🚶 Jalan Santai', fastL:'🔥 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:155, slowMET:3.0, fastMET:4.8 },
+  march: { name:'Jalan di Tempat', slow:90, fast:90, slowL:'🦵 Angkat Lutut Pelan', fastL:'🦵🦵 Angkat Lutut Cepat', slowV:'Angkat lutut pelan', fastV:'Angkat lutut cepat', slowR:80, fastR:120, slowMET:3.5, fastMET:5.5 }
 };
 let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, walkRound=0;
 
@@ -948,6 +1063,7 @@ function startWalk() {
     const m = walkModes[walkMode];
     walkSec--;
     updateWalkDisplay();
+    addBurnedTick(walkSec > m.fast ? m.slowMET : m.fastMET);
 
     if (walkSec === m.fast) {
       // fase santai habis -> masuk fase cepat
@@ -963,6 +1079,7 @@ function startWalk() {
     if (walkSec <= 0) {
       walkRound++;
       walkSec = walkTotal;
+      markExerciseDoneToday();
       addHistory('Jalan ' + m.name + ': selesai putaran ' + walkRound);
       speak('Putaran ' + walkRound + ' selesai. Lanjut. ' + m.slowV);
       Shenx.vibrate([200, 100, 200]);
@@ -1066,6 +1183,7 @@ function finishBreathSession() {
   clearInterval(breathTimer); breathTimer = null; breathRunning = false;
   speak('Sesi selesai. ' + breathRounds + ' putaran tercapai. Kerja bagus');
   Shenx.vibrate([200, 100, 200, 100, 200]);
+  markExerciseDoneToday();
   addHistory('Napas ' + mode.name + ': sesi selesai (' + breathRounds + '/' + mode.max + ' putaran)');
   const c = document.getElementById('breathCircle');
   c.textContent = '✅ Selesai'; c.className = 'breath-circle'; c.style.backgroundColor = '#2e7d32'; c.style.transitionDuration = '0.4s'; c.style.transform = 'scale(1)';
