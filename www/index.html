@@ -113,6 +113,7 @@
   .tint-setting { background: linear-gradient(135deg, rgba(102,126,234,0.65), rgba(118,75,162,0.65)); }
   .tint-jalan { background: linear-gradient(135deg, rgba(86,171,47,0.55), rgba(168,224,99,0.55)); }
   .tint-napas { background: linear-gradient(135deg, rgba(79,172,254,0.6), rgba(0,242,254,0.5)); }
+  .tint-bodyweight { background: linear-gradient(135deg, rgba(233,64,87,0.65), rgba(240,152,25,0.6)); }
 </style>
 </head>
 <body>
@@ -203,6 +204,15 @@
       <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Pernapasan</div>
       <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
     </div>
+  </div>
+  <div class="exercise-tile" onclick="navigateTo('bodyweight')">
+    <div class="tile-bg-photo" style="background-image:url('images/bg-bodyweight.jpg');"></div>
+    <div class="tile-tint tint-bodyweight"></div>
+    <div class="tile-content">
+      <div style="font-size:3rem;">💪</div>
+      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Bodyweight</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Circuit push-up, squat, plank, dll</div>
+    </div>
   </div></div></div>
 
   <!-- TAB_SETTINGMENU -->
@@ -254,6 +264,26 @@
   <div class="row"><button class="btn" id="startBtn" onclick="startWalk()" style="flex:2;">▶️ Mulai</button><button class="btn" id="stopBtn" onclick="stopWalk()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info"><span id="stepEstimate">± 0 langkah</span></div>
   <div class="exercise-info" id="walkInfo" style="margin-top:4px;">3:3 Dasar — Total 6 menit per putaran</div>
+  <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
+
+  <!-- TAB_BODYWEIGHT -->
+  <div id="tab-bodyweight" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <h2>💪 Latihan Bodyweight</h2>
+  <div class="form-group">
+    <label>Pilih Mode</label>
+    <select id="bwModeSelect" onchange="selectBodyweightMode(this.value)">
+      <option value="pemula">🔰 Dasar — Push-up, Squat, Plank, Sit-up, Lunges</option>
+      <option value="hiit">🔥 HIIT Kardio — Jumping Jack, Mountain Climber, Burpee, High Knees</option>
+      <option value="core">🧘 Core Fokus — Plank, Russian Twist, Leg Raise, Bicycle Crunch</option>
+    </select>
+  </div>
+  <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
+  <div class="phase-indicator phase-rest" id="bwPhaseText">Siap untuk mulai?</div>
+  <div class="timer-display" id="bwTimerDisplay">00:00</div>
+  <div class="progress-bar"><div class="progress-fill" id="bwProgressFill" style="width:0%"></div></div>
+  <div class="row"><button class="btn" id="bwStartBtn" onclick="startBodyweight()" style="flex:2;">▶️ Mulai</button><button class="btn" id="bwStopBtn" onclick="stopBodyweight()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="exercise-info" id="bwInfo">Pilih mode & tekan Mulai</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
   <!-- TAB_NAPAS -->
@@ -456,6 +486,17 @@ const guides = {
     { key:'k-fire', title:'🔥 Breath of Fire (Kapalabhati)', tag:'breath', text:'30 kali buang napas pendek-kuat lewat hidung dengan kontraksi perut.', maxInfo:'3 putaran/sesi',
       fungsi:'Kontraksi perut yang cepat memompa napas pendek-kuat dan menstimulasi organ-organ perut.',
       tujuan:'Meningkatkan energi dan fokus secara cepat. Hentikan jika pusing — tidak untuk ibu hamil/penderita epilepsi.' }
+  ],
+  bodyweight: [
+    { key:'pemula', title:'🔰 Dasar', tag:'walk', text:'Push-up, Squat, Plank, Sit-up, Lunges — masing-masing 30 detik gerak, 15 detik istirahat.', maxInfo:'3 putaran/sesi',
+      fungsi:'Melatih kekuatan otot besar (dada, kaki, inti) memakai berat badan sendiri secara bergantian.',
+      tujuan:'Membangun kekuatan dasar dan bentuk gerakan yang benar bagi pemula, tanpa perlu alat.' },
+    { key:'hiit', title:'🔥 HIIT Kardio', tag:'walk', text:'Jumping Jack, Mountain Climber, Burpee, High Knees — masing-masing 30 detik gerak, 15 detik istirahat.', maxInfo:'3 putaran/sesi',
+      fungsi:'Gerakan intensitas tinggi berturut-turut memacu detak jantung jauh lebih cepat dibanding circuit dasar.',
+      tujuan:'Membakar kalori maksimal dalam waktu singkat dan meningkatkan kapasitas kardio.' },
+    { key:'core', title:'🧘 Core Fokus', tag:'walk', text:'Plank, Russian Twist, Leg Raise, Bicycle Crunch — masing-masing 30 detik gerak, 15 detik istirahat.', maxInfo:'3 putaran/sesi',
+      fungsi:'Semua gerakan menargetkan otot perut dan inti tubuh, intensitas kardio lebih rendah dari HIIT.',
+      tujuan:'Memperkuat otot inti untuk postur dan stabilitas tubuh yang lebih baik.' }
   ]
 };
 
@@ -471,6 +512,12 @@ function renderBreathGuide() {
   if (!el) return;
   el.innerHTML = !g ? '' : '<p style="font-size:0.85rem;color:#555;"><strong>Fungsi:</strong> ' + g.fungsi + '</p><p style="font-size:0.85rem;color:#555;margin-top:6px;"><strong>Tujuan:</strong> ' + g.tujuan + '</p>';
 }
+function renderBodyweightGuide() {
+  const g = guides.bodyweight.find(x => x.key === bwMode);
+  const el = document.getElementById('bwGuideInfo');
+  if (!el) return;
+  el.innerHTML = !g ? '' : '<p style="font-size:0.85rem;color:#555;"><strong>Fungsi:</strong> ' + g.fungsi + '</p><p style="font-size:0.85rem;color:#555;margin-top:6px;"><strong>Tujuan:</strong> ' + g.tujuan + '</p>';
+}
 
 // TAB NAVIGATION
 function switchTab(tab) {
@@ -479,6 +526,7 @@ function switchTab(tab) {
   if (el) el.classList.add('active');
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
+  if (tab !== 'bodyweight') stopBodyweight();
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'bmidetail') renderBmiDetail();
   if (tab === 'kalori') renderKaloriScreen();
@@ -487,6 +535,7 @@ function switchTab(tab) {
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
   if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
   if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
+  if (tab === 'bodyweight') { document.getElementById('bwModeSelect').value = bwMode; renderBodyweightGuide(); }
   window.scrollTo(0, 0);
 }
 
@@ -1106,6 +1155,104 @@ function startWalk() {
 function pauseWalk() { clearInterval(walkTimer); walkTimer = null; isWalking = false; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Lanjutkan'; document.getElementById('startBtn').onclick = startWalk; }
 function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan'); }
 
+// ===== BODYWEIGHT (circuit push-up/squat/plank/dll) =====
+const bodyweightModes = {
+  pemula: { name:'Dasar', met:5.0, max:3, exercises:[
+    { name:'Push-up', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Squat', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Plank', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Sit-up', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Lunges', sec:30 }, { name:'Istirahat', sec:15, rest:true }
+  ]},
+  hiit: { name:'HIIT Kardio', met:8.0, max:3, exercises:[
+    { name:'Jumping Jack', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Mountain Climber', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Burpee', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'High Knees', sec:30 }, { name:'Istirahat', sec:15, rest:true }
+  ]},
+  core: { name:'Core Fokus', met:4.0, max:3, exercises:[
+    { name:'Plank', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Russian Twist', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Leg Raise', sec:30 }, { name:'Istirahat', sec:15, rest:true },
+    { name:'Bicycle Crunch', sec:30 }, { name:'Istirahat', sec:15, rest:true }
+  ]}
+};
+let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwRounds=0;
+
+function selectBodyweightMode(mode) {
+  if (bwRunning) { document.getElementById('bwModeSelect').value = bwMode; return; }
+  bwMode = mode;
+  resetBodyweightUI();
+  renderBodyweightGuide();
+}
+function resetBodyweightUI() {
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0; bwRounds = 0;
+  document.getElementById('bwPhaseText').textContent = 'Siap untuk mulai?';
+  document.getElementById('bwPhaseText').className = 'phase-indicator phase-rest';
+  document.getElementById('bwTimerDisplay').textContent = '00:00';
+  document.getElementById('bwProgressFill').style.width = '0%';
+  document.getElementById('bwInfo').textContent = bodyweightModes[bwMode].name + ' — Maks ' + bodyweightModes[bwMode].max + ' putaran/sesi';
+  document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
+  document.getElementById('bwStartBtn').onclick = startBodyweight;
+}
+function startBodyweight() {
+  if (bwRunning) return;
+  bwRunning = true; bwPhaseIdx = 0; bwRounds = 0;
+  document.getElementById('bwStartBtn').textContent = '⏸️ Jeda';
+  document.getElementById('bwStartBtn').onclick = pauseBodyweight;
+  runBodyweightPhase();
+}
+function runBodyweightPhase() {
+  const mode = bodyweightModes[bwMode];
+  if (bwPhaseIdx >= mode.exercises.length) {
+    bwPhaseIdx = 0; bwRounds++;
+    if (mode.max && bwRounds >= mode.max) { finishBodyweightSession(); return; }
+  }
+  const ph = mode.exercises[bwPhaseIdx];
+  bwPhaseSec = ph.sec;
+  speak(ph.name);
+  Shenx.vibrate(ph.rest ? 60 : 120);
+  updateBodyweightDisplay();
+  bwTimer = setInterval(function() {
+    bwPhaseSec--;
+    updateBodyweightDisplay();
+    addBurnedTick(ph.rest ? 1.5 : mode.met);
+    if (bwPhaseSec === 3 || bwPhaseSec === 2 || bwPhaseSec === 1) Shenx.vibrate(60);
+    if (bwPhaseSec <= 0) { clearInterval(bwTimer); bwPhaseIdx++; if (bwRunning) runBodyweightPhase(); }
+  }, 1000);
+}
+function updateBodyweightDisplay() {
+  const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
+  const shown = Math.max(0, bwPhaseSec);
+  document.getElementById('bwTimerDisplay').textContent = fmt(shown);
+  document.getElementById('bwProgressFill').style.width = (((ph.sec - shown) / ph.sec) * 100) + '%';
+  const p = document.getElementById('bwPhaseText');
+  p.textContent = ph.name + ' — ' + fmt(shown) + ' lagi';
+  p.className = ph.rest ? 'phase-indicator phase-rest' : 'phase-indicator phase-fast';
+  document.getElementById('bwInfo').textContent = mode.name + ' | Putaran ' + (bwRounds+1) + '/' + mode.max + ' | ' + ph.name;
+}
+function finishBodyweightSession() {
+  const mode = bodyweightModes[bwMode];
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false;
+  markExerciseDoneToday();
+  speak('Sesi selesai. ' + bwRounds + ' putaran tercapai. Kerja bagus');
+  Shenx.vibrate([200, 100, 200, 100, 200]);
+  addHistory('Bodyweight ' + mode.name + ': sesi selesai (' + bwRounds + '/' + mode.max + ' putaran)');
+  document.getElementById('bwPhaseText').textContent = '✅ Sesi selesai — ' + bwRounds + '/' + mode.max + ' putaran';
+  document.getElementById('bwPhaseText').className = 'phase-indicator phase-rest';
+  document.getElementById('bwProgressFill').style.width = '100%';
+  document.getElementById('bwInfo').textContent = mode.name + ' | Sesi selesai (' + bwRounds + '/' + mode.max + ')';
+  document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
+  document.getElementById('bwStartBtn').onclick = startBodyweight;
+}
+function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning = false; Shenx.stopSpeak(); document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('bwStartBtn').onclick = startBodyweight; }
+function stopBodyweight() {
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false;
+  Shenx.stopSpeak();
+  if (bwRounds > 0) addHistory('Bodyweight ' + bodyweightModes[bwMode].name + ': dihentikan (' + bwRounds + ' putaran)');
+  resetBodyweightUI();
+}
+
 // ===== PERNAPASAN =====
 const breathModes = {
   box: { name:'Box Breathing', max:6, pattern:[
@@ -1449,8 +1596,8 @@ function exitApp() {
   }
   var on = function () { Shenx.keepAwake(true); };
   var off = function () { Shenx.keepAwake(false); };
-  ['startWalk', 'startBreath'].forEach(function (f) { wrap(f, null, on); });
-  ['pauseWalk', 'stopWalk', 'pauseBreath', 'stopBreath'].forEach(function (f) { wrap(f, null, off); });
+  ['startWalk', 'startBreath', 'startBodyweight'].forEach(function (f) { wrap(f, null, on); });
+  ['pauseWalk', 'stopWalk', 'pauseBreath', 'stopBreath', 'pauseBodyweight', 'stopBodyweight'].forEach(function (f) { wrap(f, null, off); });
 })();
 
 </script>
