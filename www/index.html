@@ -119,11 +119,8 @@
       <div id="waterWidget"></div>
     </div>
     <div class="card">
-      <h2>🔥 Hitung Kalori Harian</h2>
-      <div class="form-group"><label>Nama Makanan</label><input type="text" id="foodName" placeholder="Contoh: Nasi goreng"></div>
-      <div class="row"><div class="form-group"><label>Kalori (kkal)</label><input type="number" id="foodCal" placeholder="kkal"></div><div class="form-group"><label>Porsi (gram)</label><input type="number" id="foodPortion" placeholder="gram" value="100"></div></div>
-      <button class="btn" onclick="addFood()">➕ Tambah Makanan</button>
-      <div style="margin-top:16px;"><h2 style="font-size:1rem;">📝 Daftar Makanan</h2><div class="food-list" id="foodList"><p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p></div><div class="summary"><span>Total Kalori:</span><span id="totalCal" style="font-weight:700;">0 kkal</span></div></div>
+      <h2>🔥 Kalori Hari Ini</h2>
+      <div id="dashKalori"></div>
     </div>
     <div class="card" style="padding:12px;">
       <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
@@ -151,6 +148,14 @@
     </div>
     <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
+
+  <!-- TAB_KALORI -->
+  <div id="tab-kalori" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="switchTab('dashboard')">← Dashboard</button>
+  <h2>🔥 Kalori Harian</h2>
+  <div id="kaloriMealsContainer"></div>
+  <div class="result info" id="kaloriGrandTotal"></div>
+  </div></div>
 
   <!-- TAB_JALAN -->
   <div id="tab-jalan" class="tab-content"><div class="card">
@@ -398,6 +403,7 @@ function switchTab(tab) {
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
   if (tab === 'dashboard') renderDashboard();
+  if (tab === 'kalori') renderKaloriScreen();
   if (tab === 'riwayat') renderHistory();
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
@@ -423,6 +429,7 @@ function exportData() {
   const data = {
     biodata: JSON.parse(localStorage.getItem('biodata') || 'null'),
     history: JSON.parse(localStorage.getItem('healthHistory') || '[]'),
+    kaloriState: JSON.parse(localStorage.getItem('kaloriState') || 'null'),
     exportedAt: new Date().toISOString()
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -446,8 +453,10 @@ function handleImport(e) {
       const data = JSON.parse(ev.target.result);
       if (data.biodata) localStorage.setItem('biodata', JSON.stringify(data.biodata));
       if (data.history) localStorage.setItem('healthHistory', JSON.stringify(data.history));
+      if (data.kaloriState) localStorage.setItem('kaloriState', JSON.stringify(data.kaloriState));
       document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
       renderHistory();
+      renderKaloriTotals();
       initApp();
     } catch (err) {
       document.getElementById('dataMsg').innerHTML = '<div class="result danger">❌ File tidak valid. Pastikan file JSON yang benar.</div>';
@@ -461,40 +470,173 @@ function resetAllData() {
   if (confirm('Yakin ingin menghapus SEMUA data?\n\nBiodata, riwayat, dan semua pengaturan akan dihapus permanen. Pastikan sudah ekspor data dulu.')) {
     localStorage.removeItem('biodata');
     localStorage.removeItem('healthHistory');
-    localStorage.removeItem('totalCalories');
-    localStorage.removeItem('foodItems');
+    localStorage.removeItem('kaloriState');
+    localStorage.removeItem('waterIntake');
     document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
-    totalCalories = 0;
-    foodItems = [];
-    renderFoodList();
+    renderKaloriTotals();
     initApp();
   }
 }
 
-// ===== KALORI =====
-let totalCalories = 0;
-let foodItems = [];
+// ===== KALORI (database nutrisi per 100g + waktu makan) =====
+const foodDatabase = [
+  { name:'Nasi Putih', kal:130, karbo:28, protein:2.7, lemak:0.3 },
+  { name:'Nasi Merah', kal:110, karbo:23, protein:2.6, lemak:0.9 },
+  { name:'Nasi Goreng', kal:168, karbo:23, protein:4, lemak:6 },
+  { name:'Mie Goreng', kal:175, karbo:22, protein:4, lemak:8 },
+  { name:'Mie Instan Rebus', kal:138, karbo:20, protein:3, lemak:5 },
+  { name:'Roti Tawar', kal:265, karbo:49, protein:9, lemak:3.2 },
+  { name:'Kentang Rebus', kal:87, karbo:20, protein:1.9, lemak:0.1 },
+  { name:'Tahu', kal:76, karbo:1.9, protein:8, lemak:4.8 },
+  { name:'Tahu Goreng', kal:150, karbo:4, protein:10, lemak:11 },
+  { name:'Tempe', kal:193, karbo:9.4, protein:19, lemak:10.8 },
+  { name:'Tempe Goreng', kal:260, karbo:14, protein:15, lemak:17 },
+  { name:'Telur Ayam Rebus', kal:155, karbo:1.1, protein:13, lemak:11 },
+  { name:'Telur Ayam Ceplok/Dadar', kal:196, karbo:1, protein:14, lemak:15 },
+  { name:'Ayam Panggang/Rebus (tanpa kulit)', kal:165, karbo:0, protein:31, lemak:3.6 },
+  { name:'Ayam Goreng (dengan kulit)', kal:246, karbo:8, protein:20, lemak:15 },
+  { name:'Daging Sapi', kal:250, karbo:0, protein:26, lemak:15 },
+  { name:'Rendang', kal:195, karbo:5, protein:18, lemak:12 },
+  { name:'Ikan Kukus/Bakar', kal:128, karbo:0, protein:26, lemak:2.7 },
+  { name:'Udang', kal:99, karbo:0.2, protein:24, lemak:0.3 },
+  { name:'Bakso', kal:180, karbo:8, protein:12, lemak:11 },
+  { name:'Sate Ayam', kal:220, karbo:8, protein:18, lemak:13 },
+  { name:'Soto Ayam', kal:90, karbo:6, protein:8, lemak:4 },
+  { name:'Gado-gado', kal:150, karbo:12, protein:6, lemak:9 },
+  { name:'Sayur Lodeh', kal:80, karbo:6, protein:2, lemak:5.5 },
+  { name:'Sayur Asem', kal:35, karbo:6, protein:1.5, lemak:0.8 },
+  { name:'Bayam Rebus', kal:23, karbo:3.6, protein:2.9, lemak:0.4 },
+  { name:'Kangkung Tumis', kal:70, karbo:4, protein:2, lemak:5 },
+  { name:'Wortel', kal:41, karbo:10, protein:0.9, lemak:0.2 },
+  { name:'Brokoli', kal:34, karbo:7, protein:2.8, lemak:0.4 },
+  { name:'Kacang Panjang', kal:47, karbo:8, protein:2.8, lemak:0.4 },
+  { name:'Pisang', kal:89, karbo:23, protein:1.1, lemak:0.3 },
+  { name:'Apel', kal:52, karbo:14, protein:0.3, lemak:0.2 },
+  { name:'Jeruk', kal:47, karbo:12, protein:0.9, lemak:0.1 },
+  { name:'Pepaya', kal:43, karbo:11, protein:0.5, lemak:0.3 },
+  { name:'Semangka', kal:30, karbo:8, protein:0.6, lemak:0.2 },
+  { name:'Susu Sapi Full Cream (100ml)', kal:61, karbo:4.8, protein:3.2, lemak:3.3 },
+  { name:'Yogurt Plain (100ml)', kal:61, karbo:4.7, protein:3.5, lemak:3.3 },
+  { name:'Keju Cheddar', kal:402, karbo:1.3, protein:25, lemak:33 },
+  { name:'Kacang Tanah', kal:567, karbo:16, protein:26, lemak:49 },
+  { name:'Gorengan (bakwan/tahu isi)', kal:280, karbo:25, protein:6, lemak:18 },
+  { name:'Kerupuk', kal:470, karbo:60, protein:5, lemak:20 }
+];
 
-function addFood() {
-  const name = document.getElementById('foodName').value.trim();
-  const cal = parseInt(document.getElementById('foodCal').value);
-  const portion = parseInt(document.getElementById('foodPortion').value) || 100;
-  if (!name || !cal) { alert('Isi nama dan kalori'); return; }
-  const adj = Math.round(cal * (portion / 100));
-  foodItems.push({ name, cal: adj, portion, time: new Date().toLocaleTimeString('id-ID') });
-  totalCalories += adj;
-  renderFoodList();
-  document.getElementById('foodName').value = '';
-  document.getElementById('foodCal').value = '';
-  document.getElementById('foodPortion').value = '100';
+const MEALS = [
+  { key:'pagi', label:'🌅 Pagi (Sarapan)' },
+  { key:'siang', label:'☀️ Siang (Makan Siang)' },
+  { key:'sore', label:'🌇 Sore' },
+  { key:'malam', label:'🌙 Malam (Makan Malam)' }
+];
+
+function getFoodState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('kaloriState'));
+    if (s && s.date === todayStr()) return s;
+  } catch (e) {}
+  return { date: todayStr(), meals: { pagi:[], siang:[], sore:[], malam:[] } };
 }
-function removeFood(idx) { totalCalories -= foodItems[idx].cal; foodItems.splice(idx, 1); renderFoodList(); }
-function renderFoodList() {
-  const l = document.getElementById('foodList'), t = document.getElementById('totalCal');
-  l.innerHTML = foodItems.length === 0
-    ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada makanan tercatat</p>'
-    : foodItems.map((f,i) => '<div class="food-item"><span>' + f.name + ' (' + f.portion + 'g) — ' + f.cal + ' kkal</span><span class="remove" onclick="removeFood(' + i + ')">✕</span></div>').join('');
-  t.textContent = totalCalories + ' kkal';
+function saveFoodState(s) { try { localStorage.setItem('kaloriState', JSON.stringify(s)); } catch (e) {} }
+
+function mealTotals(items) {
+  return items.reduce((acc, it) => ({
+    kal: acc.kal + it.kal, karbo: acc.karbo + it.karbo, protein: acc.protein + it.protein, lemak: acc.lemak + it.lemak
+  }), { kal:0, karbo:0, protein:0, lemak:0 });
+}
+function grandFoodTotals() {
+  const state = getFoodState();
+  let t = { kal:0, karbo:0, protein:0, lemak:0 };
+  MEALS.forEach(m => {
+    const mt = mealTotals(state.meals[m.key] || []);
+    t.kal += mt.kal; t.karbo += mt.karbo; t.protein += mt.protein; t.lemak += mt.lemak;
+  });
+  t.karbo = Math.round(t.karbo * 10) / 10;
+  t.protein = Math.round(t.protein * 10) / 10;
+  t.lemak = Math.round(t.lemak * 10) / 10;
+  return t;
+}
+
+function renderKaloriScreen() {
+  const container = document.getElementById('kaloriMealsContainer');
+  if (!container) return;
+  container.innerHTML = MEALS.map(m =>
+    '<div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:12px;">' +
+      '<h2 style="font-size:1rem;">' + m.label + '</h2>' +
+      '<div class="row">' +
+        '<div class="form-group" style="flex:2;"><select id="foodSelect-' + m.key + '"><option value="">Pilih makanan...</option>' +
+          foodDatabase.map((f,i) => '<option value="' + i + '">' + f.name + '</option>').join('') +
+        '</select></div>' +
+        '<div class="form-group" style="flex:1;"><input type="number" id="foodPortion-' + m.key + '" value="100" placeholder="gram"></div>' +
+      '</div>' +
+      '<button class="btn" style="padding:10px;margin-bottom:10px;" onclick="addFoodTo(\'' + m.key + '\')">➕ Tambah</button>' +
+      '<div id="foodList-' + m.key + '"></div>' +
+      '<div style="font-size:0.8rem;color:#666;text-align:right;margin-top:6px;" id="mealSubtotal-' + m.key + '"></div>' +
+    '</div>'
+  ).join('');
+  MEALS.forEach(m => renderMealList(m.key));
+  renderKaloriTotals();
+}
+
+function addFoodTo(meal) {
+  const sel = document.getElementById('foodSelect-' + meal);
+  const idx = sel.value;
+  if (idx === '') { alert('Pilih makanan dulu'); return; }
+  const portion = parseFloat(document.getElementById('foodPortion-' + meal).value) || 100;
+  const f = foodDatabase[idx];
+  const factor = portion / 100;
+  const state = getFoodState();
+  state.meals[meal].push({
+    name: f.name,
+    portion: portion,
+    kal: Math.round(f.kal * factor),
+    karbo: Math.round(f.karbo * factor * 10) / 10,
+    protein: Math.round(f.protein * factor * 10) / 10,
+    lemak: Math.round(f.lemak * factor * 10) / 10
+  });
+  saveFoodState(state);
+  sel.value = '';
+  document.getElementById('foodPortion-' + meal).value = '100';
+  renderMealList(meal);
+  renderKaloriTotals();
+}
+function removeFoodFrom(meal, idx) {
+  const state = getFoodState();
+  state.meals[meal].splice(idx, 1);
+  saveFoodState(state);
+  renderMealList(meal);
+  renderKaloriTotals();
+}
+function renderMealList(meal) {
+  const state = getFoodState();
+  const items = state.meals[meal] || [];
+  const listEl = document.getElementById('foodList-' + meal);
+  if (!listEl) return;
+  listEl.innerHTML = items.length === 0
+    ? '<p style="color:#999;font-size:0.85rem;padding:8px 0;">Belum ada makanan</p>'
+    : items.map((it, i) => '<div class="food-item"><span>' + it.name + ' (' + it.portion + 'g) — ' + it.kal + ' kkal</span><span class="remove" onclick="removeFoodFrom(\'' + meal + '\',' + i + ')">✕</span></div>').join('');
+  const t = mealTotals(items);
+  const subEl = document.getElementById('mealSubtotal-' + meal);
+  if (subEl) subEl.textContent = items.length ? ('Subtotal: ' + t.kal + ' kkal | KH ' + Math.round(t.karbo*10)/10 + 'g | P ' + Math.round(t.protein*10)/10 + 'g | L ' + Math.round(t.lemak*10)/10 + 'g') : '';
+}
+function renderKaloriTotals() {
+  const t = grandFoodTotals();
+  const totalEl = document.getElementById('kaloriGrandTotal');
+  if (totalEl) totalEl.innerHTML = '<strong>Total Hari Ini:</strong> ' + t.kal + ' kkal<br>Karbohidrat: ' + t.karbo + 'g &nbsp;|&nbsp; Protein: ' + t.protein + 'g &nbsp;|&nbsp; Lemak: ' + t.lemak + 'g';
+  renderDashboardKalori(t);
+}
+function renderDashboardKalori(t) {
+  t = t || grandFoodTotals();
+  const el = document.getElementById('dashKalori');
+  if (!el) return;
+  el.innerHTML =
+    '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#e65100;">' + t.kal + '</div><div style="color:#888;font-size:0.85rem;">kkal hari ini</div></div>' +
+    '<div style="display:flex;justify-content:space-around;text-align:center;font-size:0.85rem;color:#555;margin-bottom:12px;">' +
+      '<div><strong>' + t.karbo + 'g</strong><br>Karbo</div>' +
+      '<div><strong>' + t.protein + 'g</strong><br>Protein</div>' +
+      '<div><strong>' + t.lemak + 'g</strong><br>Lemak</div>' +
+    '</div>' +
+    '<button class="btn" onclick="switchTab(\'kalori\')">➕ Kelola Makanan</button>';
 }
 
 // ===== DASHBOARD (BMI otomatis dari biodata + air minum) =====
@@ -526,6 +668,7 @@ function renderDashboard() {
     bmiEl.innerHTML = '<p style="color:#999;text-align:center;padding:12px;">Lengkapi berat & tinggi badan di <strong>Biodata</strong> untuk melihat BMI.</p>';
   }
   renderWaterWidget();
+  renderDashboardKalori();
 }
 
 // ===== AIR MINUM =====
@@ -1028,36 +1171,6 @@ function exitApp() {
   ['pauseWalk', 'stopWalk', 'pauseBreath', 'stopBreath'].forEach(function (f) { wrap(f, null, off); });
 })();
 
-/* ===== PATCH APK: daftar makanan tersimpan (reset otomatis tiap hari) ===== */
-(function () {
-  var KEY = 'foodItems', DKEY = 'foodDate';
-  function today() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function save() {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(foodItems));
-      localStorage.setItem(DKEY, today());
-      localStorage.setItem('totalCalories', String(totalCalories));
-    } catch (e) {}
-  }
-  try {
-    if (localStorage.getItem(DKEY) === today()) {
-      var f = JSON.parse(localStorage.getItem(KEY) || '[]');
-      if (Array.isArray(f) && f.length) {
-        foodItems = f;
-        totalCalories = f.reduce(function (s, x) { return s + (Number(x.cal) || 0); }, 0);
-        renderFoodList();
-      }
-    }
-  } catch (e) {}
-  ['addFood', 'removeFood', 'resetAllData'].forEach(function (name) {
-    var orig = window[name];
-    if (typeof orig !== 'function') return;
-    window[name] = function () { var r = orig.apply(this, arguments); save(); return r; };
-  });
-})();
 </script>
 </body>
 </html>
