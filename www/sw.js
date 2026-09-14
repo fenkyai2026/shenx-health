@@ -1,6 +1,6 @@
 /* SHENX HEALTH — service worker (khusus versi web/PWA).
    Cache-first supaya aplikasi tetap jalan tanpa internet. */
-const CACHE = 'shenx-health-v3';
+const CACHE = 'shenx-health-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,24 @@ const ASSETS = [
   './images/bg-setting.jpg',
   './images/bg-bodyweight.jpg',
   './images/bg-tidur.jpg',
-  './images/bg-positif.jpg'
+  './images/bg-positif.jpg',
+  './videos/ex-pushup.mp4',
+  './videos/ex-squat.mp4',
+  './videos/ex-plank.mp4',
+  './videos/ex-situp.mp4',
+  './videos/ex-lunges.mp4',
+  './videos/ex-jumpingjack.mp4',
+  './videos/ex-mountainclimber.mp4',
+  './videos/ex-burpee.mp4',
+  './videos/ex-highknees.mp4',
+  './videos/ex-russiantwist.mp4',
+  './videos/ex-legraise.mp4',
+  './videos/ex-bicyclecrunch.mp4',
+  './videos/ex-squatbarbel.mp4',
+  './videos/ex-deadlift.mp4',
+  './videos/ex-benchpress.mp4',
+  './videos/ex-overheadpress.mp4',
+  './videos/ex-bentoverrow.mp4'
 ];
 
 self.addEventListener('install', e => {
