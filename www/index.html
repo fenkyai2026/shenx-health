@@ -49,6 +49,64 @@
   .phase-rest { background: #f3e5f5; color: #6a1b9a; }
   .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
   .progress-fill { height: 100%; background: #2e7d32; border-radius: 8px; transition: width 1s linear; }
+  .bw-anim-stage { display: flex; justify-content: center; align-items: center; margin: 4px 0 8px; }
+  .bw-figure-svg { width: 100px; height: 130px; overflow: visible; }
+  .bw-floor { stroke: #ddd; stroke-width: 3; stroke-linecap: round; }
+  .bw-limb, .bw-torso { stroke: #e94057; stroke-width: 7; stroke-linecap: round; fill: none; }
+  .bw-head { fill: #e94057; }
+  @keyframes bwBreathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  .bw-ex-idle .bw-head, .bw-ex-idle .bw-torso,
+  .bw-ex-rest .bw-head, .bw-ex-rest .bw-torso { animation: bwBreathe 2.2s ease-in-out infinite; }
+  @keyframes bwSquat { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(4px) scaleY(0.78); } }
+  .bw-ex-squat .bw-figure { transform-origin: 50px 122px; animation: bwSquat 1.1s ease-in-out infinite; }
+  @keyframes bwArmSwing { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(35deg); } }
+  .bw-ex-squat .bw-armL, .bw-ex-squat .bw-armR,
+  .bw-ex-lunges .bw-armL, .bw-ex-lunges .bw-armR { transform-origin: 50px 40px; animation: bwArmSwing 1.1s ease-in-out infinite; }
+  @keyframes bwLunge { 0%, 100% { transform: translate(0,0) scaleY(1); } 50% { transform: translate(5px,4px) scaleY(0.85); } }
+  .bw-ex-lunges .bw-figure { transform-origin: 50px 122px; animation: bwLunge 1.2s ease-in-out infinite; }
+  @keyframes bwHop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes bwJJArmL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-150deg); } }
+  @keyframes bwJJArmR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(150deg); } }
+  @keyframes bwJJLegL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-20deg); } }
+  @keyframes bwJJLegR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(20deg); } }
+  .bw-ex-jumpingjack .bw-figure { animation: bwHop 0.6s ease-in-out infinite; }
+  .bw-ex-jumpingjack .bw-armL { transform-origin: 50px 40px; animation: bwJJArmL 0.6s ease-in-out infinite; }
+  .bw-ex-jumpingjack .bw-armR { transform-origin: 50px 40px; animation: bwJJArmR 0.6s ease-in-out infinite; }
+  .bw-ex-jumpingjack .bw-legL { transform-origin: 50px 80px; animation: bwJJLegL 0.6s ease-in-out infinite; }
+  .bw-ex-jumpingjack .bw-legR { transform-origin: 50px 80px; animation: bwJJLegR 0.6s ease-in-out infinite; }
+  @keyframes bwHKLeg { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(75deg); } }
+  .bw-ex-highknees .bw-legL { transform-origin: 50px 80px; animation: bwHKLeg 0.5s ease-in-out infinite; }
+  .bw-ex-highknees .bw-legR { transform-origin: 50px 80px; animation: bwHKLeg 0.5s ease-in-out infinite; animation-delay: 0.25s; }
+  .bw-ex-highknees .bw-armL, .bw-ex-highknees .bw-armR { transform-origin: 50px 40px; animation: bwArmSwing 0.5s ease-in-out infinite; }
+  @keyframes bwBurpeeFigure { 0%, 100% { transform: translateY(0) scaleY(1); } 25% { transform: translateY(6px) scaleY(0.8); } 50% { transform: translateY(10px) scaleY(0.7); } 75% { transform: translateY(-14px) scaleY(1.05); } }
+  .bw-ex-burpee .bw-figure { transform-origin: 50px 122px; animation: bwBurpeeFigure 1.6s ease-in-out infinite; }
+  .bw-ex-burpee .bw-armL { transform-origin: 50px 40px; animation: bwJJArmL 1.6s ease-in-out infinite; }
+  .bw-ex-burpee .bw-armR { transform-origin: 50px 40px; animation: bwJJArmR 1.6s ease-in-out infinite; }
+  @keyframes bwPlank { 0%, 100% { transform: rotate(68deg) translate(0,0); } 50% { transform: rotate(68deg) translate(0,-1.5px); } }
+  .bw-ex-pushup .bw-upper, .bw-ex-plank .bw-upper, .bw-ex-mountainclimber .bw-upper { transform-origin: 50px 80px; }
+  .bw-ex-pushup .bw-lower, .bw-ex-plank .bw-lower, .bw-ex-mountainclimber .bw-lower { transform-origin: 50px 80px; transform: rotate(-25deg); }
+  .bw-ex-plank .bw-upper { animation: bwPlank 1.8s ease-in-out infinite; }
+  @keyframes bwPushup { 0%, 100% { transform: rotate(68deg) translate(0,0); } 50% { transform: rotate(68deg) translate(-4px,-4px); } }
+  .bw-ex-pushup .bw-upper { animation: bwPushup 1.1s ease-in-out infinite; }
+  .bw-ex-mountainclimber .bw-upper { transform: rotate(68deg); }
+  @keyframes bwMCLeg { 0%, 100% { transform: rotate(-25deg); } 50% { transform: rotate(35deg); } }
+  .bw-ex-mountainclimber .bw-legL { transform-origin: 50px 80px; animation: bwMCLeg 0.5s ease-in-out infinite; }
+  .bw-ex-mountainclimber .bw-legR { transform-origin: 50px 80px; animation: bwMCLeg 0.5s ease-in-out infinite; animation-delay: 0.25s; }
+  @keyframes bwSitup { 0%, 100% { transform: rotate(80deg); } 50% { transform: rotate(25deg); } }
+  .bw-ex-situp .bw-lower { transform-origin: 50px 80px; transform: rotate(80deg); }
+  .bw-ex-situp .bw-upper { transform-origin: 50px 80px; animation: bwSitup 1.3s ease-in-out infinite; }
+  @keyframes bwLegRaise { 0%, 100% { transform: rotate(80deg); } 50% { transform: rotate(15deg); } }
+  .bw-ex-legraise .bw-upper { transform-origin: 50px 80px; transform: rotate(80deg); }
+  .bw-ex-legraise .bw-lower { transform-origin: 50px 80px; animation: bwLegRaise 1.4s ease-in-out infinite; }
+  @keyframes bwCrunchTwist { 0%, 100% { transform: rotate(80deg); } 50% { transform: rotate(55deg); } }
+  @keyframes bwBikeLeg { 0%, 100% { transform: rotate(70deg); } 50% { transform: rotate(20deg); } }
+  .bw-ex-bicyclecrunch .bw-upper { transform-origin: 50px 80px; animation: bwCrunchTwist 1s ease-in-out infinite; }
+  .bw-ex-bicyclecrunch .bw-legL { transform-origin: 50px 80px; animation: bwBikeLeg 1s ease-in-out infinite; }
+  .bw-ex-bicyclecrunch .bw-legR { transform-origin: 50px 80px; animation: bwBikeLeg 1s ease-in-out infinite; animation-delay: 0.5s; }
+  .bw-ex-russiantwist .bw-lower { transform-origin: 50px 80px; transform: rotate(75deg); }
+  .bw-ex-russiantwist .bw-upper { transform-origin: 50px 80px; transform: rotate(35deg); }
+  @keyframes bwTwistArm { 0%, 100% { transform: rotate(35deg); } 50% { transform: rotate(-35deg); } }
+  .bw-ex-russiantwist .bw-armL, .bw-ex-russiantwist .bw-armR { transform-origin: 50px 40px; animation: bwTwistArm 1s ease-in-out infinite; }
   .food-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
   .food-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f5f5f5; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; }
   .food-item .remove { color: #c62828; cursor: pointer; font-weight: bold; padding: 4px 8px; }
@@ -297,6 +355,23 @@
     </select>
   </div>
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
+  <div class="bw-anim-stage bw-ex-idle" id="bwAnimStage">
+    <svg viewBox="0 0 100 130" class="bw-figure-svg">
+      <line class="bw-floor" x1="6" y1="126" x2="94" y2="126"/>
+      <g class="bw-figure">
+        <g class="bw-lower">
+          <line class="bw-limb bw-legL" x1="50" y1="80" x2="34" y2="122"/>
+          <line class="bw-limb bw-legR" x1="50" y1="80" x2="66" y2="122"/>
+        </g>
+        <g class="bw-upper">
+          <line class="bw-limb bw-armL" x1="50" y1="40" x2="30" y2="62"/>
+          <line class="bw-limb bw-armR" x1="50" y1="40" x2="70" y2="62"/>
+          <line class="bw-limb bw-torso" x1="50" y1="30" x2="50" y2="80"/>
+          <circle class="bw-head" cx="50" cy="18" r="11"/>
+        </g>
+      </g>
+    </svg>
+  </div>
   <div class="phase-indicator phase-rest" id="bwPhaseText">Siap untuk mulai?</div>
   <div class="timer-display" id="bwTimerDisplay">00:00</div>
   <div class="progress-bar"><div class="progress-fill" id="bwProgressFill" style="width:0%"></div></div>
@@ -1250,6 +1325,15 @@ const bodyweightModes = {
   ]}
 };
 let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwRounds=0;
+const bwAnimMap = {
+  'Push-up':'pushup', 'Squat':'squat', 'Plank':'plank', 'Sit-up':'situp', 'Lunges':'lunges',
+  'Jumping Jack':'jumpingjack', 'Mountain Climber':'mountainclimber', 'Burpee':'burpee', 'High Knees':'highknees',
+  'Russian Twist':'russiantwist', 'Leg Raise':'legraise', 'Bicycle Crunch':'bicyclecrunch', 'Istirahat':'rest'
+};
+function setBwAnim(exerciseName) {
+  const slug = bwAnimMap[exerciseName] || 'idle';
+  document.getElementById('bwAnimStage').className = 'bw-anim-stage bw-ex-' + slug;
+}
 
 function selectBodyweightMode(mode) {
   if (bwRunning) { document.getElementById('bwModeSelect').value = bwMode; return; }
@@ -1266,6 +1350,7 @@ function resetBodyweightUI() {
   document.getElementById('bwInfo').textContent = bodyweightModes[bwMode].name + ' — Maks ' + bodyweightModes[bwMode].max + ' putaran/sesi';
   document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
   document.getElementById('bwStartBtn').onclick = startBodyweight;
+  setBwAnim('idle');
 }
 function startBodyweight() {
   if (bwRunning) return;
@@ -1296,6 +1381,7 @@ function runBodyweightPhase() {
 function updateBodyweightDisplay() {
   const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
   const shown = Math.max(0, bwPhaseSec);
+  setBwAnim(ph.name);
   document.getElementById('bwTimerDisplay').textContent = fmt(shown);
   document.getElementById('bwProgressFill').style.width = (((ph.sec - shown) / ph.sec) * 100) + '%';
   const p = document.getElementById('bwPhaseText');
@@ -1316,6 +1402,7 @@ function finishBodyweightSession() {
   document.getElementById('bwInfo').textContent = mode.name + ' | Sesi selesai (' + bwRounds + '/' + mode.max + ')';
   document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
   document.getElementById('bwStartBtn').onclick = startBodyweight;
+  setBwAnim('idle');
 }
 function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning = false; Shenx.stopSpeak(); document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('bwStartBtn').onclick = startBodyweight; }
 function stopBodyweight() {
