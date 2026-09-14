@@ -109,6 +109,16 @@
   .bw-ex-russiantwist .bw-upper { transform-origin: 50px 80px; transform: rotate(35deg); }
   @keyframes bwTwistArm { 0%, 100% { transform: rotate(35deg); } 50% { transform: rotate(-35deg); } }
   .bw-ex-russiantwist .bw-armL, .bw-ex-russiantwist .bw-armR { transform-origin: 50px 40px; animation: bwTwistArm 1s ease-in-out infinite; }
+  @keyframes bwDeadlift { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(45deg); } }
+  .bw-ex-deadlift .bw-upper { transform-origin: 50px 80px; animation: bwDeadlift 1.4s ease-in-out infinite; }
+  .bw-ex-benchpress .bw-lower, .bw-ex-benchpress .bw-upper { transform-origin: 50px 80px; transform: rotate(80deg); }
+  @keyframes bwBenchArm { 0%, 100% { transform: scale(0.6); } 50% { transform: scale(1); } }
+  .bw-ex-benchpress .bw-armL, .bw-ex-benchpress .bw-armR { transform-origin: 50px 40px; animation: bwBenchArm 1s ease-in-out infinite; }
+  .bw-ex-overheadpress .bw-armL { transform-origin: 50px 40px; animation: bwJJArmL 1.1s ease-in-out infinite; }
+  .bw-ex-overheadpress .bw-armR { transform-origin: 50px 40px; animation: bwJJArmR 1.1s ease-in-out infinite; }
+  .bw-ex-bentoverrow .bw-upper { transform-origin: 50px 80px; transform: rotate(45deg); }
+  @keyframes bwRowArm { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.55); } }
+  .bw-ex-bentoverrow .bw-armL, .bw-ex-bentoverrow .bw-armR { transform-origin: 50px 40px; animation: bwRowArm 0.9s ease-in-out infinite; }
   .food-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
   .food-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f5f5f5; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; }
   .food-item .remove { color: #c62828; cursor: pointer; font-weight: bold; padding: 4px 8px; }
@@ -354,6 +364,7 @@
       <option value="pemula">🔰 Dasar — Push-up, Squat, Plank, Sit-up, Lunges</option>
       <option value="hiit">🔥 HIIT Kardio — Jumping Jack, Mountain Climber, Burpee, High Knees</option>
       <option value="core">🧘 Core Fokus — Plank, Russian Twist, Leg Raise, Bicycle Crunch</option>
+      <option value="barbel">🏋️ Barbel — Squat, Deadlift, Bench Press, Overhead Press, Row</option>
     </select>
   </div>
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
@@ -385,6 +396,7 @@
   <div class="phase-indicator phase-rest" id="bwPhaseText">Siap untuk mulai?</div>
   <div class="timer-display" id="bwTimerDisplay">00:00</div>
   <div class="progress-bar"><div class="progress-fill" id="bwProgressFill" style="width:0%"></div></div>
+  <button class="btn" id="bwRepDoneBtn" onclick="finishBwRepSet()" style="display:none;background:#e94057;margin-bottom:10px;">✅ Set Selesai — Lanjut</button>
   <div class="row"><button class="btn" id="bwStartBtn" onclick="startBodyweight()" style="flex:2;">▶️ Mulai</button><button class="btn" id="bwStopBtn" onclick="stopBodyweight()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info" id="bwInfo">Pilih mode & tekan Mulai</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
@@ -599,7 +611,10 @@ const guides = {
       tujuan:'Membakar kalori maksimal dalam waktu singkat dan meningkatkan kapasitas kardio.' },
     { key:'core', title:'🧘 Core Fokus', tag:'walk', text:'Plank, Russian Twist, Leg Raise, Bicycle Crunch — masing-masing 30 detik gerak, 15 detik istirahat.', maxInfo:'3 putaran/sesi',
       fungsi:'Semua gerakan menargetkan otot perut dan inti tubuh, intensitas kardio lebih rendah dari HIIT.',
-      tujuan:'Memperkuat otot inti untuk postur dan stabilitas tubuh yang lebih baik.' }
+      tujuan:'Memperkuat otot inti untuk postur dan stabilitas tubuh yang lebih baik.' },
+    { key:'barbel', title:'🏋️ Barbel', tag:'walk', text:'Squat, Deadlift, Bench Press, Overhead Press, Bent-over Row — masing-masing berdasarkan jumlah repetisi (bukan waktu), lalu 60 detik istirahat antar set.', maxInfo:'3 putaran/sesi',
+      fungsi:'Latihan beban dasar yang menargetkan kelompok otot besar (kaki, dada, bahu, punggung) dengan repetisi terkontrol.',
+      tujuan:'Membangun kekuatan otot secara progresif. Sesuaikan beban barbel dengan kemampuan sendiri; fokus pada teknik yang benar.' }
   ]
 };
 
@@ -1332,13 +1347,21 @@ const bodyweightModes = {
     { name:'Russian Twist', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Leg Raise', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Bicycle Crunch', sec:30 }, { name:'Istirahat', sec:15, rest:true }
+  ]},
+  barbel: { name:'Barbel', met:6.0, max:3, exercises:[
+    { name:'Squat Barbel', reps:10 }, { name:'Istirahat', sec:60, rest:true },
+    { name:'Deadlift', reps:8 }, { name:'Istirahat', sec:60, rest:true },
+    { name:'Bench Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
+    { name:'Overhead Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
+    { name:'Bent-over Row', reps:10 }, { name:'Istirahat', sec:60, rest:true }
   ]}
 };
 let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwRounds=0;
 const bwAnimMap = {
   'Push-up':'pushup', 'Squat':'squat', 'Plank':'plank', 'Sit-up':'situp', 'Lunges':'lunges',
   'Jumping Jack':'jumpingjack', 'Mountain Climber':'mountainclimber', 'Burpee':'burpee', 'High Knees':'highknees',
-  'Russian Twist':'russiantwist', 'Leg Raise':'legraise', 'Bicycle Crunch':'bicyclecrunch', 'Istirahat':'rest'
+  'Russian Twist':'russiantwist', 'Leg Raise':'legraise', 'Bicycle Crunch':'bicyclecrunch', 'Istirahat':'rest',
+  'Squat Barbel':'squat', 'Deadlift':'deadlift', 'Bench Press':'benchpress', 'Overhead Press':'overheadpress', 'Bent-over Row':'bentoverrow'
 };
 function setBwAnim(exerciseName) {
   const slug = bwAnimMap[exerciseName] || 'idle';
@@ -1360,6 +1383,7 @@ function resetBodyweightUI() {
   document.getElementById('bwInfo').textContent = bodyweightModes[bwMode].name + ' — Maks ' + bodyweightModes[bwMode].max + ' putaran/sesi';
   document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
   document.getElementById('bwStartBtn').onclick = startBodyweight;
+  document.getElementById('bwRepDoneBtn').style.display = 'none';
   setBwAnim('idle');
 }
 function startBodyweight() {
@@ -1376,9 +1400,15 @@ function runBodyweightPhase() {
     if (mode.max && bwRounds >= mode.max) { finishBodyweightSession(); return; }
   }
   const ph = mode.exercises[bwPhaseIdx];
-  bwPhaseSec = ph.sec;
   speak(ph.name);
   Shenx.vibrate(ph.rest ? 60 : 120);
+  if (ph.reps) {
+    updateBodyweightDisplay();
+    document.getElementById('bwRepDoneBtn').style.display = 'block';
+    return;
+  }
+  document.getElementById('bwRepDoneBtn').style.display = 'none';
+  bwPhaseSec = ph.sec;
   updateBodyweightDisplay();
   bwTimer = setInterval(function() {
     bwPhaseSec--;
@@ -1388,15 +1418,33 @@ function runBodyweightPhase() {
     if (bwPhaseSec <= 0) { clearInterval(bwTimer); bwPhaseIdx++; if (bwRunning) runBodyweightPhase(); }
   }, 1000);
 }
+function finishBwRepSet() {
+  if (!bwRunning) return;
+  const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
+  if (!ph || !ph.reps) return;
+  for (let i = 0; i < ph.reps * 3; i++) addBurnedTick(mode.met);
+  Shenx.vibrate(120);
+  document.getElementById('bwRepDoneBtn').style.display = 'none';
+  bwPhaseIdx++;
+  runBodyweightPhase();
+}
 function updateBodyweightDisplay() {
   const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
-  const shown = Math.max(0, bwPhaseSec);
   setBwAnim(ph.name);
-  document.getElementById('bwTimerDisplay').textContent = fmt(shown);
-  document.getElementById('bwProgressFill').style.width = (((ph.sec - shown) / ph.sec) * 100) + '%';
   const p = document.getElementById('bwPhaseText');
-  p.textContent = ph.name + ' — ' + fmt(shown) + ' lagi';
-  p.className = ph.rest ? 'phase-indicator phase-rest' : 'phase-indicator phase-fast';
+  const fill = document.getElementById('bwProgressFill');
+  if (ph.reps) {
+    document.getElementById('bwTimerDisplay').textContent = ph.reps + 'x';
+    fill.style.width = '0%';
+    p.textContent = ph.name + ' — target ' + ph.reps + ' repetisi';
+    p.className = 'phase-indicator phase-fast';
+  } else {
+    const shown = Math.max(0, bwPhaseSec);
+    document.getElementById('bwTimerDisplay').textContent = fmt(shown);
+    fill.style.width = (((ph.sec - shown) / ph.sec) * 100) + '%';
+    p.textContent = ph.name + ' — ' + fmt(shown) + ' lagi';
+    p.className = ph.rest ? 'phase-indicator phase-rest' : 'phase-indicator phase-fast';
+  }
   document.getElementById('bwInfo').textContent = mode.name + ' | Putaran ' + (bwRounds+1) + '/' + mode.max + ' | ' + ph.name;
 }
 function finishBodyweightSession() {
@@ -1412,9 +1460,10 @@ function finishBodyweightSession() {
   document.getElementById('bwInfo').textContent = mode.name + ' | Sesi selesai (' + bwRounds + '/' + mode.max + ')';
   document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
   document.getElementById('bwStartBtn').onclick = startBodyweight;
+  document.getElementById('bwRepDoneBtn').style.display = 'none';
   setBwAnim('idle');
 }
-function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning = false; Shenx.stopSpeak(); document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('bwStartBtn').onclick = startBodyweight; }
+function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning = false; Shenx.stopSpeak(); document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('bwStartBtn').onclick = startBodyweight; document.getElementById('bwRepDoneBtn').style.display = 'none'; }
 function stopBodyweight() {
   clearInterval(bwTimer); bwTimer = null; bwRunning = false;
   Shenx.stopSpeak();
