@@ -49,11 +49,13 @@
   .phase-rest { background: #f3e5f5; color: #6a1b9a; }
   .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
   .progress-fill { height: 100%; background: #2e7d32; border-radius: 8px; transition: width 1s linear; }
-  .bw-anim-stage { display: flex; justify-content: center; align-items: center; margin: 4px 0 8px; }
-  .bw-figure-svg { width: 100px; height: 130px; overflow: visible; }
-  .bw-floor { stroke: #ddd; stroke-width: 3; stroke-linecap: round; }
-  .bw-limb, .bw-torso { stroke: #e94057; stroke-width: 7; stroke-linecap: round; fill: none; }
-  .bw-head { fill: #e94057; }
+  .bw-anim-stage { position: relative; display: flex; justify-content: center; align-items: flex-end; margin: 4px 0 12px; padding: 18px 0 14px; border-radius: 20px; overflow: hidden; background: linear-gradient(160deg, rgba(233,64,87,0.18), rgba(240,152,25,0.14)); border: 1px solid rgba(233,64,87,0.2); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 14px rgba(233,64,87,0.12); }
+  .bw-anim-stage::before { content: ''; position: absolute; width: 150px; height: 150px; border-radius: 50%; top: -20px; background: radial-gradient(circle, rgba(255,255,255,0.55), rgba(255,255,255,0) 70%); }
+  .bw-figure-svg { position: relative; z-index: 1; width: 108px; height: 138px; overflow: visible; filter: drop-shadow(0 5px 6px rgba(120,20,30,0.25)); }
+  .bw-floor { stroke: rgba(120,40,30,0.18); stroke-width: 7; stroke-linecap: round; }
+  .bw-limb, .bw-torso { stroke: url(#bwFigGrad); stroke-width: 11; stroke-linecap: round; fill: none; }
+  .bw-head { fill: url(#bwFigGrad); }
+  .bw-joint { fill: url(#bwFigGrad); stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
   @keyframes bwBreathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
   .bw-ex-idle .bw-head, .bw-ex-idle .bw-torso,
   .bw-ex-rest .bw-head, .bw-ex-rest .bw-torso { animation: bwBreathe 2.2s ease-in-out infinite; }
@@ -357,17 +359,25 @@
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="bw-anim-stage bw-ex-idle" id="bwAnimStage">
     <svg viewBox="0 0 100 130" class="bw-figure-svg">
+      <defs>
+        <linearGradient id="bwFigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff8a50"/>
+          <stop offset="100%" stop-color="#e94057"/>
+        </linearGradient>
+      </defs>
       <line class="bw-floor" x1="6" y1="126" x2="94" y2="126"/>
       <g class="bw-figure">
         <g class="bw-lower">
           <line class="bw-limb bw-legL" x1="50" y1="80" x2="34" y2="122"/>
           <line class="bw-limb bw-legR" x1="50" y1="80" x2="66" y2="122"/>
         </g>
+        <circle class="bw-joint" cx="50" cy="80" r="4.5"/>
         <g class="bw-upper">
           <line class="bw-limb bw-armL" x1="50" y1="40" x2="30" y2="62"/>
           <line class="bw-limb bw-armR" x1="50" y1="40" x2="70" y2="62"/>
           <line class="bw-limb bw-torso" x1="50" y1="30" x2="50" y2="80"/>
-          <circle class="bw-head" cx="50" cy="18" r="11"/>
+          <circle class="bw-joint" cx="50" cy="40" r="4"/>
+          <circle class="bw-head" cx="50" cy="18" r="12"/>
         </g>
       </g>
     </svg>
