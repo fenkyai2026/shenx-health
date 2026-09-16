@@ -385,6 +385,10 @@
   <div id="tab-riwayat" class="tab-content"><div class="card">
     <button class="back-btn" onclick="goBack()">← Dashboard</button>
     <h2>📋 Riwayat Aktivitas</h2>
+    <h3 style="font-size:0.95rem;color:#1b5e20;margin-bottom:8px;">Ringkasan Harian</h3>
+    <div class="kal-date-strip" id="riwayatDateStrip"></div>
+    <div id="riwayatSummary" style="margin-bottom:20px;"></div>
+    <h3 style="font-size:0.95rem;color:#1b5e20;margin-bottom:8px;">Log Aktivitas</h3>
     <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
     <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
   </div></div>
@@ -568,7 +572,7 @@ function switchTab(tab) {
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'bmidetail') renderBmiDetail();
   if (tab === 'kalori') renderKaloriScreen();
-  if (tab === 'riwayat') renderHistory();
+  if (tab === 'riwayat') { renderHistory(); riwayatSelectedDate = todayStr(); renderRiwayatDateStrip(); renderRiwayatSummary(); }
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
   if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
@@ -617,6 +621,10 @@ function exportData() {
     history: JSON.parse(localStorage.getItem('healthHistory') || '[]'),
     kaloriByDate: JSON.parse(localStorage.getItem('kaloriByDate') || 'null'),
     burnedByDate: JSON.parse(localStorage.getItem('burnedByDate') || 'null'),
+    waterByDate: JSON.parse(localStorage.getItem('waterByDate') || 'null'),
+    sleepByDate: JSON.parse(localStorage.getItem('sleepByDate') || 'null'),
+    moodByDate: JSON.parse(localStorage.getItem('moodByDate') || 'null'),
+    exerciseDoneByDate: JSON.parse(localStorage.getItem('exerciseDoneByDate') || 'null'),
     exportedAt: new Date().toISOString()
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -642,6 +650,10 @@ function handleImport(e) {
       if (data.history) localStorage.setItem('healthHistory', JSON.stringify(data.history));
       if (data.kaloriByDate) localStorage.setItem('kaloriByDate', JSON.stringify(data.kaloriByDate));
       if (data.burnedByDate) localStorage.setItem('burnedByDate', JSON.stringify(data.burnedByDate));
+      if (data.waterByDate) localStorage.setItem('waterByDate', JSON.stringify(data.waterByDate));
+      if (data.sleepByDate) localStorage.setItem('sleepByDate', JSON.stringify(data.sleepByDate));
+      if (data.moodByDate) localStorage.setItem('moodByDate', JSON.stringify(data.moodByDate));
+      if (data.exerciseDoneByDate) localStorage.setItem('exerciseDoneByDate', JSON.stringify(data.exerciseDoneByDate));
       document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
       renderHistory();
       renderKaloriTotals();
@@ -661,11 +673,15 @@ function resetAllData() {
     localStorage.removeItem('kaloriState');
     localStorage.removeItem('kaloriByDate');
     localStorage.removeItem('waterIntake');
+    localStorage.removeItem('waterByDate');
     localStorage.removeItem('burnedState');
     localStorage.removeItem('burnedByDate');
     localStorage.removeItem('sleepState');
+    localStorage.removeItem('sleepByDate');
     localStorage.removeItem('moodState');
+    localStorage.removeItem('moodByDate');
     localStorage.removeItem('exerciseDoneDate');
+    localStorage.removeItem('exerciseDoneByDate');
     document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
     renderKaloriTotals();
     initApp();
@@ -949,8 +965,21 @@ function addBurnedTick(met) {
     renderDashboardKalori();
   } catch (e) {}
 }
-function markExerciseDoneToday() { try { localStorage.setItem('exerciseDoneDate', todayStr()); } catch (e) {} }
-function isExerciseDoneToday() { try { return localStorage.getItem('exerciseDoneDate') === todayStr(); } catch (e) { return false; } }
+function markExerciseDoneToday() {
+  try {
+    const all = JSON.parse(localStorage.getItem('exerciseDoneByDate')) || {};
+    all[todayStr()] = true;
+    localStorage.setItem('exerciseDoneByDate', JSON.stringify(all));
+  } catch (e) {}
+}
+function isExerciseDone(dateStr) {
+  dateStr = dateStr || todayStr();
+  try {
+    const all = JSON.parse(localStorage.getItem('exerciseDoneByDate')) || {};
+    return !!all[dateStr];
+  } catch (e) { return false; }
+}
+function isExerciseDoneToday() { return isExerciseDone(todayStr()); }
 
 function getCalorieGoal() {
   try {
@@ -971,14 +1000,21 @@ function renderDashboardKalori(t) {
 
 // ===== TIDUR =====
 const SLEEP_TARGET = 7;
-function getSleepState() {
+function getSleepState(dateStr) {
+  dateStr = dateStr || todayStr();
   try {
-    const s = JSON.parse(localStorage.getItem('sleepState'));
-    if (s && s.date === todayStr()) return s;
+    const all = JSON.parse(localStorage.getItem('sleepByDate')) || {};
+    if (typeof all[dateStr] === 'number') return { date: dateStr, hours: all[dateStr] };
   } catch (e) {}
-  return { date: todayStr(), hours: 0 };
+  return { date: dateStr, hours: 0 };
 }
-function saveSleepState(s) { try { localStorage.setItem('sleepState', JSON.stringify(s)); } catch (e) {} }
+function saveSleepState(s) {
+  try {
+    const all = JSON.parse(localStorage.getItem('sleepByDate')) || {};
+    all[s.date] = s.hours;
+    localStorage.setItem('sleepByDate', JSON.stringify(all));
+  } catch (e) {}
+}
 function logSleep() {
   const val = parseFloat(document.getElementById('sleepHoursInput').value);
   if (!val || val <= 0 || val > 24) { alert('Isi jam tidur yang valid (0-24)'); return; }
@@ -1002,14 +1038,21 @@ function renderDashTidur() {
 }
 
 // ===== POSITIF (mood harian) =====
-function getMoodState() {
+function getMoodState(dateStr) {
+  dateStr = dateStr || todayStr();
   try {
-    const s = JSON.parse(localStorage.getItem('moodState'));
-    if (s && s.date === todayStr()) return s;
+    const all = JSON.parse(localStorage.getItem('moodByDate')) || {};
+    if (all[dateStr]) return { date: dateStr, mood: all[dateStr] };
   } catch (e) {}
-  return { date: todayStr(), mood: '' };
+  return { date: dateStr, mood: '' };
 }
-function saveMoodState(s) { try { localStorage.setItem('moodState', JSON.stringify(s)); } catch (e) {} }
+function saveMoodState(s) {
+  try {
+    const all = JSON.parse(localStorage.getItem('moodByDate')) || {};
+    all[s.date] = s.mood;
+    localStorage.setItem('moodByDate', JSON.stringify(all));
+  } catch (e) {}
+}
 function logMood(mood) {
   saveMoodState({ date: todayStr(), mood: mood });
   renderDashPositif();
@@ -1157,14 +1200,21 @@ function getWaterTarget() {
     return Math.max(4, Math.round(ml / 250));
   } catch (e) { return 8; }
 }
-function getWaterState() {
+function getWaterState(dateStr) {
+  dateStr = dateStr || todayStr();
   try {
-    const s = JSON.parse(localStorage.getItem('waterIntake'));
-    if (s && s.date === todayStr()) return s;
+    const all = JSON.parse(localStorage.getItem('waterByDate')) || {};
+    if (typeof all[dateStr] === 'number') return { date: dateStr, glasses: all[dateStr] };
   } catch (e) {}
-  return { date: todayStr(), glasses: 0 };
+  return { date: dateStr, glasses: 0 };
 }
-function saveWaterState(s) { try { localStorage.setItem('waterIntake', JSON.stringify(s)); } catch (e) {} }
+function saveWaterState(s) {
+  try {
+    const all = JSON.parse(localStorage.getItem('waterByDate')) || {};
+    all[s.date] = s.glasses;
+    localStorage.setItem('waterByDate', JSON.stringify(all));
+  } catch (e) {}
+}
 function addWaterGlass() {
   const target = getWaterTarget();
   const s = getWaterState();
@@ -1677,28 +1727,35 @@ function saveBiodata() {
 
 // ===== GERBANG ONBOARDING (biodata wajib diisi sebelum masuk dashboard) =====
 let onboardingActive = false;
-function migrateKaloriData() {
+function migrateDailyData() {
+  function migrateOne(oldKey, newKey, dateField, valueField) {
+    try {
+      const old = JSON.parse(localStorage.getItem(oldKey));
+      if (old && old[dateField] && (typeof old[valueField] === 'number' || typeof old[valueField] === 'string' || typeof old[valueField] === 'object')) {
+        const all = JSON.parse(localStorage.getItem(newKey)) || {};
+        if (!(old[dateField] in all)) all[old[dateField]] = old[valueField];
+        localStorage.setItem(newKey, JSON.stringify(all));
+        localStorage.removeItem(oldKey);
+      }
+    } catch (e) {}
+  }
+  migrateOne('kaloriState', 'kaloriByDate', 'date', 'meals');
+  migrateOne('burnedState', 'burnedByDate', 'date', 'kcal');
+  migrateOne('waterIntake', 'waterByDate', 'date', 'glasses');
+  migrateOne('sleepState', 'sleepByDate', 'date', 'hours');
+  migrateOne('moodState', 'moodByDate', 'date', 'mood');
   try {
-    const oldFood = JSON.parse(localStorage.getItem('kaloriState'));
-    if (oldFood && oldFood.date && oldFood.meals) {
-      const all = JSON.parse(localStorage.getItem('kaloriByDate')) || {};
-      if (!all[oldFood.date]) all[oldFood.date] = oldFood.meals;
-      localStorage.setItem('kaloriByDate', JSON.stringify(all));
-      localStorage.removeItem('kaloriState');
-    }
-  } catch (e) {}
-  try {
-    const oldBurned = JSON.parse(localStorage.getItem('burnedState'));
-    if (oldBurned && oldBurned.date && typeof oldBurned.kcal === 'number') {
-      const all = JSON.parse(localStorage.getItem('burnedByDate')) || {};
-      if (!all[oldBurned.date]) all[oldBurned.date] = oldBurned.kcal;
-      localStorage.setItem('burnedByDate', JSON.stringify(all));
-      localStorage.removeItem('burnedState');
+    const oldExDate = localStorage.getItem('exerciseDoneDate');
+    if (oldExDate) {
+      const all = JSON.parse(localStorage.getItem('exerciseDoneByDate')) || {};
+      if (!(oldExDate in all)) all[oldExDate] = true;
+      localStorage.setItem('exerciseDoneByDate', JSON.stringify(all));
+      localStorage.removeItem('exerciseDoneDate');
     }
   } catch (e) {}
 }
 function initApp() {
-  migrateKaloriData();
+  migrateDailyData();
   if (!isOnboardingComplete()) {
     onboardingActive = true;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -1736,6 +1793,54 @@ function toggleVoice() {
 
 // ===== RIWAYAT =====
 function getHistory() { try { return JSON.parse(localStorage.getItem('healthHistory')||'[]'); } catch(e) { return []; } }
+let riwayatSelectedDate = todayStr();
+function renderRiwayatDateStrip() {
+  const el = document.getElementById('riwayatDateStrip');
+  if (!el) return;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let html = '';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const isToday = ds === todayStr();
+    const isActive = ds === riwayatSelectedDate;
+    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="selectRiwayatDate(\'' + ds + '\')">' +
+      '<div class="dow">' + KAL_DOW_ID[d.getDay()] + '</div><div class="dnum">' + d.getDate() + '</div></div>';
+  }
+  el.innerHTML = html;
+}
+function selectRiwayatDate(ds) {
+  riwayatSelectedDate = ds;
+  renderRiwayatDateStrip();
+  renderRiwayatSummary();
+}
+function renderRiwayatSummary() {
+  const el = document.getElementById('riwayatSummary');
+  if (!el) return;
+  const ds = riwayatSelectedDate;
+  const foodT = grandFoodTotals(ds);
+  const burned = Math.round(getBurnedState(ds).kcal);
+  const waterS = getWaterState(ds);
+  const waterTarget = getWaterTarget();
+  const sleepS = getSleepState(ds);
+  const moodS = getMoodState(ds);
+  const exDone = isExerciseDone(ds);
+  const moodMap = { kurang:'😞 Kurang', biasa:'😐 Biasa', baik:'😊 Baik', semangat:'🤩 Semangat' };
+  function row(icon, label, value, done) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f5f5f5;border-radius:10px;margin-bottom:8px;">' +
+      '<span>' + icon + ' ' + label + '</span>' +
+      '<strong style="color:' + (done ? '#2e7d32' : '#999') + ';">' + value + '</strong>' +
+    '</div>';
+  }
+  el.innerHTML =
+    row('🔥', 'Kalori', foodT.kal + ' kkal makan, ' + burned + ' kkal bakar', foodT.kal > 0) +
+    row('💧', 'Air', waterS.glasses + '/' + waterTarget + ' gelas', waterS.glasses >= waterTarget) +
+    row('😴', 'Tidur', sleepS.hours ? (sleepS.hours + ' jam') : '-', sleepS.hours >= SLEEP_TARGET) +
+    row('🏃', 'Olahraga', exDone ? 'Selesai' : 'Belum', exDone) +
+    row('😊', 'Positif', moodS.mood ? moodMap[moodS.mood] : '-', !!moodS.mood);
+}
 function addHistory(e) { const h = getHistory(); h.unshift({ text:e, time:new Date().toLocaleString('id-ID') }); if (h.length>50) h.pop(); localStorage.setItem('healthHistory', JSON.stringify(h)); renderHistory(); }
 function renderHistory() { const h = getHistory(); document.getElementById('historyList').innerHTML = h.length===0 ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p>' : h.map(i => '<div class="history-item"><strong>' + i.text + '</strong><br><small>' + i.time + '</small></div>').join(''); }
 function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.removeItem('healthHistory'); renderHistory(); } }
