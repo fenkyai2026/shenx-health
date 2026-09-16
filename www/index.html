@@ -52,6 +52,13 @@
   .bw-anim-stage { position: relative; width: 220px; max-width: 100%; aspect-ratio: 1 / 1; margin: 4px auto 12px; border-radius: 20px; overflow: hidden; background: linear-gradient(160deg, rgba(233,64,87,0.18), rgba(240,152,25,0.14)); box-shadow: 0 4px 14px rgba(233,64,87,0.15); }
   .bw-anim-video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .bw-anim-idle { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 16px; font-weight: 600; color: #b3324a; font-size: 0.95rem; }
+  .kal-date-strip { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 4px; }
+  .kal-date-chip { flex: 0 0 auto; min-width: 42px; text-align: center; padding: 8px 6px; border-radius: 12px; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; }
+  .kal-date-chip .dow { font-size: 0.65rem; color: #888; font-weight: 600; text-transform: uppercase; }
+  .kal-date-chip .dnum { font-size: 1rem; font-weight: 700; color: #333; margin-top: 2px; }
+  .kal-date-chip.active { background: #e8f5e9; border-color: #2e7d32; }
+  .kal-date-chip.active .dnum, .kal-date-chip.active .dow { color: #2e7d32; }
+  .kal-date-chip.today .dnum::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: #e65100; margin: 3px auto 0; }
   .food-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
   .food-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f5f5f5; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; }
   .food-item .remove { color: #c62828; cursor: pointer; font-weight: bold; padding: 4px 8px; }
@@ -261,8 +268,9 @@
   <div id="tab-kalori" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Dashboard</button>
   <h2>🔥 Kalori Harian</h2>
+  <div class="kal-date-strip" id="kalDateStrip"></div>
+  <div id="kaloriDetailSummary"></div>
   <div id="kaloriMealsContainer"></div>
-  <div class="result info" id="kaloriGrandTotal"></div>
   </div></div>
 
   <!-- TAB_JALAN -->
@@ -607,7 +615,8 @@ function exportData() {
   const data = {
     biodata: JSON.parse(localStorage.getItem('biodata') || 'null'),
     history: JSON.parse(localStorage.getItem('healthHistory') || '[]'),
-    kaloriState: JSON.parse(localStorage.getItem('kaloriState') || 'null'),
+    kaloriByDate: JSON.parse(localStorage.getItem('kaloriByDate') || 'null'),
+    burnedByDate: JSON.parse(localStorage.getItem('burnedByDate') || 'null'),
     exportedAt: new Date().toISOString()
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -631,7 +640,8 @@ function handleImport(e) {
       const data = JSON.parse(ev.target.result);
       if (data.biodata) localStorage.setItem('biodata', JSON.stringify(data.biodata));
       if (data.history) localStorage.setItem('healthHistory', JSON.stringify(data.history));
-      if (data.kaloriState) localStorage.setItem('kaloriState', JSON.stringify(data.kaloriState));
+      if (data.kaloriByDate) localStorage.setItem('kaloriByDate', JSON.stringify(data.kaloriByDate));
+      if (data.burnedByDate) localStorage.setItem('burnedByDate', JSON.stringify(data.burnedByDate));
       document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
       renderHistory();
       renderKaloriTotals();
@@ -649,8 +659,10 @@ function resetAllData() {
     localStorage.removeItem('biodata');
     localStorage.removeItem('healthHistory');
     localStorage.removeItem('kaloriState');
+    localStorage.removeItem('kaloriByDate');
     localStorage.removeItem('waterIntake');
     localStorage.removeItem('burnedState');
+    localStorage.removeItem('burnedByDate');
     localStorage.removeItem('sleepState');
     localStorage.removeItem('moodState');
     localStorage.removeItem('exerciseDoneDate');
@@ -728,22 +740,29 @@ const MEALS = [
   { key:'malam', label:'🌙 Malam (Makan Malam)' }
 ];
 
-function getFoodState() {
+function getFoodState(dateStr) {
+  dateStr = dateStr || todayStr();
   try {
-    const s = JSON.parse(localStorage.getItem('kaloriState'));
-    if (s && s.date === todayStr()) return s;
+    const all = JSON.parse(localStorage.getItem('kaloriByDate')) || {};
+    if (all[dateStr]) return { date: dateStr, meals: all[dateStr] };
   } catch (e) {}
-  return { date: todayStr(), meals: { pagi:[], siang:[], sore:[], malam:[] } };
+  return { date: dateStr, meals: { pagi:[], siang:[], sore:[], malam:[] } };
 }
-function saveFoodState(s) { try { localStorage.setItem('kaloriState', JSON.stringify(s)); } catch (e) {} }
+function saveFoodState(s) {
+  try {
+    const all = JSON.parse(localStorage.getItem('kaloriByDate')) || {};
+    all[s.date] = s.meals;
+    localStorage.setItem('kaloriByDate', JSON.stringify(all));
+  } catch (e) {}
+}
 
 function mealTotals(items) {
   return items.reduce((acc, it) => ({
     kal: acc.kal + it.kal, karbo: acc.karbo + it.karbo, protein: acc.protein + it.protein, lemak: acc.lemak + it.lemak
   }), { kal:0, karbo:0, protein:0, lemak:0 });
 }
-function grandFoodTotals() {
-  const state = getFoodState();
+function grandFoodTotals(dateStr) {
+  const state = getFoodState(dateStr);
   let t = { kal:0, karbo:0, protein:0, lemak:0 };
   MEALS.forEach(m => {
     const mt = mealTotals(state.meals[m.key] || []);
@@ -755,7 +774,89 @@ function grandFoodTotals() {
   return t;
 }
 
+let kaloriSelectedDate = todayStr();
+const KAL_DOW_ID = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+function renderKalDateStrip() {
+  const el = document.getElementById('kalDateStrip');
+  if (!el) return;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let html = '';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const isToday = ds === todayStr();
+    const isActive = ds === kaloriSelectedDate;
+    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="selectKaloriDate(\'' + ds + '\')">' +
+      '<div class="dow">' + KAL_DOW_ID[d.getDay()] + '</div><div class="dnum">' + d.getDate() + '</div></div>';
+  }
+  el.innerHTML = html;
+}
+function selectKaloriDate(ds) {
+  kaloriSelectedDate = ds;
+  renderKalDateStrip();
+  MEALS.forEach(m => renderMealList(m.key));
+  renderKaloriTotals();
+}
+function buildKaloriRingHtml(t, burned, goal, showManageBtn) {
+  const eaten = t.kal;
+  const remaining = Math.max(0, goal - eaten + burned);
+  const allowance = goal + burned;
+  const pct = allowance > 0 ? Math.min(1, eaten / allowance) : 0;
+  const circumference = 263.9;
+  const offset = circumference * (1 - pct);
+  const carbTarget = Math.max(1, Math.round(goal * 0.5 / 4));
+  const proteinTarget = Math.max(1, Math.round(goal * 0.2 / 4));
+  const fatTarget = Math.max(1, Math.round(goal * 0.3 / 9));
+  function macroBar(label, value, target, color) {
+    const p = Math.min(1, value / target);
+    return '<div style="flex:1;text-align:center;">' +
+      '<div style="font-size:0.75rem;color:#666;margin-bottom:4px;">' + label + '</div>' +
+      '<div style="height:5px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:4px;"><div style="height:100%;width:' + (p*100) + '%;background:' + color + ';"></div></div>' +
+      '<div style="font-weight:700;font-size:0.9rem;">' + Math.round(value) + '<span style="font-size:0.7rem;color:#999;font-weight:400;">/' + target + 'g</span></div>' +
+    '</div>';
+  }
+  return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+      '<div style="text-align:center;flex:1;">' +
+        '<div style="font-size:1.4rem;">🥗</div><div style="font-size:0.8rem;color:#666;">Makan</div>' +
+        '<div style="font-weight:700;">' + eaten + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
+      '</div>' +
+      '<div style="position:relative;width:110px;height:110px;flex-shrink:0;">' +
+        '<svg viewBox="0 0 100 100" width="110" height="110">' +
+          '<circle cx="50" cy="50" r="42" stroke="#f0e4dc" stroke-width="9" fill="none"/>' +
+          '<circle cx="50" cy="50" r="42" stroke="#e65100" stroke-width="9" fill="none" stroke-linecap="round" ' +
+            'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" transform="rotate(-90 50 50)"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+          '<div style="font-weight:700;font-size:1.25rem;color:#e65100;">' + remaining + '</div>' +
+          '<div style="font-size:0.62rem;color:#888;text-align:center;">kkal<br>tersisa</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="text-align:center;flex:1;">' +
+        '<div style="font-size:1.4rem;">🔥</div><div style="font-size:0.8rem;color:#666;">Bakar</div>' +
+        '<div style="font-weight:700;">' + burned + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:10px;margin-bottom:14px;">' +
+      macroBar('Karbo', t.karbo, carbTarget, '#42a5f5') +
+      macroBar('Protein', t.protein, proteinTarget, '#66bb6a') +
+      macroBar('Lemak', t.lemak, fatTarget, '#ffa726') +
+    '</div>' +
+    '<div style="font-size:0.7rem;color:#999;text-align:center;' + (showManageBtn ? 'margin-bottom:10px;' : '') + '">Target ' + goal + ' kkal/hari (dari TDEE Biodata)</div>' +
+    (showManageBtn ? '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>' : '');
+}
+function renderKaloriDetailSummary() {
+  const el = document.getElementById('kaloriDetailSummary');
+  if (!el) return;
+  const t = grandFoodTotals(kaloriSelectedDate);
+  const goal = getCalorieGoal();
+  const burned = Math.round(getBurnedState(kaloriSelectedDate).kcal);
+  el.innerHTML = buildKaloriRingHtml(t, burned, goal, false);
+}
 function renderKaloriScreen() {
+  kaloriSelectedDate = todayStr();
+  renderKalDateStrip();
   const container = document.getElementById('kaloriMealsContainer');
   if (!container) return;
   container.innerHTML =
@@ -784,7 +885,7 @@ function addFoodTo(meal) {
   if (!f) { alert('Makanan "' + typed + '" tidak ada di daftar. Pilih salah satu saran yang muncul saat mengetik.'); return; }
   const portion = parseFloat(document.getElementById('foodPortion-' + meal).value) || 100;
   const factor = portion / 100;
-  const state = getFoodState();
+  const state = getFoodState(kaloriSelectedDate);
   state.meals[meal].push({
     name: f.name,
     portion: portion,
@@ -800,14 +901,14 @@ function addFoodTo(meal) {
   renderKaloriTotals();
 }
 function removeFoodFrom(meal, idx) {
-  const state = getFoodState();
+  const state = getFoodState(kaloriSelectedDate);
   state.meals[meal].splice(idx, 1);
   saveFoodState(state);
   renderMealList(meal);
   renderKaloriTotals();
 }
 function renderMealList(meal) {
-  const state = getFoodState();
+  const state = getFoodState(kaloriSelectedDate);
   const items = state.meals[meal] || [];
   const listEl = document.getElementById('foodList-' + meal);
   if (!listEl) return;
@@ -819,20 +920,25 @@ function renderMealList(meal) {
   if (subEl) subEl.textContent = items.length ? ('Subtotal: ' + t.kal + ' kkal | KH ' + Math.round(t.karbo*10)/10 + 'g | P ' + Math.round(t.protein*10)/10 + 'g | L ' + Math.round(t.lemak*10)/10 + 'g') : '';
 }
 function renderKaloriTotals() {
-  const t = grandFoodTotals();
-  const totalEl = document.getElementById('kaloriGrandTotal');
-  if (totalEl) totalEl.innerHTML = '<strong>Total Hari Ini:</strong> ' + t.kal + ' kkal<br>Karbohidrat: ' + t.karbo + 'g &nbsp;|&nbsp; Protein: ' + t.protein + 'g &nbsp;|&nbsp; Lemak: ' + t.lemak + 'g';
-  renderDashboardKalori(t);
+  renderKaloriDetailSummary();
+  renderDashboardKalori();
 }
 // ===== KALORI TERBAKAR (estimasi dari sesi Latihan Jalan, MET x berat x durasi) =====
-function getBurnedState() {
+function getBurnedState(dateStr) {
+  dateStr = dateStr || todayStr();
   try {
-    const s = JSON.parse(localStorage.getItem('burnedState'));
-    if (s && s.date === todayStr()) return s;
+    const all = JSON.parse(localStorage.getItem('burnedByDate')) || {};
+    return { date: dateStr, kcal: all[dateStr] || 0 };
   } catch (e) {}
-  return { date: todayStr(), kcal: 0 };
+  return { date: dateStr, kcal: 0 };
 }
-function saveBurnedState(s) { try { localStorage.setItem('burnedState', JSON.stringify(s)); } catch (e) {} }
+function saveBurnedState(s) {
+  try {
+    const all = JSON.parse(localStorage.getItem('burnedByDate')) || {};
+    all[s.date] = s.kcal;
+    localStorage.setItem('burnedByDate', JSON.stringify(all));
+  } catch (e) {}
+}
 function addBurnedTick(met) {
   try {
     const b = JSON.parse(localStorage.getItem('biodata'));
@@ -860,52 +966,7 @@ function renderDashboardKalori(t) {
   if (!el) return;
   const goal = getCalorieGoal();
   const burned = Math.round(getBurnedState().kcal);
-  const eaten = t.kal;
-  const remaining = Math.max(0, goal - eaten + burned);
-  const allowance = goal + burned;
-  const pct = allowance > 0 ? Math.min(1, eaten / allowance) : 0;
-  const circumference = 263.9;
-  const offset = circumference * (1 - pct);
-  const carbTarget = Math.max(1, Math.round(goal * 0.5 / 4));
-  const proteinTarget = Math.max(1, Math.round(goal * 0.2 / 4));
-  const fatTarget = Math.max(1, Math.round(goal * 0.3 / 9));
-  function macroBar(label, value, target, color) {
-    const p = Math.min(1, value / target);
-    return '<div style="flex:1;text-align:center;">' +
-      '<div style="font-size:0.75rem;color:#666;margin-bottom:4px;">' + label + '</div>' +
-      '<div style="height:5px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:4px;"><div style="height:100%;width:' + (p*100) + '%;background:' + color + ';"></div></div>' +
-      '<div style="font-weight:700;font-size:0.9rem;">' + Math.round(value) + '<span style="font-size:0.7rem;color:#999;font-weight:400;">/' + target + 'g</span></div>' +
-    '</div>';
-  }
-  el.innerHTML =
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
-      '<div style="text-align:center;flex:1;">' +
-        '<div style="font-size:1.4rem;">🥗</div><div style="font-size:0.8rem;color:#666;">Makan</div>' +
-        '<div style="font-weight:700;">' + eaten + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
-      '</div>' +
-      '<div style="position:relative;width:110px;height:110px;flex-shrink:0;">' +
-        '<svg viewBox="0 0 100 100" width="110" height="110">' +
-          '<circle cx="50" cy="50" r="42" stroke="#f0e4dc" stroke-width="9" fill="none"/>' +
-          '<circle cx="50" cy="50" r="42" stroke="#e65100" stroke-width="9" fill="none" stroke-linecap="round" ' +
-            'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" transform="rotate(-90 50 50)"/>' +
-        '</svg>' +
-        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-          '<div style="font-weight:700;font-size:1.25rem;color:#e65100;">' + remaining + '</div>' +
-          '<div style="font-size:0.62rem;color:#888;text-align:center;">kkal<br>tersisa</div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="text-align:center;flex:1;">' +
-        '<div style="font-size:1.4rem;">🔥</div><div style="font-size:0.8rem;color:#666;">Bakar</div>' +
-        '<div style="font-weight:700;">' + burned + '</div><div style="font-size:0.65rem;color:#999;">kkal</div>' +
-      '</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:10px;margin-bottom:14px;">' +
-      macroBar('Karbo', t.karbo, carbTarget, '#42a5f5') +
-      macroBar('Protein', t.protein, proteinTarget, '#66bb6a') +
-      macroBar('Lemak', t.lemak, fatTarget, '#ffa726') +
-    '</div>' +
-    '<div style="font-size:0.7rem;color:#999;text-align:center;margin-bottom:10px;">Target ' + goal + ' kkal/hari (dari TDEE Biodata)</div>' +
-    '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>';
+  el.innerHTML = buildKaloriRingHtml(t, burned, goal, true);
 }
 
 // ===== TIDUR =====
@@ -1616,7 +1677,28 @@ function saveBiodata() {
 
 // ===== GERBANG ONBOARDING (biodata wajib diisi sebelum masuk dashboard) =====
 let onboardingActive = false;
+function migrateKaloriData() {
+  try {
+    const oldFood = JSON.parse(localStorage.getItem('kaloriState'));
+    if (oldFood && oldFood.date && oldFood.meals) {
+      const all = JSON.parse(localStorage.getItem('kaloriByDate')) || {};
+      if (!all[oldFood.date]) all[oldFood.date] = oldFood.meals;
+      localStorage.setItem('kaloriByDate', JSON.stringify(all));
+      localStorage.removeItem('kaloriState');
+    }
+  } catch (e) {}
+  try {
+    const oldBurned = JSON.parse(localStorage.getItem('burnedState'));
+    if (oldBurned && oldBurned.date && typeof oldBurned.kcal === 'number') {
+      const all = JSON.parse(localStorage.getItem('burnedByDate')) || {};
+      if (!all[oldBurned.date]) all[oldBurned.date] = oldBurned.kcal;
+      localStorage.setItem('burnedByDate', JSON.stringify(all));
+      localStorage.removeItem('burnedState');
+    }
+  } catch (e) {}
+}
 function initApp() {
+  migrateKaloriData();
   if (!isOnboardingComplete()) {
     onboardingActive = true;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
