@@ -15,7 +15,14 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%); min-height: 100vh; padding: 16px; display: flex; justify-content: center; }
-  .app { width: 100%; max-width: 420px; }
+  .app { width: 100%; max-width: 420px; padding-bottom: 84px; }
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; box-shadow: 0 -2px 14px rgba(0,0,0,0.15); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0); }
+  .bottom-nav-inner { max-width: 420px; margin: 0 auto; display: flex; }
+  .bottom-nav-item { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 9px 2px 7px; cursor: pointer; color: #9e9e9e; }
+  .bottom-nav-item .bn-icon { font-size: 1.35rem; line-height: 1; margin-bottom: 3px; }
+  .bottom-nav-item .bn-label { font-size: 0.62rem; font-weight: 600; }
+  .bottom-nav-item.active { color: #2e7d32; }
+  .bottom-nav-item.exit-item { color: #c62828; }
   .header { text-align: center; padding: 24px 0 16px; }
   .header h1 { font-size: 1.6rem; color: #1b5e20; }
   .header p { color: #388e3c; font-size: 0.9rem; margin-top: 4px; }
@@ -158,63 +165,11 @@
       <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
       <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
     </div>
-    <div class="exercise-tile" onclick="navigateTo('exercise')">
-      <div class="tile-bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
-      <div class="tile-tint tint-exercise"></div>
-      <div class="tile-content">
-        <div style="font-size:3rem;">🏋️</div>
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Olahraga</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Latihan jalan & pernapasan</div>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-kalori.jpg');"></div>
-      <div class="hero-tint tint-kalori"></div>
-      <h2 class="hero-title">🔥 Nutrisi (Kalori Hari Ini)</h2>
-      <div class="hero-panel">
-        <div id="dashKalori"></div>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-water.jpg');"></div>
-      <div class="hero-tint tint-water"></div>
-      <h2 class="hero-title">💧 Kebutuhan Minum Air</h2>
-      <div class="hero-panel">
-        <div id="waterWidget"></div>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-tidur.jpg');"></div>
-      <div class="hero-tint tint-tidur"></div>
-      <h2 class="hero-title">😴 Tidur</h2>
-      <div class="hero-panel">
-        <div id="dashTidur"></div>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-positif.jpg');"></div>
-      <div class="hero-tint tint-positif"></div>
-      <h2 class="hero-title">😊 Positif</h2>
-      <div class="hero-panel">
-        <div id="dashPositif"></div>
-      </div>
-    </div>
-    <div class="exercise-tile" onclick="navigateTo('settingmenu')">
-      <div class="tile-bg-photo" style="background-image:url('images/bg-setting.jpg');"></div>
-      <div class="tile-tint tint-setting"></div>
-      <div class="tile-content">
-        <div style="font-size:3rem;">⚙️</div>
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pengaturan</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Biodata, riwayat, data, tentang</div>
-      </div>
-    </div>
-    <button class="btn" style="background:#c62828;" onclick="exitApp()">🚪 Keluar Aplikasi</button>
   </div>
 
   <!-- TAB_EXERCISE -->
   <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
-  <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Pilih Latihan</h2>
+  <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Olahraga</h2>
   <div class="exercise-tile" onclick="navigateTo('jalan')">
     <div class="tile-bg-photo" style="background-image:url('images/bg-jalan.jpg');"></div>
     <div class="tile-tint tint-jalan"></div>
@@ -245,11 +200,9 @@
 
   <!-- TAB_SETTINGMENU -->
   <div id="tab-settingmenu" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
-  <h2>⚙️ Pengaturan</h2>
+  <h2>👤 Profil</h2>
   <div class="pengaturan-menu">
     <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
-    <button class="menu-item" onclick="navigateTo('riwayat')"><span class="icon">📋</span> Riwayat Aktivitas<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
     <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
     <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
@@ -259,14 +212,14 @@
 
   <!-- TAB_BMIDETAIL -->
   <div id="tab-bmidetail" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Beranda</button>
   <h2>📋 Detail Perhitungan Kesehatan</h2>
   <div id="bmiDetailContent"></div>
   </div></div>
 
   <!-- TAB_KALORI -->
   <div id="tab-kalori" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Tracker</button>
   <h2>🔥 Kalori Harian</h2>
   <div class="kal-date-strip" id="kalDateStrip"></div>
   <div id="kaloriDetailSummary"></div>
@@ -275,7 +228,7 @@
 
   <!-- TAB_JALAN -->
   <div id="tab-jalan" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Olahraga</button>
   <h2>🚶 Latihan Jalan</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -297,7 +250,7 @@
 
   <!-- TAB_BODYWEIGHT -->
   <div id="tab-bodyweight" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Olahraga</button>
   <h2>💪 Latihan Bodyweight</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -323,7 +276,7 @@
 
   <!-- TAB_NAPAS -->
   <div id="tab-napas" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" onclick="goBack()">← Olahraga</button>
   <h2>🫁 Latihan Pernapasan</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -350,7 +303,7 @@
 
   <!-- TAB_BIODATA -->
   <div id="tab-biodata" class="tab-content"><div class="card">
-  <button class="back-btn" id="biodataBackBtn" onclick="goBack()">← Dashboard</button>
+  <button class="back-btn" id="biodataBackBtn" onclick="goBack()">← Profil</button>
   <div id="biodataOnboardingIntro" style="display:none;margin-bottom:16px;padding:12px;background:#e8f5e9;border-radius:12px;">
     <strong style="color:#1b5e20;">👋 Selamat datang di SHENX HEALTH!</strong>
     <p style="color:#555;font-size:0.85rem;margin-top:4px;">Lengkapi biodata di bawah ini dulu untuk memulai. Nama, tanggal lahir, tinggi, dan berat badan wajib diisi.</p>
@@ -381,21 +334,50 @@
   </div>
   </div></div>
 
-  <!-- TAB_RIWAYAT -->
-  <div id="tab-riwayat" class="tab-content"><div class="card">
-    <button class="back-btn" onclick="goBack()">← Dashboard</button>
-    <h2>📋 Riwayat Aktivitas</h2>
-    <h3 style="font-size:0.95rem;color:#1b5e20;margin-bottom:8px;">Ringkasan Harian</h3>
-    <div class="kal-date-strip" id="riwayatDateStrip"></div>
-    <div id="riwayatSummary" style="margin-bottom:20px;"></div>
-    <h3 style="font-size:0.95rem;color:#1b5e20;margin-bottom:8px;">Log Aktivitas</h3>
-    <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
-    <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
-  </div></div>
+  <!-- TAB_RIWAYAT (Tracker) -->
+  <div id="tab-riwayat" class="tab-content">
+    <div class="card">
+      <h2>📊 Tracker</h2>
+      <div class="kal-date-strip" id="riwayatDateStrip" style="margin-bottom:0;"></div>
+    </div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-kalori.jpg');"></div>
+      <div class="hero-tint tint-kalori"></div>
+      <h2 class="hero-title">🔥 Kalori</h2>
+      <div class="hero-panel"><div id="trackerKalori"></div></div>
+    </div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-water.jpg');"></div>
+      <div class="hero-tint tint-water"></div>
+      <h2 class="hero-title">💧 Air Minum</h2>
+      <div class="hero-panel"><div id="waterWidget"></div></div>
+    </div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-tidur.jpg');"></div>
+      <div class="hero-tint tint-tidur"></div>
+      <h2 class="hero-title">😴 Tidur</h2>
+      <div class="hero-panel"><div id="dashTidur"></div></div>
+    </div>
+    <div class="hero-card">
+      <div class="bg-photo" style="background-image:url('images/bg-positif.jpg');"></div>
+      <div class="hero-tint tint-positif"></div>
+      <h2 class="hero-title">😊 Positif</h2>
+      <div class="hero-panel"><div id="dashPositif"></div></div>
+    </div>
+    <div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:16px;">
+      <h2 style="font-size:1rem;margin-bottom:8px;">🏃 Olahraga</h2>
+      <div id="trackerOlahraga"></div>
+    </div>
+    <div class="card">
+      <h2>📋 Log Aktivitas</h2>
+      <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
+      <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
+    </div>
+  </div>
 
   <!-- TAB_DATAMGMT -->
   <div id="tab-datamgmt" class="tab-content"><div class="card">
-    <button class="back-btn" onclick="goBack()">← Dashboard</button>
+    <button class="back-btn" onclick="goBack()">← Profil</button>
     <h2>💾 Data & Cadangan</h2>
     <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
     <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
@@ -407,7 +389,7 @@
 
   <!-- TAB_ABOUT -->
   <div id="tab-about" class="tab-content"><div class="card" style="text-align:center;">
-    <button class="back-btn" onclick="goBack()">← Dashboard</button>
+    <button class="back-btn" onclick="goBack()">← Profil</button>
     <h2 style="font-size:1.5rem;">🩺 SHENX HEALTH</h2>
     <p style="color:#999;margin-bottom:16px;">Pantau kesehatanmu setiap hari</p>
     <p style="color:#666;">Versi <strong id="aboutVersion">1.0.0</strong></p>
@@ -415,6 +397,15 @@
     <p style="color:#999;font-size:0.8rem;margin-top:16px;">© 2026 Shenx Health. All rights reserved.</p>
   </div></div>
 </div>
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bottom-nav-item" data-tab="dashboard" onclick="navBarGoto('dashboard')"><span class="bn-icon">🏠</span><span class="bn-label">Beranda</span></button>
+    <button class="bottom-nav-item" data-tab="exercise" onclick="navBarGoto('exercise')"><span class="bn-icon">🏋️</span><span class="bn-label">Olahraga</span></button>
+    <button class="bottom-nav-item" data-tab="riwayat" onclick="navBarGoto('riwayat')"><span class="bn-icon">📊</span><span class="bn-label">Tracker</span></button>
+    <button class="bottom-nav-item" data-tab="settingmenu" onclick="navBarGoto('settingmenu')"><span class="bn-icon">👤</span><span class="bn-label">Profil</span></button>
+    <button class="bottom-nav-item exit-item" onclick="exitApp()"><span class="bn-icon">🚪</span><span class="bn-label">Keluar</span></button>
+  </div>
+</nav>
 <script>
 /* ===== SHENX NATIVE BRIDGE =====
    Jembatan ke fitur native saat jalan sebagai APK (Capacitor),
@@ -562,6 +553,18 @@ function renderBodyweightGuide() {
 }
 
 // TAB NAVIGATION
+const NAV_PARENT = {
+  dashboard: 'dashboard', bmidetail: 'dashboard',
+  exercise: 'exercise', jalan: 'exercise', napas: 'exercise', bodyweight: 'exercise',
+  riwayat: 'riwayat', kalori: 'riwayat',
+  settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu'
+};
+function renderBottomNav(tab) {
+  const parent = NAV_PARENT[tab] || 'dashboard';
+  document.querySelectorAll('.bottom-nav-item[data-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === parent);
+  });
+}
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   const el = document.getElementById('tab-' + tab);
@@ -572,12 +575,13 @@ function switchTab(tab) {
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'bmidetail') renderBmiDetail();
   if (tab === 'kalori') renderKaloriScreen();
-  if (tab === 'riwayat') { renderHistory(); riwayatSelectedDate = todayStr(); renderRiwayatDateStrip(); renderRiwayatSummary(); }
+  if (tab === 'riwayat') { trackerSelectedDate = todayStr(); renderTrackerTab(); }
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
   if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
   if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
   if (tab === 'bodyweight') { document.getElementById('bwModeSelect').value = bwMode; renderBodyweightGuide(); }
+  if (!onboardingActive) renderBottomNav(tab);
   window.scrollTo(0, 0);
 }
 
@@ -596,6 +600,10 @@ function goBack() {
 function goHome() {
   history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
   switchTab('dashboard');
+}
+function navBarGoto(tab) {
+  history.replaceState({ tab: tab }, '', '#' + tab);
+  switchTab(tab);
 }
 window.addEventListener('popstate', function (e) {
   const tab = (e.state && e.state.tab) || 'dashboard';
@@ -790,7 +798,7 @@ function grandFoodTotals(dateStr) {
   return t;
 }
 
-let kaloriSelectedDate = todayStr();
+let trackerSelectedDate = todayStr();
 const KAL_DOW_ID = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 function renderKalDateStrip() {
   const el = document.getElementById('kalDateStrip');
@@ -803,17 +811,19 @@ function renderKalDateStrip() {
     d.setDate(d.getDate() - i);
     const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     const isToday = ds === todayStr();
-    const isActive = ds === kaloriSelectedDate;
-    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="selectKaloriDate(\'' + ds + '\')">' +
+    const isActive = ds === trackerSelectedDate;
+    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="setTrackedDate(\'' + ds + '\')">' +
       '<div class="dow">' + KAL_DOW_ID[d.getDay()] + '</div><div class="dnum">' + d.getDate() + '</div></div>';
   }
   el.innerHTML = html;
 }
-function selectKaloriDate(ds) {
-  kaloriSelectedDate = ds;
+function setTrackedDate(ds) {
+  trackerSelectedDate = ds;
   renderKalDateStrip();
   MEALS.forEach(m => renderMealList(m.key));
   renderKaloriTotals();
+  renderRiwayatDateStrip();
+  renderTrackerWidgets();
 }
 function buildKaloriRingHtml(t, burned, goal, showManageBtn) {
   const eaten = t.kal;
@@ -862,16 +872,16 @@ function buildKaloriRingHtml(t, burned, goal, showManageBtn) {
     '<div style="font-size:0.7rem;color:#999;text-align:center;' + (showManageBtn ? 'margin-bottom:10px;' : '') + '">Target ' + goal + ' kkal/hari (dari TDEE Biodata)</div>' +
     (showManageBtn ? '<button class="btn" onclick="navigateTo(\'kalori\')">➕ Kelola Makanan</button>' : '');
 }
-function renderKaloriDetailSummary() {
-  const el = document.getElementById('kaloriDetailSummary');
-  if (!el) return;
-  const t = grandFoodTotals(kaloriSelectedDate);
+function renderKaloriRings() {
+  const t = grandFoodTotals(trackerSelectedDate);
   const goal = getCalorieGoal();
-  const burned = Math.round(getBurnedState(kaloriSelectedDate).kcal);
-  el.innerHTML = buildKaloriRingHtml(t, burned, goal, false);
+  const burned = Math.round(getBurnedState(trackerSelectedDate).kcal);
+  const detailEl = document.getElementById('kaloriDetailSummary');
+  if (detailEl) detailEl.innerHTML = buildKaloriRingHtml(t, burned, goal, false);
+  const trackEl = document.getElementById('trackerKalori');
+  if (trackEl) trackEl.innerHTML = buildKaloriRingHtml(t, burned, goal, true);
 }
 function renderKaloriScreen() {
-  kaloriSelectedDate = todayStr();
   renderKalDateStrip();
   const container = document.getElementById('kaloriMealsContainer');
   if (!container) return;
@@ -901,7 +911,7 @@ function addFoodTo(meal) {
   if (!f) { alert('Makanan "' + typed + '" tidak ada di daftar. Pilih salah satu saran yang muncul saat mengetik.'); return; }
   const portion = parseFloat(document.getElementById('foodPortion-' + meal).value) || 100;
   const factor = portion / 100;
-  const state = getFoodState(kaloriSelectedDate);
+  const state = getFoodState(trackerSelectedDate);
   state.meals[meal].push({
     name: f.name,
     portion: portion,
@@ -917,14 +927,14 @@ function addFoodTo(meal) {
   renderKaloriTotals();
 }
 function removeFoodFrom(meal, idx) {
-  const state = getFoodState(kaloriSelectedDate);
+  const state = getFoodState(trackerSelectedDate);
   state.meals[meal].splice(idx, 1);
   saveFoodState(state);
   renderMealList(meal);
   renderKaloriTotals();
 }
 function renderMealList(meal) {
-  const state = getFoodState(kaloriSelectedDate);
+  const state = getFoodState(trackerSelectedDate);
   const items = state.meals[meal] || [];
   const listEl = document.getElementById('foodList-' + meal);
   if (!listEl) return;
@@ -936,8 +946,7 @@ function renderMealList(meal) {
   if (subEl) subEl.textContent = items.length ? ('Subtotal: ' + t.kal + ' kkal | KH ' + Math.round(t.karbo*10)/10 + 'g | P ' + Math.round(t.protein*10)/10 + 'g | L ' + Math.round(t.lemak*10)/10 + 'g') : '';
 }
 function renderKaloriTotals() {
-  renderKaloriDetailSummary();
-  renderDashboardKalori();
+  renderKaloriRings();
 }
 // ===== KALORI TERBAKAR (estimasi dari sesi Latihan Jalan, MET x berat x durasi) =====
 function getBurnedState(dateStr) {
@@ -962,7 +971,7 @@ function addBurnedTick(met) {
     const s = getBurnedState();
     s.kcal += (met * 3.5 * w / 200 / 60); // kkal untuk 1 detik pada MET ini
     saveBurnedState(s);
-    renderDashboardKalori();
+    renderKaloriRings();
   } catch (e) {}
 }
 function markExerciseDoneToday() {
@@ -989,15 +998,6 @@ function getCalorieGoal() {
   return 2000;
 }
 
-function renderDashboardKalori(t) {
-  t = t || grandFoodTotals();
-  const el = document.getElementById('dashKalori');
-  if (!el) return;
-  const goal = getCalorieGoal();
-  const burned = Math.round(getBurnedState().kcal);
-  el.innerHTML = buildKaloriRingHtml(t, burned, goal, true);
-}
-
 // ===== TIDUR =====
 const SLEEP_TARGET = 7;
 function getSleepState(dateStr) {
@@ -1018,20 +1018,20 @@ function saveSleepState(s) {
 function logSleep() {
   const val = parseFloat(document.getElementById('sleepHoursInput').value);
   if (!val || val <= 0 || val > 24) { alert('Isi jam tidur yang valid (0-24)'); return; }
-  saveSleepState({ date: todayStr(), hours: val });
+  saveSleepState({ date: trackerSelectedDate, hours: val });
   renderDashTidur();
   renderHabitTracker();
 }
 function renderDashTidur() {
   const el = document.getElementById('dashTidur');
   if (!el) return;
-  const s = getSleepState();
+  const s = getSleepState(trackerSelectedDate);
   const pct = Math.min(1, s.hours / SLEEP_TARGET);
   el.innerHTML =
     (s.hours > 0
-      ? '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#5c4fa8;">' + s.hours + '</div><div style="color:#888;font-size:0.85rem;">jam tidur malam ini</div></div>' +
+      ? '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#5c4fa8;">' + s.hours + '</div><div style="color:#888;font-size:0.85rem;">jam tidur</div></div>' +
         '<div class="progress-bar" style="margin-bottom:12px;"><div class="progress-fill" style="width:' + (pct*100) + '%;background:#5c4fa8;"></div></div>'
-      : '<p style="color:#999;text-align:center;padding:8px 0;margin-bottom:8px;">Belum dicatat hari ini</p>') +
+      : '<p style="color:#999;text-align:center;padding:8px 0;margin-bottom:8px;">Belum dicatat</p>') +
     '<div class="row"><div class="form-group" style="flex:2;margin-bottom:0;"><input type="number" id="sleepHoursInput" step="0.5" min="0" max="24" placeholder="Jam tidur (misal 7.5)" value="' + (s.hours || '') + '"></div>' +
     '<button class="btn" style="flex:1;margin-bottom:0;padding:12px;" onclick="logSleep()">💾</button></div>' +
     '<div style="font-size:0.7rem;color:#999;text-align:center;margin-top:8px;">Target ' + SLEEP_TARGET + ' jam/malam</div>';
@@ -1054,14 +1054,14 @@ function saveMoodState(s) {
   } catch (e) {}
 }
 function logMood(mood) {
-  saveMoodState({ date: todayStr(), mood: mood });
+  saveMoodState({ date: trackerSelectedDate, mood: mood });
   renderDashPositif();
   renderHabitTracker();
 }
 function renderDashPositif() {
   const el = document.getElementById('dashPositif');
   if (!el) return;
-  const s = getMoodState();
+  const s = getMoodState(trackerSelectedDate);
   const moods = [
     { key:'kurang', icon:'😞', label:'Kurang' },
     { key:'biasa', icon:'😐', label:'Biasa' },
@@ -1069,7 +1069,7 @@ function renderDashPositif() {
     { key:'semangat', icon:'🤩', label:'Semangat' }
   ];
   el.innerHTML =
-    '<p style="text-align:center;color:#666;margin-bottom:12px;">Bagaimana perasaanmu hari ini?</p>' +
+    '<p style="text-align:center;color:#666;margin-bottom:12px;">Bagaimana perasaannya?</p>' +
     '<div style="display:flex;justify-content:space-around;">' +
       moods.map(m => '<button onclick="logMood(\'' + m.key + '\')" style="background:none;border:none;text-align:center;cursor:pointer;padding:6px;">' +
         '<div style="width:48px;height:48px;border-radius:50%;background:' + (s.mood === m.key ? '#fff3e0' : '#f5f5f5') + ';display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 4px;border:2px solid ' + (s.mood === m.key ? '#ffa726' : '#e0e0e0') + ';">' + m.icon + '</div>' +
@@ -1084,10 +1084,10 @@ function renderHabitTracker() {
   if (!el) return;
   const items = [
     { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), action:"navigateTo('exercise')" },
-    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('kalori')" },
-    { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"document.getElementById('waterWidget').scrollIntoView({behavior:'smooth',block:'center'})" },
-    { icon:'😴', label:'Tidur', done: getSleepState().hours >= SLEEP_TARGET, action:"document.getElementById('dashTidur').scrollIntoView({behavior:'smooth',block:'center'})" },
-    { icon:'😊', label:'Positif', done: !!getMoodState().mood, action:"document.getElementById('dashPositif').scrollIntoView({behavior:'smooth',block:'center'})" }
+    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('riwayat')" },
+    { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"navigateTo('riwayat')" },
+    { icon:'😴', label:'Tidur', done: getSleepState().hours >= SLEEP_TARGET, action:"navigateTo('riwayat')" },
+    { icon:'😊', label:'Positif', done: !!getMoodState().mood, action:"navigateTo('riwayat')" }
   ];
   const doneCount = items.filter(i => i.done).length;
   const countEl = document.getElementById('habitCount');
@@ -1180,10 +1180,6 @@ function renderDashboard() {
   } else {
     bmiEl.innerHTML = '<p style="color:#999;text-align:center;padding:12px;">Lengkapi berat & tinggi badan di <strong>Biodata</strong> untuk melihat BMI.</p>';
   }
-  renderWaterWidget();
-  renderDashboardKalori();
-  renderDashTidur();
-  renderDashPositif();
   renderHabitTracker();
 }
 
@@ -1217,13 +1213,13 @@ function saveWaterState(s) {
 }
 function addWaterGlass() {
   const target = getWaterTarget();
-  const s = getWaterState();
+  const s = getWaterState(trackerSelectedDate);
   s.glasses = Math.min(target + 2, s.glasses + 1);
   saveWaterState(s);
   renderWaterWidget();
 }
 function toggleWaterCup(i) {
-  const s = getWaterState();
+  const s = getWaterState(trackerSelectedDate);
   s.glasses = (i + 1 === s.glasses) ? i : i + 1;
   saveWaterState(s);
   renderWaterWidget();
@@ -1232,7 +1228,7 @@ function renderWaterWidget() {
   const el = document.getElementById('waterWidget');
   if (!el) return;
   const target = getWaterTarget();
-  const s = getWaterState();
+  const s = getWaterState(trackerSelectedDate);
   const pct = Math.min(1, s.glasses / target);
   const circumference = 263.9;
   const offset = circumference * (1 - pct);
@@ -1714,6 +1710,7 @@ function saveBiodata() {
   addHistory('Biodata diperbarui');
   if (wasOnboarding) {
     onboardingActive = false;
+    document.getElementById('bottomNav').style.display = '';
     document.getElementById('biodataOnboardingIntro').style.display = 'none';
     document.getElementById('biodataCancelBtn').style.display = '';
     document.getElementById('biodataBackBtn').style.display = '';
@@ -1758,6 +1755,7 @@ function initApp() {
   migrateDailyData();
   if (!isOnboardingComplete()) {
     onboardingActive = true;
+    document.getElementById('bottomNav').style.display = 'none';
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-biodata').classList.add('active');
     document.getElementById('biodataBackBtn').style.display = 'none';
@@ -1769,6 +1767,7 @@ function initApp() {
     fillBiodataForm();
   } else {
     onboardingActive = false;
+    document.getElementById('bottomNav').style.display = '';
     renderBiodataView();
     goHome();
   }
@@ -1793,7 +1792,6 @@ function toggleVoice() {
 
 // ===== RIWAYAT =====
 function getHistory() { try { return JSON.parse(localStorage.getItem('healthHistory')||'[]'); } catch(e) { return []; } }
-let riwayatSelectedDate = todayStr();
 function renderRiwayatDateStrip() {
   const el = document.getElementById('riwayatDateStrip');
   if (!el) return;
@@ -1805,41 +1803,27 @@ function renderRiwayatDateStrip() {
     d.setDate(d.getDate() - i);
     const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     const isToday = ds === todayStr();
-    const isActive = ds === riwayatSelectedDate;
-    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="selectRiwayatDate(\'' + ds + '\')">' +
+    const isActive = ds === trackerSelectedDate;
+    html += '<div class="kal-date-chip' + (isActive ? ' active' : '') + (isToday ? ' today' : '') + '" onclick="setTrackedDate(\'' + ds + '\')">' +
       '<div class="dow">' + KAL_DOW_ID[d.getDay()] + '</div><div class="dnum">' + d.getDate() + '</div></div>';
   }
   el.innerHTML = html;
 }
-function selectRiwayatDate(ds) {
-  riwayatSelectedDate = ds;
-  renderRiwayatDateStrip();
-  renderRiwayatSummary();
-}
-function renderRiwayatSummary() {
-  const el = document.getElementById('riwayatSummary');
-  if (!el) return;
-  const ds = riwayatSelectedDate;
-  const foodT = grandFoodTotals(ds);
-  const burned = Math.round(getBurnedState(ds).kcal);
-  const waterS = getWaterState(ds);
-  const waterTarget = getWaterTarget();
-  const sleepS = getSleepState(ds);
-  const moodS = getMoodState(ds);
-  const exDone = isExerciseDone(ds);
-  const moodMap = { kurang:'😞 Kurang', biasa:'😐 Biasa', baik:'😊 Baik', semangat:'🤩 Semangat' };
-  function row(icon, label, value, done) {
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f5f5f5;border-radius:10px;margin-bottom:8px;">' +
-      '<span>' + icon + ' ' + label + '</span>' +
-      '<strong style="color:' + (done ? '#2e7d32' : '#999') + ';">' + value + '</strong>' +
-    '</div>';
+function renderTrackerWidgets() {
+  renderKaloriRings();
+  renderWaterWidget();
+  renderDashTidur();
+  renderDashPositif();
+  const exEl = document.getElementById('trackerOlahraga');
+  if (exEl) {
+    const done = isExerciseDone(trackerSelectedDate);
+    exEl.innerHTML = '<div class="result ' + (done ? 'normal' : 'info') + '">' + (done ? '✅ Olahraga selesai' : 'Belum olahraga di tanggal ini') + '</div>';
   }
-  el.innerHTML =
-    row('🔥', 'Kalori', foodT.kal + ' kkal makan, ' + burned + ' kkal bakar', foodT.kal > 0) +
-    row('💧', 'Air', waterS.glasses + '/' + waterTarget + ' gelas', waterS.glasses >= waterTarget) +
-    row('😴', 'Tidur', sleepS.hours ? (sleepS.hours + ' jam') : '-', sleepS.hours >= SLEEP_TARGET) +
-    row('🏃', 'Olahraga', exDone ? 'Selesai' : 'Belum', exDone) +
-    row('😊', 'Positif', moodS.mood ? moodMap[moodS.mood] : '-', !!moodS.mood);
+}
+function renderTrackerTab() {
+  renderRiwayatDateStrip();
+  renderTrackerWidgets();
+  renderHistory();
 }
 function addHistory(e) { const h = getHistory(); h.unshift({ text:e, time:new Date().toLocaleString('id-ID') }); if (h.length>50) h.pop(); localStorage.setItem('healthHistory', JSON.stringify(h)); renderHistory(); }
 function renderHistory() { const h = getHistory(); document.getElementById('historyList').innerHTML = h.length===0 ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p>' : h.map(i => '<div class="history-item"><strong>' + i.text + '</strong><br><small>' + i.time + '</small></div>').join(''); }
