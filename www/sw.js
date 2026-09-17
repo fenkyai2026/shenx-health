@@ -48,7 +48,8 @@ const ASSETS = [
   './videos/ex-lungestretch.mp4',
   './videos/ex-shoulderstretch.mp4',
   './videos/ex-hamstringstretch.mp4',
-  './videos/ex-quadstretch.mp4'
+  './videos/ex-quadstretch.mp4',
+  './videos/ex-overheadtricepstretch.mp4'
 ];
 
 self.addEventListener('install', e => {
