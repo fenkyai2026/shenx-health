@@ -210,11 +210,20 @@
   <div class="pengaturan-menu">
     <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon">🔍</span> Info Kalori & Nutrisi<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('logaktivitas')"><span class="icon">📋</span> Log Aktivitas<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
     <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
     <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
     <button class="menu-item" onclick="navigateTo('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
   </div>
+  </div></div>
+
+  <!-- TAB_LOGAKTIVITAS -->
+  <div id="tab-logaktivitas" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Profil</button>
+  <h2>📋 Log Aktivitas</h2>
+  <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
+  <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
   </div></div>
 
   <!-- TAB_BMIDETAIL -->
@@ -351,14 +360,9 @@
       <h2 class="hero-title">😊 Positif</h2>
       <div class="hero-panel"><div id="dashPositif"></div></div>
     </div>
-    <div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:16px;">
+    <div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;">
       <h2 style="font-size:1rem;margin-bottom:8px;">🏃 Olahraga</h2>
       <div id="trackerOlahraga"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Log Aktivitas</h2>
-      <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
-      <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
     </div>
   </div>
 
@@ -547,7 +551,7 @@ const NAV_PARENT = {
   dashboard: 'dashboard', bmidetail: 'dashboard', napashub: 'dashboard', napas: 'dashboard',
   exercise: 'exercise', jalan: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
-  settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu'
+  settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu', logaktivitas: 'settingmenu'
 };
 function renderBottomNav(tab) {
   const parent = NAV_PARENT[tab] || 'dashboard';
@@ -569,6 +573,7 @@ function switchTab(tab) {
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
   if (tab === 'nutrisiinfo') resetNutrisiInfo();
+  if (tab === 'logaktivitas') renderHistory();
   if (tab === 'exercise') renderExerciseCategories();
   if (tab === 'jalan') renderWalkGuide();
   if (tab === 'napashub') renderBreathCategories();
@@ -1109,21 +1114,34 @@ function getSleepState(dateStr) {
   dateStr = dateStr || todayStr();
   try {
     const all = JSON.parse(localStorage.getItem('sleepByDate')) || {};
-    if (typeof all[dateStr] === 'number') return { date: dateStr, hours: all[dateStr] };
+    const rec = all[dateStr];
+    if (typeof rec === 'number') return { date: dateStr, hours: rec, bedTime: '', wakeTime: '' };
+    if (rec && typeof rec === 'object') return { date: dateStr, hours: rec.hours || 0, bedTime: rec.bedTime || '', wakeTime: rec.wakeTime || '' };
   } catch (e) {}
-  return { date: dateStr, hours: 0 };
+  return { date: dateStr, hours: 0, bedTime: '', wakeTime: '' };
 }
 function saveSleepState(s) {
   try {
     const all = JSON.parse(localStorage.getItem('sleepByDate')) || {};
-    all[s.date] = s.hours;
+    all[s.date] = { hours: s.hours, bedTime: s.bedTime || '', wakeTime: s.wakeTime || '' };
     localStorage.setItem('sleepByDate', JSON.stringify(all));
   } catch (e) {}
 }
+function computeSleepHours(bedTime, wakeTime) {
+  if (!bedTime || !wakeTime) return 0;
+  const bp = bedTime.split(':'), wp = wakeTime.split(':');
+  const bMin = parseInt(bp[0], 10) * 60 + parseInt(bp[1], 10);
+  const wMin = parseInt(wp[0], 10) * 60 + parseInt(wp[1], 10);
+  let diff = wMin - bMin;
+  if (diff <= 0) diff += 24 * 60;
+  return Math.round((diff / 60) * 10) / 10;
+}
 function logSleep() {
-  const val = parseFloat(document.getElementById('sleepHoursInput').value);
-  if (!val || val <= 0 || val > 24) { alert('Isi jam tidur yang valid (0-24)'); return; }
-  saveSleepState({ date: trackerSelectedDate, hours: val });
+  const bedTime = document.getElementById('sleepBedTimeInput').value;
+  const wakeTime = document.getElementById('sleepWakeTimeInput').value;
+  if (!bedTime || !wakeTime) { alert('Isi jam tidur dan jam bangun'); return; }
+  const hours = computeSleepHours(bedTime, wakeTime);
+  saveSleepState({ date: trackerSelectedDate, hours: hours, bedTime: bedTime, wakeTime: wakeTime });
   renderDashTidur();
   renderHabitTracker();
 }
@@ -1137,8 +1155,11 @@ function renderDashTidur() {
       ? '<div style="text-align:center;margin-bottom:12px;"><div style="font-size:2rem;font-weight:700;color:#5c4fa8;">' + s.hours + '</div><div style="color:#888;font-size:0.85rem;">jam tidur</div></div>' +
         '<div class="progress-bar" style="margin-bottom:12px;"><div class="progress-fill" style="width:' + (pct*100) + '%;background:#5c4fa8;"></div></div>'
       : '<p style="color:#999;text-align:center;padding:8px 0;margin-bottom:8px;">Belum dicatat</p>') +
-    '<div class="row"><div class="form-group" style="flex:2;margin-bottom:0;"><input type="number" id="sleepHoursInput" step="0.5" min="0" max="24" placeholder="Jam tidur (misal 7.5)" value="' + (s.hours || '') + '"></div>' +
-    '<button class="btn" style="flex:1;margin-bottom:0;padding:12px;" onclick="logSleep()">💾</button></div>' +
+    '<div class="row">' +
+      '<div class="form-group" style="margin-bottom:8px;"><label style="font-size:0.7rem;">Jam Tidur</label><input type="time" id="sleepBedTimeInput" value="' + (s.bedTime || '') + '"></div>' +
+      '<div class="form-group" style="margin-bottom:8px;"><label style="font-size:0.7rem;">Jam Bangun</label><input type="time" id="sleepWakeTimeInput" value="' + (s.wakeTime || '') + '"></div>' +
+    '</div>' +
+    '<button class="btn" onclick="logSleep()">💾 Simpan</button>' +
     '<div style="font-size:0.7rem;color:#999;text-align:center;margin-top:8px;">Target ' + SLEEP_TARGET + ' jam/malam</div>';
 }
 
@@ -1630,7 +1651,7 @@ function goToBodyweightMode(key) {
   navigateTo('bodyweight');
 }
 function resetBodyweightUI() {
-  clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0;
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0; bwActivePhases = [];
   const titleEl = document.getElementById('bwScreenTitle');
   if (titleEl) titleEl.textContent = '💪 ' + bodyweightModes[bwMode].name;
   document.getElementById('bwPhaseText').textContent = 'Siap untuk mulai?';
@@ -1664,6 +1685,9 @@ function runBodyweightPhase() {
   document.getElementById('bwRepDoneBtn').style.display = 'none';
   bwPhaseSec = ph.sec;
   updateBodyweightDisplay();
+  startBwPhaseTimer(ph);
+}
+function startBwPhaseTimer(ph) {
   bwTimer = setInterval(function() {
     bwPhaseSec--;
     updateBodyweightDisplay();
@@ -1718,7 +1742,26 @@ function finishBodyweightSession() {
   document.getElementById('bwRepDoneBtn').style.display = 'none';
   setBwAnim('idle');
 }
-function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning = false; Shenx.stopSpeak(); document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan'; document.getElementById('bwStartBtn').onclick = startBodyweight; document.getElementById('bwRepDoneBtn').style.display = 'none'; }
+function pauseBodyweight() {
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false;
+  Shenx.stopSpeak();
+  document.getElementById('bwStartBtn').textContent = '▶️ Lanjutkan';
+  document.getElementById('bwStartBtn').onclick = resumeBodyweight;
+  document.getElementById('bwRepDoneBtn').style.display = 'none';
+}
+function resumeBodyweight() {
+  if (bwRunning || !bwActivePhases.length) return;
+  bwRunning = true;
+  document.getElementById('bwStartBtn').textContent = '⏸️ Jeda';
+  document.getElementById('bwStartBtn').onclick = pauseBodyweight;
+  const ph = bwActivePhases[bwPhaseIdx];
+  if (!ph) { runBodyweightPhase(); return; }
+  if (ph.reps) {
+    document.getElementById('bwRepDoneBtn').style.display = 'block';
+    return;
+  }
+  startBwPhaseTimer(ph);
+}
 function stopBodyweight() {
   clearInterval(bwTimer); bwTimer = null; bwRunning = false;
   Shenx.stopSpeak();
@@ -2059,7 +2102,6 @@ function renderTrackerWidgets() {
 function renderTrackerTab() {
   renderRiwayatDateStrip();
   renderTrackerWidgets();
-  renderHistory();
 }
 function addHistory(e) { const h = getHistory(); h.unshift({ text:e, time:new Date().toLocaleString('id-ID') }); if (h.length>50) h.pop(); localStorage.setItem('healthHistory', JSON.stringify(h)); renderHistory(); }
 function renderHistory() { const h = getHistory(); document.getElementById('historyList').innerHTML = h.length===0 ? '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p>' : h.map(i => '<div class="history-item"><strong>' + i.text + '</strong><br><small>' + i.time + '</small></div>').join(''); }
