@@ -54,6 +54,7 @@
   .phase-walk { background: #e8f5e9; color: #2e7d32; }
   .phase-fast { background: #fff3e0; color: #e65100; }
   .phase-rest { background: #f3e5f5; color: #6a1b9a; }
+  .phase-section { background: #e3f2fd; color: #1565c0; }
   .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
   .progress-fill { height: 100%; background: #2e7d32; border-radius: 8px; transition: width 1s linear; }
   .bw-anim-stage { position: relative; width: 220px; max-width: 100%; aspect-ratio: 1 / 1; margin: 4px auto 12px; border-radius: 20px; overflow: hidden; background: linear-gradient(160deg, rgba(233,64,87,0.18), rgba(240,152,25,0.14)); box-shadow: 0 4px 14px rgba(233,64,87,0.15); }
@@ -1331,41 +1332,33 @@ function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound
 
 // ===== BODYWEIGHT (circuit push-up/squat/plank/dll) =====
 const bodyweightModes = {
-  pemula: { name:'Dasar', met:5.0, max:3, exercises:[
+  pemula: { name:'Dasar', met:5.0, max:3, main:[
     { name:'Push-up', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Squat', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Plank', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Sit-up', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Lunges', sec:30 }, { name:'Istirahat', sec:15, rest:true }
   ]},
-  hiit: { name:'HIIT Kardio', met:8.0, max:3, exercises:[
+  hiit: { name:'HIIT Kardio', met:8.0, max:3, main:[
     { name:'Jumping Jack', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Mountain Climber', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Burpee', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'High Knees', sec:30 }, { name:'Istirahat', sec:15, rest:true }
   ]},
-  core: { name:'Core Fokus', met:4.0, max:3, exercises:[
+  core: { name:'Core Fokus', met:4.0, max:3, main:[
     { name:'Plank', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Russian Twist', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Leg Raise', sec:30 }, { name:'Istirahat', sec:15, rest:true },
     { name:'Bicycle Crunch', sec:30 }, { name:'Istirahat', sec:15, rest:true }
   ]},
-  barbel: { name:'Barbel', met:6.0, max:3, exercises:[
+  barbel: { name:'Barbel', met:6.0, max:3, main:[
     { name:'Squat Barbel', reps:10 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Deadlift', reps:8 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Bench Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Overhead Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Bent-over Row', reps:10 }, { name:'Istirahat', sec:60, rest:true }
   ]},
-  quickbeginner: { name:'Quick Beginner 7 Menit', met:5.0, max:1, exercises:[
-    // Pemanasan (3 menit)
-    { name:'Jumping Jacks', sec:20 }, { name:'Shoulder Circles', sec:20 }, { name:'Modified Push-Up', sec:15 },
-    { name:'Istirahat', sec:20, rest:true },
-    { name:'Clap Jacks', sec:20 }, { name:'Hip Openers', sec:15 }, { name:'Squats', sec:20 },
-    { name:'Istirahat', sec:20, rest:true },
-    { name:'High Knees', sec:10 }, { name:'Jump In Place', sec:20 },
-    { name:'Istirahat', sec:30, rest:true },
-    // Olahraga inti (6 menit)
+  quickbeginner: { name:'Quick Beginner 7 Menit', met:5.0, max:1, main:[
     { name:'Modified Wide Push-Up', sec:20 }, { name:'Istirahat', sec:30, rest:true },
     { name:'Squats', sec:20 }, { name:'Istirahat', sec:30, rest:true },
     { name:'Jumping Jacks', sec:20 }, { name:'Istirahat', sec:30, rest:true },
@@ -1373,18 +1366,42 @@ const bodyweightModes = {
     { name:'Clap Cross Jacks', sec:20 }, { name:'Istirahat', sec:30, rest:true },
     { name:'Forward Lunges', sec:20 }, { name:'Istirahat', sec:30, rest:true },
     { name:'Low Plank', sec:20 }, { name:'Istirahat', sec:30, rest:true },
-    { name:'Front Kick', sec:20 }, { name:'Istirahat', sec:30, rest:true },
-    // Pendinginan (3 menit)
-    { name:'Jump In Place', sec:20 },
-    { name:'Overhead Tricep Stretch (Right)', sec:15 }, { name:'Overhead Tricep Stretch (Left)', sec:15 },
-    { name:'Shoulder Stretch (Right)', sec:15 }, { name:'Shoulder Stretch (Left)', sec:15 },
-    { name:'Standing Quad Stretch (Right)', sec:15 }, { name:'Standing Quad Stretch (Left)', sec:15 },
-    { name:'Standing Hamstring Stretch (Right)', sec:15 }, { name:'Standing Hamstring Stretch (Left)', sec:15 },
-    { name:'Lunge Stretch (Right)', sec:15 }, { name:'Lunge Stretch (Left)', sec:15 },
-    { name:'Downward Dog Calf Stretch', sec:20 }, { name:'Lower Back Stretch', sec:15 }, { name:'Childs Pose', sec:20 }
+    { name:'Front Kick', sec:20 }, { name:'Istirahat', sec:30, rest:true }
   ]}
 };
-let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwRounds=0;
+// Pemanasan & pendinginan bersama — dipakai semua mode bodyweight/barbel (bukan Latihan Jalan)
+const BW_WARMUP = [
+  { name:'Jumping Jacks', sec:20 }, { name:'Shoulder Circles', sec:20 }, { name:'Modified Push-Up', sec:15 },
+  { name:'Istirahat', sec:20, rest:true },
+  { name:'Clap Jacks', sec:20 }, { name:'Hip Openers', sec:15 }, { name:'Squats', sec:20 },
+  { name:'Istirahat', sec:20, rest:true },
+  { name:'High Knees', sec:10 }, { name:'Jump In Place', sec:20 },
+  { name:'Istirahat', sec:30, rest:true }
+];
+const BW_COOLDOWN = [
+  { name:'Jump In Place', sec:20 },
+  { name:'Overhead Tricep Stretch (Right)', sec:15 }, { name:'Overhead Tricep Stretch (Left)', sec:15 },
+  { name:'Shoulder Stretch (Right)', sec:15 }, { name:'Shoulder Stretch (Left)', sec:15 },
+  { name:'Standing Quad Stretch (Right)', sec:15 }, { name:'Standing Quad Stretch (Left)', sec:15 },
+  { name:'Standing Hamstring Stretch (Right)', sec:15 }, { name:'Standing Hamstring Stretch (Left)', sec:15 },
+  { name:'Lunge Stretch (Right)', sec:15 }, { name:'Lunge Stretch (Left)', sec:15 },
+  { name:'Downward Dog Calf Stretch', sec:20 }, { name:'Lower Back Stretch', sec:15 }, { name:'Childs Pose', sec:20 }
+];
+function buildFullPhaseList(modeKey) {
+  const mode = bodyweightModes[modeKey];
+  const rounds = mode.max || 1;
+  const list = [];
+  list.push({ name:'Pemanasan', sec:5, section:true });
+  BW_WARMUP.forEach(ph => list.push(ph));
+  list.push({ name:'Olahraga', sec:10, section:true });
+  for (let r = 1; r <= rounds; r++) {
+    mode.main.forEach(ph => list.push(Object.assign({}, ph, { round:r, totalRounds:rounds })));
+  }
+  list.push({ name:'Pendinginan', sec:10, section:true });
+  BW_COOLDOWN.forEach(ph => list.push(ph));
+  return list;
+}
+let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwActivePhases=[];
 const bwAnimMap = {
   'Push-up':'pushup', 'Squat':'squat', 'Plank':'plank', 'Sit-up':'situp', 'Lunges':'lunges',
   'Jumping Jack':'jumpingjack', 'Mountain Climber':'mountainclimber', 'Burpee':'burpee', 'High Knees':'highknees',
@@ -1399,17 +1416,19 @@ const bwAnimMap = {
   'Standing Quad Stretch (Right)':'quadstretch', 'Standing Quad Stretch (Left)':'quadstretch',
   'Overhead Tricep Stretch (Right)':'overheadtricepstretch', 'Overhead Tricep Stretch (Left)':'overheadtricepstretch'
 };
+const BW_SECTION_NAMES = ['Pemanasan', 'Olahraga', 'Pendinginan'];
 let bwCurrentVideoSlug = null;
 function setBwAnim(exerciseName) {
-  const slug = bwAnimMap[exerciseName] || 'idle';
+  const isSection = BW_SECTION_NAMES.indexOf(exerciseName) !== -1;
+  const slug = isSection ? ('section-' + exerciseName) : (bwAnimMap[exerciseName] || 'idle');
   if (slug === bwCurrentVideoSlug) return;
   bwCurrentVideoSlug = slug;
   const video = document.getElementById('bwAnimVideo');
   const idle = document.getElementById('bwAnimIdle');
-  if (slug === 'idle' || slug === 'rest') {
+  if (isSection || slug === 'idle' || slug === 'rest') {
     video.pause();
     video.style.display = 'none';
-    idle.textContent = slug === 'rest' ? '💤 Istirahat sejenak...' : '🧘 Siap untuk mulai?';
+    idle.textContent = isSection ? ('🔔 ' + exerciseName + ' segera dimulai...') : (slug === 'rest' ? '💤 Istirahat sejenak...' : '🧘 Siap untuk mulai?');
     idle.style.display = 'flex';
     return;
   }
@@ -1427,17 +1446,16 @@ const BW_CATEGORIES = [
 ];
 function estimateModeStats(modeKey) {
   const mode = bodyweightModes[modeKey];
-  const rounds = mode.max || 1;
   let totalSec = 0, kcal = 0;
   const b = JSON.parse(localStorage.getItem('biodata') || 'null');
   const w = (b && parseFloat(b.weight)) || 60;
-  mode.exercises.forEach(ph => {
+  buildFullPhaseList(modeKey).forEach(ph => {
     const sec = ph.sec || (ph.reps ? ph.reps * 3 : 0);
-    const met = ph.rest ? 1.5 : mode.met;
+    const met = ph.section ? 1.2 : (ph.rest ? 1.5 : mode.met);
     totalSec += sec;
     kcal += met * 3.5 * w / 200 / 60 * sec;
   });
-  return { minutes: Math.round(totalSec * rounds / 60), kcal: Math.round(kcal * rounds) };
+  return { minutes: Math.round(totalSec / 60), kcal: Math.round(kcal) };
 }
 const WALK_CARDS = [
   { key:'basic', icon:'🔄' }, { key:'interval1', icon:'⚡' }, { key:'interval2', icon:'🔥' }, { key:'march', icon:'🦵' }
@@ -1473,7 +1491,7 @@ function renderExerciseCategories() {
     const cards = cat.keys.map(key => {
       const mode = bodyweightModes[key];
       const stats = estimateModeStats(key);
-      const isReps = mode.exercises.some(e => e.reps);
+      const isReps = mode.main.some(e => e.reps);
       return modeCardHtml({ onclick:"goToBodyweightMode('" + key + "')", photo:'images/bg-bodyweight.jpg', badge: isReps ? '🔁 Reps' : '⏱️ Waktu', repsMode: isReps, title: mode.name, minutes: stats.minutes, kcal: stats.kcal });
     }).join('');
     html += '<div class="mode-cat-title">' + cat.title + '</div><div class="mode-cat-row">' + cards + '</div>';
@@ -1487,7 +1505,7 @@ function goToBodyweightMode(key) {
   navigateTo('bodyweight');
 }
 function resetBodyweightUI() {
-  clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0; bwRounds = 0;
+  clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0;
   const titleEl = document.getElementById('bwScreenTitle');
   if (titleEl) titleEl.textContent = '💪 ' + bodyweightModes[bwMode].name;
   document.getElementById('bwPhaseText').textContent = 'Siap untuk mulai?';
@@ -1502,20 +1520,17 @@ function resetBodyweightUI() {
 }
 function startBodyweight() {
   if (bwRunning) return;
-  bwRunning = true; bwPhaseIdx = 0; bwRounds = 0;
+  bwRunning = true; bwPhaseIdx = 0;
+  bwActivePhases = buildFullPhaseList(bwMode);
   document.getElementById('bwStartBtn').textContent = '⏸️ Jeda';
   document.getElementById('bwStartBtn').onclick = pauseBodyweight;
   runBodyweightPhase();
 }
 function runBodyweightPhase() {
-  const mode = bodyweightModes[bwMode];
-  if (bwPhaseIdx >= mode.exercises.length) {
-    bwPhaseIdx = 0; bwRounds++;
-    if (mode.max && bwRounds >= mode.max) { finishBodyweightSession(); return; }
-  }
-  const ph = mode.exercises[bwPhaseIdx];
-  speak(ph.name);
-  Shenx.vibrate(ph.rest ? 60 : 120);
+  if (bwPhaseIdx >= bwActivePhases.length) { finishBodyweightSession(); return; }
+  const ph = bwActivePhases[bwPhaseIdx];
+  speak(ph.section ? (ph.name + ' dimulai') : ph.name);
+  Shenx.vibrate(ph.rest || ph.section ? 60 : 120);
   if (ph.reps) {
     updateBodyweightDisplay();
     document.getElementById('bwRepDoneBtn').style.display = 'block';
@@ -1527,23 +1542,23 @@ function runBodyweightPhase() {
   bwTimer = setInterval(function() {
     bwPhaseSec--;
     updateBodyweightDisplay();
-    addBurnedTick(ph.rest ? 1.5 : mode.met);
+    if (!ph.section) addBurnedTick(ph.rest ? 1.5 : bodyweightModes[bwMode].met);
     if (bwPhaseSec === 3 || bwPhaseSec === 2 || bwPhaseSec === 1) Shenx.vibrate(60);
     if (bwPhaseSec <= 0) { clearInterval(bwTimer); bwPhaseIdx++; if (bwRunning) runBodyweightPhase(); }
   }, 1000);
 }
 function finishBwRepSet() {
   if (!bwRunning) return;
-  const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
+  const ph = bwActivePhases[bwPhaseIdx];
   if (!ph || !ph.reps) return;
-  for (let i = 0; i < ph.reps * 3; i++) addBurnedTick(mode.met);
+  for (let i = 0; i < ph.reps * 3; i++) addBurnedTick(bodyweightModes[bwMode].met);
   Shenx.vibrate(120);
   document.getElementById('bwRepDoneBtn').style.display = 'none';
   bwPhaseIdx++;
   runBodyweightPhase();
 }
 function updateBodyweightDisplay() {
-  const mode = bodyweightModes[bwMode], ph = mode.exercises[bwPhaseIdx];
+  const mode = bodyweightModes[bwMode], ph = bwActivePhases[bwPhaseIdx];
   setBwAnim(ph.name);
   const p = document.getElementById('bwPhaseText');
   const fill = document.getElementById('bwProgressFill');
@@ -1556,22 +1571,23 @@ function updateBodyweightDisplay() {
     const shown = Math.max(0, bwPhaseSec);
     document.getElementById('bwTimerDisplay').textContent = fmt(shown);
     fill.style.width = (((ph.sec - shown) / ph.sec) * 100) + '%';
-    p.textContent = ph.name + ' — ' + fmt(shown) + ' lagi';
-    p.className = ph.rest ? 'phase-indicator phase-rest' : 'phase-indicator phase-fast';
+    p.textContent = ph.section ? (ph.name + ' dimulai dalam ' + fmt(shown)) : (ph.name + ' — ' + fmt(shown) + ' lagi');
+    p.className = ph.section ? 'phase-indicator phase-section' : (ph.rest ? 'phase-indicator phase-rest' : 'phase-indicator phase-fast');
   }
-  document.getElementById('bwInfo').textContent = mode.name + ' | Putaran ' + (bwRounds+1) + '/' + mode.max + ' | ' + ph.name;
+  const roundTxt = ph.round ? (' | Putaran ' + ph.round + '/' + ph.totalRounds) : '';
+  document.getElementById('bwInfo').textContent = mode.name + roundTxt + ' | ' + ph.name;
 }
 function finishBodyweightSession() {
   const mode = bodyweightModes[bwMode];
   clearInterval(bwTimer); bwTimer = null; bwRunning = false;
   markExerciseDoneToday();
-  speak('Sesi selesai. ' + bwRounds + ' putaran tercapai. Kerja bagus');
+  speak('Sesi selesai. Kerja bagus');
   Shenx.vibrate([200, 100, 200, 100, 200]);
-  addHistory('Bodyweight ' + mode.name + ': sesi selesai (' + bwRounds + '/' + mode.max + ' putaran)');
-  document.getElementById('bwPhaseText').textContent = '✅ Sesi selesai — ' + bwRounds + '/' + mode.max + ' putaran';
+  addHistory('Bodyweight ' + mode.name + ': sesi selesai (' + mode.max + '/' + mode.max + ' putaran)');
+  document.getElementById('bwPhaseText').textContent = '✅ Sesi selesai — ' + mode.max + '/' + mode.max + ' putaran';
   document.getElementById('bwPhaseText').className = 'phase-indicator phase-rest';
   document.getElementById('bwProgressFill').style.width = '100%';
-  document.getElementById('bwInfo').textContent = mode.name + ' | Sesi selesai (' + bwRounds + '/' + mode.max + ')';
+  document.getElementById('bwInfo').textContent = mode.name + ' | Sesi selesai (' + mode.max + '/' + mode.max + ')';
   document.getElementById('bwStartBtn').textContent = '▶️ Mulai';
   document.getElementById('bwStartBtn').onclick = startBodyweight;
   document.getElementById('bwRepDoneBtn').style.display = 'none';
@@ -1581,7 +1597,7 @@ function pauseBodyweight() { clearInterval(bwTimer); bwTimer = null; bwRunning =
 function stopBodyweight() {
   clearInterval(bwTimer); bwTimer = null; bwRunning = false;
   Shenx.stopSpeak();
-  if (bwRounds > 0) addHistory('Bodyweight ' + bodyweightModes[bwMode].name + ': dihentikan (' + bwRounds + ' putaran)');
+  if (bwPhaseIdx > 0) addHistory('Bodyweight ' + bodyweightModes[bwMode].name + ': dihentikan di tengah sesi');
   resetBodyweightUI();
 }
 
