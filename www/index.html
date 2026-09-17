@@ -733,6 +733,9 @@ function exportData() {
     sleepByDate: JSON.parse(localStorage.getItem('sleepByDate') || 'null'),
     moodByDate: JSON.parse(localStorage.getItem('moodByDate') || 'null'),
     exerciseDoneByDate: JSON.parse(localStorage.getItem('exerciseDoneByDate') || 'null'),
+    exerciseLogByDate: JSON.parse(localStorage.getItem('exerciseLogByDate') || 'null'),
+    lariRuns: JSON.parse(localStorage.getItem('lariRuns') || 'null'),
+    jalanBebasRuns: JSON.parse(localStorage.getItem('jalanBebasRuns') || 'null'),
     exportedAt: new Date().toISOString()
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -762,6 +765,9 @@ function handleImport(e) {
       if (data.sleepByDate) localStorage.setItem('sleepByDate', JSON.stringify(data.sleepByDate));
       if (data.moodByDate) localStorage.setItem('moodByDate', JSON.stringify(data.moodByDate));
       if (data.exerciseDoneByDate) localStorage.setItem('exerciseDoneByDate', JSON.stringify(data.exerciseDoneByDate));
+      if (data.exerciseLogByDate) localStorage.setItem('exerciseLogByDate', JSON.stringify(data.exerciseLogByDate));
+      if (data.lariRuns) localStorage.setItem('lariRuns', JSON.stringify(data.lariRuns));
+      if (data.jalanBebasRuns) localStorage.setItem('jalanBebasRuns', JSON.stringify(data.jalanBebasRuns));
       document.getElementById('dataMsg').innerHTML = '<div class="result normal">✅ Data berhasil diimpor! Refresh jika perlu.</div>';
       renderHistory();
       renderKaloriTotals();
@@ -790,6 +796,9 @@ function resetAllData() {
     localStorage.removeItem('moodByDate');
     localStorage.removeItem('exerciseDoneDate');
     localStorage.removeItem('exerciseDoneByDate');
+    localStorage.removeItem('exerciseLogByDate');
+    localStorage.removeItem('lariRuns');
+    localStorage.removeItem('jalanBebasRuns');
     document.getElementById('dataMsg').innerHTML = '<div class="result warning">⚠️ Semua data telah direset.</div>';
     renderKaloriTotals();
     initApp();
@@ -1186,11 +1195,26 @@ function addBurnedTick(met) {
     renderKaloriRings();
   } catch (e) {}
 }
-function markExerciseDoneToday() {
+function markExerciseDoneToday(info) {
   try {
+    const ds = todayStr();
     const all = JSON.parse(localStorage.getItem('exerciseDoneByDate')) || {};
-    all[todayStr()] = true;
+    all[ds] = true;
     localStorage.setItem('exerciseDoneByDate', JSON.stringify(all));
+    if (!info) return;
+    const logAll = JSON.parse(localStorage.getItem('exerciseLogByDate')) || {};
+    if (!logAll[ds]) logAll[ds] = [];
+    const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const existing = logAll[ds].find(e => e.key === info.key);
+    if (existing) {
+      existing.time = time;
+      existing.count = (existing.count || 1) + 1;
+      if (info.detail) existing.detail = info.detail;
+    } else {
+      logAll[ds].push({ key: info.key, name: info.name, photo: info.photo, detail: info.detail || '', time: time, count: 1 });
+      if (logAll[ds].length > 12) logAll[ds].shift();
+    }
+    localStorage.setItem('exerciseLogByDate', JSON.stringify(logAll));
   } catch (e) {}
 }
 function isExerciseDone(dateStr) {
@@ -1199,6 +1223,13 @@ function isExerciseDone(dateStr) {
     const all = JSON.parse(localStorage.getItem('exerciseDoneByDate')) || {};
     return !!all[dateStr];
   } catch (e) { return false; }
+}
+function getExerciseLog(dateStr) {
+  dateStr = dateStr || todayStr();
+  try {
+    const all = JSON.parse(localStorage.getItem('exerciseLogByDate')) || {};
+    return all[dateStr] || [];
+  } catch (e) { return []; }
 }
 function isExerciseDoneToday() { return isExerciseDone(todayStr()); }
 
@@ -1566,7 +1597,7 @@ function startWalk() {
     if (walkSec <= 0) {
       walkRound++;
       walkSec = walkTotal;
-      markExerciseDoneToday();
+      markExerciseDoneToday({ key: 'jalan-' + walkMode, name: 'Jalan ' + m.name, photo: 'images/bg-jalan.jpg', detail: walkRound + ' putaran' });
       addHistory('Jalan ' + m.name + ': selesai putaran ' + walkRound);
       speak('Putaran ' + walkRound + ' selesai. Lanjut. ' + m.slowV);
       Shenx.vibrate([200, 100, 200]);
@@ -1758,7 +1789,7 @@ function stopGps(type) {
   gpsClearWatch(type);
   Shenx.stopSpeak();
   if (_was) {
-    markExerciseDoneToday();
+    markExerciseDoneToday({ key: type, name: GPS_ACT[type].label, photo: 'images/bg-jalan.jpg', detail: st.distanceKm.toFixed(2) + ' km · ' + fmt(Math.floor(st.elapsedMs / 1000)) });
     addHistory(GPS_ACT[type].label + ': ' + st.distanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(st.elapsedMs / 1000)));
     saveGpsRun(type);
   }
@@ -2089,7 +2120,7 @@ function updateBodyweightDisplay() {
 function finishBodyweightSession() {
   const mode = bodyweightModes[bwMode];
   clearInterval(bwTimer); bwTimer = null; bwRunning = false;
-  markExerciseDoneToday();
+  markExerciseDoneToday({ key: 'bw-' + bwMode, name: mode.name, photo: BW_MODE_PHOTOS[bwMode] || 'images/bg-bodyweight.jpg', detail: mode.max + '/' + mode.max + ' putaran' });
   speak('Sesi selesai. Kerja bagus');
   Shenx.vibrate([200, 100, 200, 100, 200]);
   addHistory('Bodyweight ' + mode.name + ': sesi selesai (' + mode.max + '/' + mode.max + ' putaran)');
@@ -2239,7 +2270,7 @@ function finishBreathSession() {
   clearInterval(breathTimer); breathTimer = null; breathRunning = false;
   speak('Sesi selesai. ' + breathRounds + ' putaran tercapai. Kerja bagus');
   Shenx.vibrate([200, 100, 200, 100, 200]);
-  markExerciseDoneToday();
+  markExerciseDoneToday({ key: 'napas-' + breathMode, name: 'Pernapasan ' + mode.name, photo: 'images/bg-napas.jpg', detail: breathRounds + '/' + mode.max + ' putaran' });
   addHistory('Napas ' + mode.name + ': sesi selesai (' + breathRounds + '/' + mode.max + ' putaran)');
   const c = document.getElementById('breathCircle');
   c.textContent = '✅ Selesai'; c.className = 'breath-circle'; c.style.backgroundColor = '#2e7d32'; c.style.transitionDuration = '0.4s'; c.style.transform = 'scale(1)';
@@ -2455,8 +2486,19 @@ function renderTrackerWidgets() {
   renderDashPositif();
   const exEl = document.getElementById('trackerOlahraga');
   if (exEl) {
-    const done = isExerciseDone(trackerSelectedDate);
-    exEl.innerHTML = '<div class="result ' + (done ? 'normal' : 'info') + '">' + (done ? '✅ Olahraga selesai' : 'Belum olahraga di tanggal ini') + '</div>';
+    const log = getExerciseLog(trackerSelectedDate);
+    if (log.length > 0) {
+      const tiles = log.map(e => modeCardHtml({
+        onclick: '', photo: e.photo, badge: e.time, title: e.name,
+        stat1: e.detail || 'Selesai',
+        stat2: (e.count > 1) ? ('🔁 ' + e.count + 'x') : '✅ Selesai'
+      })).join('');
+      exEl.innerHTML = '<div class="mode-cat-row" style="margin-bottom:0;">' + tiles + '</div>';
+    } else if (isExerciseDone(trackerSelectedDate)) {
+      exEl.innerHTML = '<div class="mode-cat-row" style="margin-bottom:0;">' + modeCardHtml({ onclick: '', photo: 'images/bg-exercise.jpg', badge: '✅', title: 'Olahraga', stat1: 'Selesai', stat2: '👍 Selesai' }) + '</div>';
+    } else {
+      exEl.innerHTML = '<div class="result info">Belum olahraga di tanggal ini</div>';
+    }
   }
 }
 function renderTrackerTab() {
