@@ -689,66 +689,7 @@ function resetAllData() {
   }
 }
 
-// ===== KALORI (database nutrisi per 100g + waktu makan) =====
-const foodDatabase = [
-  { name:'Nasi Putih', kal:130, karbo:28, protein:2.7, lemak:0.3 },
-  { name:'Nasi Merah', kal:110, karbo:23, protein:2.6, lemak:0.9 },
-  { name:'Nasi Goreng', kal:168, karbo:23, protein:4, lemak:6 },
-  { name:'Mie Goreng', kal:175, karbo:22, protein:4, lemak:8 },
-  { name:'Mie Instan Rebus', kal:138, karbo:20, protein:3, lemak:5 },
-  { name:'Roti Tawar', kal:265, karbo:49, protein:9, lemak:3.2 },
-  { name:'Kentang Rebus', kal:87, karbo:20, protein:1.9, lemak:0.1 },
-  { name:'Tahu', kal:76, karbo:1.9, protein:8, lemak:4.8 },
-  { name:'Tahu Goreng', kal:150, karbo:4, protein:10, lemak:11 },
-  { name:'Tempe', kal:193, karbo:9.4, protein:19, lemak:10.8 },
-  { name:'Tempe Goreng', kal:260, karbo:14, protein:15, lemak:17 },
-  { name:'Telur Ayam Rebus', kal:155, karbo:1.1, protein:13, lemak:11 },
-  { name:'Telur Ayam Ceplok/Dadar', kal:196, karbo:1, protein:14, lemak:15 },
-  { name:'Ayam Panggang/Rebus (tanpa kulit)', kal:165, karbo:0, protein:31, lemak:3.6 },
-  { name:'Ayam Goreng (dengan kulit)', kal:246, karbo:8, protein:20, lemak:15 },
-  { name:'Daging Sapi', kal:250, karbo:0, protein:26, lemak:15 },
-  { name:'Rendang', kal:195, karbo:5, protein:18, lemak:12 },
-  { name:'Ikan Kukus/Bakar', kal:128, karbo:0, protein:26, lemak:2.7 },
-  { name:'Udang', kal:99, karbo:0.2, protein:24, lemak:0.3 },
-  { name:'Bakso', kal:180, karbo:8, protein:12, lemak:11 },
-  { name:'Sate Ayam', kal:220, karbo:8, protein:18, lemak:13 },
-  { name:'Soto Ayam', kal:90, karbo:6, protein:8, lemak:4 },
-  { name:'Gado-gado', kal:150, karbo:12, protein:6, lemak:9 },
-  { name:'Sayur Lodeh', kal:80, karbo:6, protein:2, lemak:5.5 },
-  { name:'Sayur Asem', kal:35, karbo:6, protein:1.5, lemak:0.8 },
-  { name:'Bayam Rebus', kal:23, karbo:3.6, protein:2.9, lemak:0.4 },
-  { name:'Kangkung Tumis', kal:70, karbo:4, protein:2, lemak:5 },
-  { name:'Wortel', kal:41, karbo:10, protein:0.9, lemak:0.2 },
-  { name:'Brokoli', kal:34, karbo:7, protein:2.8, lemak:0.4 },
-  { name:'Kacang Panjang', kal:47, karbo:8, protein:2.8, lemak:0.4 },
-  { name:'Pisang', kal:89, karbo:23, protein:1.1, lemak:0.3 },
-  { name:'Apel', kal:52, karbo:14, protein:0.3, lemak:0.2 },
-  { name:'Jeruk', kal:47, karbo:12, protein:0.9, lemak:0.1 },
-  { name:'Pepaya', kal:43, karbo:11, protein:0.5, lemak:0.3 },
-  { name:'Semangka', kal:30, karbo:8, protein:0.6, lemak:0.2 },
-  { name:'Susu Sapi Full Cream (100ml)', kal:61, karbo:4.8, protein:3.2, lemak:3.3 },
-  { name:'Yogurt Plain (100ml)', kal:61, karbo:4.7, protein:3.5, lemak:3.3 },
-  { name:'Keju Cheddar', kal:402, karbo:1.3, protein:25, lemak:33 },
-  { name:'Kacang Tanah', kal:567, karbo:16, protein:26, lemak:49 },
-  { name:'Gorengan (bakwan/tahu isi)', kal:280, karbo:25, protein:6, lemak:18 },
-  { name:'Kerupuk', kal:470, karbo:60, protein:5, lemak:20 },
-  { name:'Edamame', kal:122, karbo:8, protein:11, lemak:5 },
-  { name:'Jamur Tumis', kal:35, karbo:4, protein:3, lemak:1 },
-  { name:'Alpukat', kal:160, karbo:8.5, protein:2, lemak:15 },
-  { name:'Quinoa Matang', kal:120, karbo:21, protein:4.4, lemak:1.9 },
-  { name:'Oatmeal', kal:71, karbo:12, protein:2.5, lemak:1.5 },
-  { name:'Susu Kedelai (100ml)', kal:33, karbo:1.8, protein:3.3, lemak:1.8 },
-  { name:'Susu Almond (100ml)', kal:17, karbo:0.6, protein:0.6, lemak:1.2 },
-  { name:'Tahu Sutra', kal:55, karbo:2, protein:5.5, lemak:2.7 },
-  { name:'Tempe Orek', kal:220, karbo:15, protein:14, lemak:12 },
-  { name:'Kacang Lentil Matang', kal:116, karbo:20, protein:9, lemak:0.4 },
-  { name:'Kacang Merah Matang', kal:127, karbo:22.8, protein:8.7, lemak:0.5 },
-  { name:'Kacang Hijau Matang', kal:105, karbo:19, protein:7, lemak:0.4 },
-  { name:'Selai Kacang', kal:588, karbo:20, protein:25, lemak:50 },
-  { name:'Mie Shirataki', kal:9, karbo:3, protein:0.1, lemak:0.1 },
-  { name:'Ubi Jalar Rebus', kal:86, karbo:20, protein:1.6, lemak:0.1 },
-  { name:'Salad Sayur (tanpa dressing)', kal:20, karbo:4, protein:1.5, lemak:0.2 }
-];
+// ===== KALORI (waktu makan; nutrisi dicari lewat AI, lihat MEALS di bawah) =====
 
 const MEALS = [
   { key:'pagi', label:'🌅 Pagi (Sarapan)' },
@@ -879,15 +820,14 @@ function renderKaloriScreen() {
   const container = document.getElementById('kaloriMealsContainer');
   if (!container) return;
   container.innerHTML =
-    '<datalist id="foodDatalist">' + foodDatabase.map(f => '<option value="' + f.name + '">').join('') + '</datalist>' +
     MEALS.map(m =>
       '<div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;margin-bottom:12px;">' +
         '<h2 style="font-size:1rem;">' + m.label + '</h2>' +
         '<div class="row">' +
-          '<div class="form-group" style="flex:2;"><input type="text" id="foodSelect-' + m.key + '" list="foodDatalist" placeholder="Ketik atau pilih makanan..." autocomplete="off"></div>' +
+          '<div class="form-group" style="flex:2;"><input type="text" id="foodSelect-' + m.key + '" placeholder="Ketik nama makanan (dicari via AI)..." autocomplete="off" oninput="onMealSearchInput(\'' + m.key + '\')"></div>' +
           '<div class="form-group" style="flex:1;"><input type="number" id="foodPortion-' + m.key + '" value="100" placeholder="gram"></div>' +
         '</div>' +
-        '<button class="btn" style="padding:10px;margin-bottom:10px;" onclick="addFoodTo(\'' + m.key + '\')">➕ Tambah</button>' +
+        '<div id="mealSearchResults-' + m.key + '"></div>' +
         '<div id="foodList-' + m.key + '"></div>' +
         '<div style="font-size:0.8rem;color:#666;text-align:right;margin-top:6px;" id="mealSubtotal-' + m.key + '"></div>' +
       '</div>'
@@ -896,26 +836,67 @@ function renderKaloriScreen() {
   renderKaloriTotals();
 }
 
-function addFoodTo(meal) {
-  const sel = document.getElementById('foodSelect-' + meal);
-  const typed = sel.value.trim();
-  if (!typed) { alert('Ketik atau pilih nama makanan dulu'); return; }
-  const f = foodDatabase.find(x => x.name.toLowerCase() === typed.toLowerCase());
-  if (!f) { alert('Makanan "' + typed + '" tidak ada di daftar. Pilih salah satu saran yang muncul saat mengetik.'); return; }
+let mealSearchTimer = {};
+let mealSearchData = {};
+function onMealSearchInput(meal) {
+  clearTimeout(mealSearchTimer[meal]);
+  const q = document.getElementById('foodSelect-' + meal).value.trim();
+  const resEl = document.getElementById('mealSearchResults-' + meal);
+  if (!q) { resEl.innerHTML = ''; return; }
+  resEl.innerHTML = '<div style="font-size:0.8rem;color:#999;padding:6px 2px;">Mengetik...</div>';
+  mealSearchTimer[meal] = setTimeout(function () { runMealFoodSearch(meal, q); }, 700);
+}
+async function runMealFoodSearch(meal, q) {
+  const resEl = document.getElementById('mealSearchResults-' + meal);
+  const cacheKey = q.toLowerCase();
+  const cache = getNutrisiCache();
+  if (cache[cacheKey]) { renderMealSearchResults(meal, cache[cacheKey]); return; }
+  if (!NUTRISI_PROXY_URL || NUTRISI_PROXY_URL.indexOf('GANTI_URL') === 0) {
+    resEl.innerHTML = '<div style="font-size:0.8rem;color:#c62828;padding:6px 2px;">⚠️ Pencarian AI belum disetel.</div>';
+    return;
+  }
+  resEl.innerHTML = '<div style="font-size:0.8rem;color:#999;padding:6px 2px;">🔎 Mencari "' + q + '"...</div>';
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (NUTRISI_APP_SECRET) headers['X-App-Secret'] = NUTRISI_APP_SECRET;
+    const res = await fetch(NUTRISI_PROXY_URL, { method: 'POST', headers: headers, body: JSON.stringify({ query: q }) });
+    if (!res.ok) throw new Error('status ' + res.status);
+    const data = await res.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    cache[cacheKey] = results;
+    saveNutrisiCache(cache);
+    renderMealSearchResults(meal, results);
+  } catch (e) {
+    resEl.innerHTML = '<div style="font-size:0.8rem;color:#c62828;padding:6px 2px;">⚠️ Gagal mencari. Cek koneksi internet.</div>';
+  }
+}
+function renderMealSearchResults(meal, results) {
+  mealSearchData[meal] = results;
+  const resEl = document.getElementById('mealSearchResults-' + meal);
+  resEl.innerHTML = results.length === 0
+    ? '<div style="font-size:0.8rem;color:#999;padding:6px 2px;">Tidak ditemukan, coba nama lain.</div>'
+    : results.map(function (r, i) {
+        return '<div class="nutrisi-result-item" onclick="addAiFoodTo(\'' + meal + '\',' + i + ')"><span>' + r.name + ' <small style="color:#999;">(' + Math.round(r.kal) + ' kkal/100g)</small></span><span class="arrow">›</span></div>';
+      }).join('');
+}
+function addAiFoodTo(meal, idx) {
+  const f = (mealSearchData[meal] || [])[idx];
+  if (!f) return;
   const portion = parseFloat(document.getElementById('foodPortion-' + meal).value) || 100;
   const factor = portion / 100;
   const state = getFoodState(trackerSelectedDate);
   state.meals[meal].push({
     name: f.name,
     portion: portion,
-    kal: Math.round(f.kal * factor),
-    karbo: Math.round(f.karbo * factor * 10) / 10,
-    protein: Math.round(f.protein * factor * 10) / 10,
-    lemak: Math.round(f.lemak * factor * 10) / 10
+    kal: Math.round((f.kal || 0) * factor),
+    karbo: Math.round((f.karbo || 0) * factor * 10) / 10,
+    protein: Math.round((f.protein || 0) * factor * 10) / 10,
+    lemak: Math.round((f.lemak || 0) * factor * 10) / 10
   });
   saveFoodState(state);
-  sel.value = '';
+  document.getElementById('foodSelect-' + meal).value = '';
   document.getElementById('foodPortion-' + meal).value = '100';
+  document.getElementById('mealSearchResults-' + meal).innerHTML = '';
   renderMealList(meal);
   renderKaloriTotals();
 }
