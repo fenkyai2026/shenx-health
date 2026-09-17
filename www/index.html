@@ -142,6 +142,7 @@
   .tint-bmi { background: linear-gradient(135deg, rgba(79,172,254,0.6), rgba(0,201,167,0.6)); }
   .tint-water { background: linear-gradient(135deg, rgba(33,147,176,0.6), rgba(109,213,237,0.6)); }
   .tint-kalori { background: linear-gradient(135deg, rgba(247,151,30,0.6), rgba(255,88,88,0.6)); }
+  .tint-nutrisi { background: linear-gradient(135deg, rgba(76,175,80,0.6), rgba(255,193,7,0.55)); }
   .tint-exercise { background: linear-gradient(135deg, rgba(255,106,0,0.6), rgba(238,9,121,0.6)); }
   .tint-setting { background: linear-gradient(135deg, rgba(102,126,234,0.65), rgba(118,75,162,0.65)); }
   .tint-jalan { background: linear-gradient(135deg, rgba(86,171,47,0.55), rgba(168,224,99,0.55)); }
@@ -193,14 +194,24 @@
   </div>
 
   <!-- TAB_NAPASHUB -->
-  <div id="tab-napashub" class="tab-content"><div class="card" style="padding:12px;">
-  <h2 style="margin-bottom:12px;padding-left:8px;">🫁 Pernapasan</h2>
+  <div id="tab-napashub" class="tab-content">
+  <div class="hero-card" style="text-align:center;">
+    <div class="bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
+    <div class="hero-tint tint-napas"></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🫁 Pernapasan</h2></div>
+  </div>
+  <div class="card" style="padding:12px;">
   <div id="breathCategoryPicker"></div>
   </div></div>
 
   <!-- TAB_EXERCISE -->
-  <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
-  <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Olahraga</h2>
+  <div id="tab-exercise" class="tab-content">
+  <div class="hero-card" style="text-align:center;">
+    <div class="bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
+    <div class="hero-tint tint-exercise"></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🏋️ Olahraga</h2></div>
+  </div>
+  <div class="card" style="padding:12px;">
   <div id="exerciseCategoryPicker"></div>
   </div></div>
 
@@ -209,7 +220,7 @@
   <h2>👤 Profil</h2>
   <div class="pengaturan-menu">
     <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
-    <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon">🔍</span> Info Kalori & Nutrisi<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon">🔍</span> Nutrisi & Kalori<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('logaktivitas')"><span class="icon">📋</span> Log Aktivitas<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
     <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
@@ -234,9 +245,14 @@
   </div></div>
 
   <!-- TAB_NUTRISIINFO -->
-  <div id="tab-nutrisiinfo" class="tab-content"><div class="card">
+  <div id="tab-nutrisiinfo" class="tab-content">
   <button class="back-btn" onclick="goBack()">← Profil</button>
-  <h2>🔍 Kalori & Nutrisi</h2>
+  <div class="hero-card" style="text-align:center;">
+    <div class="bg-photo" style="background-image:url('images/bg-nutrisi.jpg');"></div>
+    <div class="hero-tint tint-nutrisi"></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🔍 Nutrisi & Kalori</h2></div>
+  </div>
+  <div class="card">
   <div class="form-group">
     <input type="text" id="nutrisiSearchInput" placeholder="Cari makanan, misal: nasi merah" autocomplete="off" oninput="onNutrisiSearchInput()">
   </div>
