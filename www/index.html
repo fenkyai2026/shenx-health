@@ -304,6 +304,26 @@
   </div>
   <div class="row"><button class="btn" id="lariStartBtn" onclick="startLari()" style="flex:2;">▶️ Mulai</button><button class="btn" id="lariStopBtn" onclick="stopLari()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info" id="lariInfo">Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)</div>
+  <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="navigateTo('larihistory')">📜 Riwayat Lari</button></div>
+  </div></div>
+
+  <!-- TAB_LARI_HISTORY -->
+  <div id="tab-larihistory" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Lari</button>
+  <h2>📜 Riwayat Lari</h2>
+  <div id="lariHistoryList"></div>
+  </div></div>
+
+  <!-- TAB_LARI_DETAIL -->
+  <div id="tab-laridetail" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Riwayat Lari</button>
+  <h2 id="lariDetailTitle">🏃 Detail Lari</h2>
+  <div id="lariDetailMap" style="width:100%;height:260px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:#e0e0e0;"></div>
+  <div style="display:flex;justify-content:space-around;text-align:center;">
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+  </div>
   </div></div>
 
   <!-- TAB_BODYWEIGHT -->
@@ -588,7 +608,7 @@ function renderBodyweightGuide() {
 // TAB NAVIGATION
 const NAV_PARENT = {
   dashboard: 'dashboard', bmidetail: 'dashboard', napashub: 'dashboard', napas: 'dashboard',
-  exercise: 'exercise', jalan: 'exercise', lari: 'exercise', bodyweight: 'exercise',
+  exercise: 'exercise', jalan: 'exercise', lari: 'exercise', larihistory: 'exercise', laridetail: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
   settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu', logaktivitas: 'settingmenu'
 };
@@ -617,6 +637,8 @@ function switchTab(tab) {
   if (tab === 'exercise') renderExerciseCategories();
   if (tab === 'jalan') renderWalkGuide();
   if (tab === 'lari') resetLariUI();
+  if (tab === 'larihistory') renderLariHistory();
+  if (tab === 'laridetail') renderLariDetail();
   if (tab === 'napashub') renderBreathCategories();
   if (tab === 'napas') renderBreathGuide();
   if (tab === 'bodyweight') renderBodyweightGuide();
@@ -1670,8 +1692,68 @@ function stopLari() {
   if (_was) {
     markExerciseDoneToday();
     addHistory('Lari: ' + lariDistanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(lariElapsedMs / 1000)));
+    saveLariRun();
   }
   resetLariUI();
+}
+function getLariRuns() {
+  try { return JSON.parse(localStorage.getItem('lariRuns')) || []; } catch (e) { return []; }
+}
+function saveLariRun() {
+  if (lariDistanceKm < 0.01 && lariPath.length < 2) return;
+  let path = lariPath;
+  if (path.length > 300) {
+    const step = Math.ceil(path.length / 300);
+    path = path.filter((_, i) => i % step === 0);
+  }
+  const runs = getLariRuns();
+  runs.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    time: new Date().toLocaleString('id-ID'),
+    distanceKm: lariDistanceKm,
+    durationSec: Math.floor(lariElapsedMs / 1000),
+    path: path
+  });
+  if (runs.length > 30) runs.length = 30;
+  localStorage.setItem('lariRuns', JSON.stringify(runs));
+}
+function renderLariHistory() {
+  const el = document.getElementById('lariHistoryList');
+  const runs = getLariRuns();
+  if (runs.length === 0) { el.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat lari</p>'; return; }
+  el.innerHTML = runs.map(r => {
+    const pace = r.distanceKm > 0.02 ? (r.durationSec / 60 / r.distanceKm) : 0;
+    const pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
+    const paceTxt = pace > 0 ? (pm + ':' + String(ps).padStart(2, '0') + ' /km') : '-';
+    return '<div class="history-item" style="cursor:pointer;" onclick="viewLariRun(' + r.id + ')"><strong>' +
+      r.distanceKm.toFixed(2) + ' km — ' + fmt(r.durationSec) + '</strong> <span style="color:#888;">(' + paceTxt + ')</span><br><small>' + r.time + '</small></div>';
+  }).join('');
+}
+let lariDetailMapObj = null, lariDetailRunId = null;
+function viewLariRun(id) { lariDetailRunId = id; navigateTo('laridetail'); }
+function renderLariDetail() {
+  const runs = getLariRuns();
+  const r = runs.find(x => x.id === lariDetailRunId);
+  document.getElementById('lariDetailDistance').textContent = r ? r.distanceKm.toFixed(2) : '0.00';
+  document.getElementById('lariDetailDuration').textContent = r ? fmt(r.durationSec) : '00:00';
+  if (r && r.distanceKm > 0.02) {
+    const pace = r.durationSec / 60 / r.distanceKm, pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
+    document.getElementById('lariDetailPace').textContent = pm + ':' + String(ps).padStart(2, '0');
+  } else {
+    document.getElementById('lariDetailPace').textContent = '0:00';
+  }
+  document.getElementById('lariDetailTitle').textContent = r ? ('🏃 Lari — ' + r.time) : '🏃 Detail Lari';
+  loadLeaflet().then(() => {
+    if (lariDetailMapObj) { lariDetailMapObj.remove(); lariDetailMapObj = null; }
+    if (!r || !r.path || r.path.length === 0) return;
+    lariDetailMapObj = L.map('lariDetailMap');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(lariDetailMapObj);
+    const line = L.polyline(r.path, { color: '#2e7d32', weight: 4 }).addTo(lariDetailMapObj);
+    lariDetailMapObj.fitBounds(line.getBounds(), { padding: [20, 20] });
+    L.circleMarker(r.path[0], { radius: 6, color: '#2e7d32', fillColor: '#2e7d32', fillOpacity: 1 }).addTo(lariDetailMapObj);
+    L.circleMarker(r.path[r.path.length - 1], { radius: 6, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(lariDetailMapObj);
+  });
 }
 
 // ===== BODYWEIGHT (circuit push-up/squat/plank/dll) =====
