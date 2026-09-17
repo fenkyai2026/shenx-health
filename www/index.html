@@ -66,6 +66,8 @@
   .bw-anim-idle { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 16px; font-weight: 600; color: #b3324a; font-size: 0.95rem; }
   .mode-cat-title { font-weight: 700; font-size: 1rem; color: #1b5e20; margin: 4px 0 10px; }
   .mode-cat-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 22px; }
+  .mode-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+  .mode-grid-2col .mode-card { width: 100%; height: 150px; }
   .mode-card { flex: 0 0 auto; width: 148px; height: 168px; position: relative; border-radius: 16px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2); border: 3px solid transparent; }
   .mode-card.active { border-color: #2e7d32; }
   .mode-card .mode-bg-photo { position: absolute; inset: 0; background-size: cover; background-position: center; }
@@ -127,7 +129,7 @@
   .exercise-tile { position: relative; overflow: hidden; border-radius: 14px; padding: 24px 16px; text-align: center; margin-bottom: 12px; cursor: pointer; transition: transform 0.15s; box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
   .exercise-tile:last-child { margin-bottom: 0; }
   .exercise-tile:active { transform: scale(0.97); }
-  .exercise-tile .tile-bg-photo { position: absolute; inset: -10px; background-size: cover; background-position: center; filter: blur(6px) brightness(0.75); z-index: 0; }
+  .exercise-tile .tile-bg-photo { position: absolute; inset: -10px; background-size: cover; background-position: center 25%; filter: blur(2px) brightness(0.95); z-index: 0; }
   .exercise-tile .tile-tint { position: absolute; inset: 0; z-index: 0; }
   .exercise-tile .tile-content { position: relative; z-index: 1; }
   .water-cup { background: none; border: none; cursor: pointer; font-size: 1.6rem; padding: 2px; transition: opacity 0.2s; }
@@ -169,6 +171,10 @@
         <p style="color:#888;font-size:0.85rem;" id="dashDate"></p>
       </div>
     </div>
+    <div class="card">
+      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
+      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
+    </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-bmi.jpg');"></div>
       <div class="hero-tint tint-bmi"></div>
@@ -178,17 +184,20 @@
         <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
       </div>
     </div>
-    <div class="card">
-      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
-      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
-    </div>
     <div class="exercise-tile" onclick="navigateTo('napashub')">
       <div class="tile-bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
       <div class="tile-tint tint-napas"></div>
       <div class="tile-content">
-        <div style="font-size:3rem;">🫁</div>
         <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pernapasan</div>
         <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
+      </div>
+    </div>
+    <div class="exercise-tile" onclick="navigateTo('nutrisiinfo')">
+      <div class="tile-bg-photo" style="background-image:url('images/bg-nutrisi.jpg');"></div>
+      <div class="tile-tint tint-nutrisi"></div>
+      <div class="tile-content">
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Nutrisi & Kalori</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Cari info gizi makanan apa saja</div>
       </div>
     </div>
   </div>
@@ -1837,7 +1846,7 @@ function renderBreathCategories() {
     const m = breathModes[key], stats = estimateBreathStats(key);
     return modeCardHtml({ onclick:"goToBreathMode('" + key + "')", photo:'images/bg-napas.jpg', badge: (BREATH_ICONS[key]||'🫁') + ' ' + stats.pattern, title: m.name, stat1: '⏱ ~' + stats.minutes + ' mnt', stat2: '🔁 ' + m.max + 'x' });
   }).join('');
-  el.innerHTML = '<div class="mode-cat-title">🧘 Teknik Pernapasan</div><div class="mode-cat-row">' + cards + '</div>';
+  el.innerHTML = '<div class="mode-cat-title">🧘 Teknik Pernapasan</div><div class="mode-grid-2col">' + cards + '</div>';
 }
 function goToBreathMode(key) {
   breathMode = key;
