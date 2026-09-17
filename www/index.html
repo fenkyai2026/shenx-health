@@ -259,6 +259,7 @@
       <option value="hiit">🔥 HIIT Kardio — Jumping Jack, Mountain Climber, Burpee, High Knees</option>
       <option value="core">🧘 Core Fokus — Plank, Russian Twist, Leg Raise, Bicycle Crunch</option>
       <option value="barbel">🏋️ Barbel — Squat, Deadlift, Bench Press, Overhead Press, Row</option>
+      <option value="quickbeginner">⏱️ Quick Beginner 7 Menit — Pemanasan, Inti, Pendinginan</option>
     </select>
   </div>
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
@@ -529,7 +530,10 @@ const guides = {
       tujuan:'Memperkuat otot inti untuk postur dan stabilitas tubuh yang lebih baik.' },
     { key:'barbel', title:'🏋️ Barbel', tag:'walk', text:'Squat, Deadlift, Bench Press, Overhead Press, Bent-over Row — masing-masing berdasarkan jumlah repetisi (bukan waktu), lalu 60 detik istirahat antar set.', maxInfo:'3 putaran/sesi',
       fungsi:'Latihan beban dasar yang menargetkan kelompok otot besar (kaki, dada, bahu, punggung) dengan repetisi terkontrol.',
-      tujuan:'Membangun kekuatan otot secara progresif. Sesuaikan beban barbel dengan kemampuan sendiri; fokus pada teknik yang benar.' }
+      tujuan:'Membangun kekuatan otot secara progresif. Sesuaikan beban barbel dengan kemampuan sendiri; fokus pada teknik yang benar.' },
+    { key:'quickbeginner', title:'⏱️ Quick Beginner 7 Menit', tag:'walk', text:'Satu sesi lengkap: Pemanasan (3 menit) → Latihan inti (6 menit) → Pendinginan/peregangan (3 menit), tidak berulang.', maxInfo:'1 sesi',
+      fungsi:'Rangkaian latihan singkat ala "7 Minute Workout" — pemanasan dinamis, circuit intensitas ringan-sedang, ditutup peregangan lengkap.',
+      tujuan:'Cocok untuk pemula atau saat waktu terbatas — satu sesi sudah mencakup pemanasan sampai pendinginan.' }
   ]
 };
 
@@ -1373,6 +1377,32 @@ const bodyweightModes = {
     { name:'Bench Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Overhead Press', reps:10 }, { name:'Istirahat', sec:60, rest:true },
     { name:'Bent-over Row', reps:10 }, { name:'Istirahat', sec:60, rest:true }
+  ]},
+  quickbeginner: { name:'Quick Beginner 7 Menit', met:5.0, max:1, exercises:[
+    // Pemanasan (3 menit)
+    { name:'Jumping Jacks', sec:20 }, { name:'Shoulder Circles', sec:20 }, { name:'Modified Push-Up', sec:15 },
+    { name:'Istirahat', sec:20, rest:true },
+    { name:'Clap Jacks', sec:20 }, { name:'Hip Openers', sec:15 }, { name:'Squats', sec:20 },
+    { name:'Istirahat', sec:20, rest:true },
+    { name:'High Knees', sec:10 }, { name:'Jump In Place', sec:20 },
+    { name:'Istirahat', sec:30, rest:true },
+    // Olahraga inti (6 menit)
+    { name:'Modified Wide Push-Up', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Squats', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Jumping Jacks', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Low Plank', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Clap Cross Jacks', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Forward Lunges', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Low Plank', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    { name:'Front Kick', sec:20 }, { name:'Istirahat', sec:30, rest:true },
+    // Pendinginan (3 menit)
+    { name:'Jump In Place', sec:20 },
+    { name:'Overhead Tricep Stretch (Right)', sec:15 }, { name:'Overhead Tricep Stretch (Left)', sec:15 },
+    { name:'Shoulder Stretch (Right)', sec:15 }, { name:'Shoulder Stretch (Left)', sec:15 },
+    { name:'Standing Quad Stretch (Right)', sec:15 }, { name:'Standing Quad Stretch (Left)', sec:15 },
+    { name:'Standing Hamstring Stretch (Right)', sec:15 }, { name:'Standing Hamstring Stretch (Left)', sec:15 },
+    { name:'Lunge Stretch (Right)', sec:15 }, { name:'Lunge Stretch (Left)', sec:15 },
+    { name:'Downward Dog Calf Stretch', sec:20 }, { name:'Lower Back Stretch', sec:15 }, { name:'Childs Pose', sec:20 }
   ]}
 };
 let bwMode='pemula', bwTimer=null, bwRunning=false, bwPhaseIdx=0, bwPhaseSec=0, bwRounds=0;
@@ -1380,7 +1410,8 @@ const bwAnimMap = {
   'Push-up':'pushup', 'Squat':'squat', 'Plank':'plank', 'Sit-up':'situp', 'Lunges':'lunges',
   'Jumping Jack':'jumpingjack', 'Mountain Climber':'mountainclimber', 'Burpee':'burpee', 'High Knees':'highknees',
   'Russian Twist':'russiantwist', 'Leg Raise':'legraise', 'Bicycle Crunch':'bicyclecrunch', 'Istirahat':'rest',
-  'Squat Barbel':'squatbarbel', 'Deadlift':'deadlift', 'Bench Press':'benchpress', 'Overhead Press':'overheadpress', 'Bent-over Row':'bentoverrow'
+  'Squat Barbel':'squatbarbel', 'Deadlift':'deadlift', 'Bench Press':'benchpress', 'Overhead Press':'overheadpress', 'Bent-over Row':'bentoverrow',
+  'Jumping Jacks':'jumpingjack', 'Squats':'squat', 'Modified Push-Up':'pushup', 'Modified Wide Push-Up':'pushup', 'Low Plank':'plank', 'Forward Lunges':'lunges'
 };
 let bwCurrentVideoSlug = null;
 function setBwAnim(exerciseName) {
