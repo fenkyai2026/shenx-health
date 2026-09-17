@@ -292,6 +292,40 @@
   <div class="exercise-info" id="walkInfo" style="margin-top:4px;">3:3 Dasar — Total 6 menit per putaran</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
+  <!-- TAB_JALAN_BEBAS -->
+  <div id="tab-jalanbebas" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Olahraga</button>
+  <h2>🚶 Jalan Bebas</h2>
+  <div id="jalanBebasMap" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:#e0e0e0;"></div>
+  <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:16px;">
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+  </div>
+  <div class="row"><button class="btn" id="jalanBebasStartBtn" onclick="startGps('jalanbebas')" style="flex:2;">▶️ Mulai</button><button class="btn" id="jalanBebasStopBtn" onclick="stopGps('jalanbebas')" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="exercise-info" id="jalanBebasInfo">Tekan Mulai untuk melacak jalan kamu (butuh izin lokasi)</div>
+  <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="navigateTo('jalanbebashistory')">📜 Riwayat Jalan Bebas</button></div>
+  </div></div>
+
+  <!-- TAB_JALAN_BEBAS_HISTORY -->
+  <div id="tab-jalanbebashistory" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Jalan Bebas</button>
+  <h2>📜 Riwayat Jalan Bebas</h2>
+  <div id="jalanBebasHistoryList"></div>
+  </div></div>
+
+  <!-- TAB_JALAN_BEBAS_DETAIL -->
+  <div id="tab-jalanbebasdetail" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Riwayat Jalan Bebas</button>
+  <h2 id="jalanBebasDetailTitle">🚶 Detail Jalan</h2>
+  <div id="jalanBebasDetailMap" style="width:100%;height:260px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:#e0e0e0;"></div>
+  <div style="display:flex;justify-content:space-around;text-align:center;">
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+  </div>
+  </div></div>
+
   <!-- TAB_LARI -->
   <div id="tab-lari" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Olahraga</button>
@@ -302,7 +336,7 @@
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
   </div>
-  <div class="row"><button class="btn" id="lariStartBtn" onclick="startLari()" style="flex:2;">▶️ Mulai</button><button class="btn" id="lariStopBtn" onclick="stopLari()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="row"><button class="btn" id="lariStartBtn" onclick="startGps('lari')" style="flex:2;">▶️ Mulai</button><button class="btn" id="lariStopBtn" onclick="stopGps('lari')" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info" id="lariInfo">Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="navigateTo('larihistory')">📜 Riwayat Lari</button></div>
   </div></div>
@@ -608,7 +642,8 @@ function renderBodyweightGuide() {
 // TAB NAVIGATION
 const NAV_PARENT = {
   dashboard: 'dashboard', bmidetail: 'dashboard', napashub: 'dashboard', napas: 'dashboard',
-  exercise: 'exercise', jalan: 'exercise', lari: 'exercise', larihistory: 'exercise', laridetail: 'exercise', bodyweight: 'exercise',
+  exercise: 'exercise', jalan: 'exercise', jalanbebas: 'exercise', jalanbebashistory: 'exercise', jalanbebasdetail: 'exercise',
+  lari: 'exercise', larihistory: 'exercise', laridetail: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
   settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu', logaktivitas: 'settingmenu'
 };
@@ -624,7 +659,8 @@ function switchTab(tab) {
   if (el) el.classList.add('active');
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
-  if (tab !== 'lari') stopLari();
+  if (tab !== 'jalanbebas') stopGps('jalanbebas');
+  if (tab !== 'lari') stopGps('lari');
   if (tab !== 'bodyweight') stopBodyweight();
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'bmidetail') renderBmiDetail();
@@ -636,9 +672,12 @@ function switchTab(tab) {
   if (tab === 'logaktivitas') renderHistory();
   if (tab === 'exercise') renderExerciseCategories();
   if (tab === 'jalan') renderWalkGuide();
-  if (tab === 'lari') resetLariUI();
-  if (tab === 'larihistory') renderLariHistory();
-  if (tab === 'laridetail') renderLariDetail();
+  if (tab === 'jalanbebas') resetGpsUI('jalanbebas');
+  if (tab === 'jalanbebashistory') renderGpsHistory('jalanbebas');
+  if (tab === 'jalanbebasdetail') renderGpsDetail('jalanbebas');
+  if (tab === 'lari') resetGpsUI('lari');
+  if (tab === 'larihistory') renderGpsHistory('lari');
+  if (tab === 'laridetail') renderGpsDetail('lari');
   if (tab === 'napashub') renderBreathCategories();
   if (tab === 'napas') renderBreathGuide();
   if (tab === 'bodyweight') renderBodyweightGuide();
@@ -1537,10 +1576,23 @@ function startWalk() {
 function pauseWalk() { clearInterval(walkTimer); walkTimer = null; isWalking = false; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Lanjutkan'; document.getElementById('startBtn').onclick = startWalk; }
 function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan'); }
 
-// ===== LARI (GPS run tracking dengan peta) =====
-const LARI_MET = 9.0;
-let lariRunning = false, lariTimer = null, lariWatchId = null, lariMap = null, lariPolyline = null, lariMarker = null;
-let lariElapsedMs = 0, lariLastTick = 0, lariDistanceKm = 0, lariPath = [];
+// ===== GPS TRACKING (Lari & Jalan Bebas — peta, jarak, waktu, pace, riwayat rute) =====
+const GPS_ACT = {
+  lari: { idPrefix: 'lari', met: 9.0, label: 'Lari', emoji: '🏃',
+    startMsg: 'Lari dimulai', trackingMsg: 'Melacak lari...',
+    idleMsg: 'Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)',
+    historyKey: 'lariRuns', historyTab: 'larihistory', detailTab: 'laridetail' },
+  jalanbebas: { idPrefix: 'jalanBebas', met: 3.8, label: 'Jalan Bebas', emoji: '🚶',
+    startMsg: 'Jalan bebas dimulai', trackingMsg: 'Melacak jalan...',
+    idleMsg: 'Tekan Mulai untuk melacak jalan kamu (butuh izin lokasi)',
+    historyKey: 'jalanBebasRuns', historyTab: 'jalanbebashistory', detailTab: 'jalanbebasdetail' }
+};
+const gpsState = {
+  lari: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [] },
+  jalanbebas: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [] }
+};
+const gpsDetailMapObj = {}, gpsDetailRunId = {};
+function gpsId(type, field) { return GPS_ACT[type].idPrefix + field; }
 
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
@@ -1561,16 +1613,18 @@ function loadLeaflet() {
   });
   return window._leafletLoading;
 }
-function ensureLariMap(lat, lon) {
-  const el = document.getElementById('lariMap');
+function ensureGpsMap(type, lat, lon) {
+  const st = gpsState[type];
+  const mapElId = gpsId(type, 'Map');
+  const el = document.getElementById(mapElId);
   if (!el || !window.L) return;
-  if (!lariMap) {
-    lariMap = L.map('lariMap').setView([lat, lon], 17);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(lariMap);
-    lariPolyline = L.polyline([], { color: '#2e7d32', weight: 4 }).addTo(lariMap);
-    lariMarker = L.circleMarker([lat, lon], { radius: 7, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(lariMap);
+  if (!st.map) {
+    st.map = L.map(mapElId).setView([lat, lon], 17);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(st.map);
+    st.polyline = L.polyline([], { color: '#2e7d32', weight: 4 }).addTo(st.map);
+    st.marker = L.circleMarker([lat, lon], { radius: 7, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(st.map);
   } else {
-    setTimeout(() => lariMap.invalidateSize(), 200);
+    setTimeout(() => st.map.invalidateSize(), 200);
   }
 }
 function getGeoPlugin() {
@@ -1586,173 +1640,188 @@ async function ensureLocationPermission() {
     return req.location === 'granted';
   } catch (e) { return true; }
 }
-function onLariPosition(pos) {
+function onGpsPosition(type, pos) {
+  const st = gpsState[type];
   const lat = pos.coords.latitude, lon = pos.coords.longitude;
-  if (lariPath.length > 0) {
-    const last = lariPath[lariPath.length - 1];
+  if (st.path.length > 0) {
+    const last = st.path[st.path.length - 1];
     const d = haversineKm(last[0], last[1], lat, lon);
-    if (d > 0.0015 && d < 0.2) lariDistanceKm += d; // saring noise GPS diam & lompatan tidak wajar
+    if (d > 0.0015 && d < 0.2) st.distanceKm += d; // saring noise GPS diam & lompatan tidak wajar
   }
-  lariPath.push([lat, lon]);
-  ensureLariMap(lat, lon);
-  if (lariMap) {
-    lariPolyline.setLatLngs(lariPath);
-    lariMarker.setLatLng([lat, lon]);
-    lariMap.panTo([lat, lon]);
+  st.path.push([lat, lon]);
+  ensureGpsMap(type, lat, lon);
+  if (st.map) {
+    st.polyline.setLatLngs(st.path);
+    st.marker.setLatLng([lat, lon]);
+    st.map.panTo([lat, lon]);
   }
-  updateLariStats();
+  updateGpsStats(type);
 }
-function lariWatchPosition() {
+function gpsWatchPosition(type) {
+  const st = gpsState[type];
   const plugin = getGeoPlugin();
   const opts = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
   if (plugin) {
-    plugin.watchPosition(opts, (pos, err) => { if (pos) onLariPosition(pos); })
-      .then(id => { lariWatchId = id; });
+    plugin.watchPosition(opts, (pos, err) => { if (pos) onGpsPosition(type, pos); })
+      .then(id => { st.watchId = id; });
   } else if (navigator.geolocation) {
-    lariWatchId = navigator.geolocation.watchPosition(onLariPosition, () => {}, opts);
+    st.watchId = navigator.geolocation.watchPosition(pos => onGpsPosition(type, pos), () => {}, opts);
   }
 }
-function lariClearWatch() {
+function gpsClearWatch(type) {
+  const st = gpsState[type];
   const plugin = getGeoPlugin();
-  if (lariWatchId == null) return;
-  if (plugin) plugin.clearWatch({ id: lariWatchId }).catch(() => {});
-  else if (navigator.geolocation) navigator.geolocation.clearWatch(lariWatchId);
-  lariWatchId = null;
+  if (st.watchId == null) return;
+  if (plugin) plugin.clearWatch({ id: st.watchId }).catch(() => {});
+  else if (navigator.geolocation) navigator.geolocation.clearWatch(st.watchId);
+  st.watchId = null;
 }
-function updateLariDuration() {
-  const totalSec = Math.floor(lariElapsedMs / 1000);
-  document.getElementById('lariDuration').textContent = fmt(totalSec);
-  addBurnedTick(LARI_MET);
+function updateGpsDuration(type) {
+  const st = gpsState[type];
+  const totalSec = Math.floor(st.elapsedMs / 1000);
+  document.getElementById(gpsId(type, 'Duration')).textContent = fmt(totalSec);
+  addBurnedTick(GPS_ACT[type].met);
 }
-function updateLariStats() {
-  document.getElementById('lariDistance').textContent = lariDistanceKm.toFixed(2);
-  const totalMin = lariElapsedMs / 60000;
-  if (lariDistanceKm > 0.02 && totalMin > 0) {
-    const paceMinPerKm = totalMin / lariDistanceKm;
+function updateGpsStats(type) {
+  const st = gpsState[type];
+  document.getElementById(gpsId(type, 'Distance')).textContent = st.distanceKm.toFixed(2);
+  const totalMin = st.elapsedMs / 60000;
+  if (st.distanceKm > 0.02 && totalMin > 0) {
+    const paceMinPerKm = totalMin / st.distanceKm;
     const pm = Math.floor(paceMinPerKm), ps = Math.round((paceMinPerKm - pm) * 60);
-    document.getElementById('lariPace').textContent = pm + ':' + String(ps).padStart(2, '0');
+    document.getElementById(gpsId(type, 'Pace')).textContent = pm + ':' + String(ps).padStart(2, '0');
   }
 }
-function resetLariUI() {
-  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
-  lariElapsedMs = 0; lariDistanceKm = 0; lariPath = [];
-  if (lariPolyline) lariPolyline.setLatLngs([]);
-  document.getElementById('lariDistance').textContent = '0.00';
-  document.getElementById('lariDuration').textContent = '00:00';
-  document.getElementById('lariPace').textContent = '0:00';
-  document.getElementById('lariInfo').textContent = 'Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)';
-  document.getElementById('lariStartBtn').textContent = '▶️ Mulai';
-  document.getElementById('lariStartBtn').onclick = startLari;
+function resetGpsUI(type) {
+  const st = gpsState[type];
+  clearInterval(st.timer); st.timer = null; st.running = false;
+  st.elapsedMs = 0; st.distanceKm = 0; st.path = [];
+  if (st.polyline) st.polyline.setLatLngs([]);
+  document.getElementById(gpsId(type, 'Distance')).textContent = '0.00';
+  document.getElementById(gpsId(type, 'Duration')).textContent = '00:00';
+  document.getElementById(gpsId(type, 'Pace')).textContent = '0:00';
+  document.getElementById(gpsId(type, 'Info')).textContent = GPS_ACT[type].idleMsg;
+  const btn = document.getElementById(gpsId(type, 'StartBtn'));
+  btn.textContent = '▶️ Mulai';
+  btn.onclick = () => startGps(type);
   loadLeaflet().catch(() => {});
 }
-async function startLari() {
-  if (lariRunning) return;
+async function startGps(type) {
+  const st = gpsState[type];
+  if (st.running) return;
   const ok = await ensureLocationPermission();
-  if (!ok) { document.getElementById('lariInfo').textContent = 'Izin lokasi ditolak — aktifkan di pengaturan HP.'; return; }
+  if (!ok) { document.getElementById(gpsId(type, 'Info')).textContent = 'Izin lokasi ditolak — aktifkan di pengaturan HP.'; return; }
   await loadLeaflet();
-  lariRunning = true;
-  lariLastTick = Date.now();
-  document.getElementById('lariInfo').textContent = 'Melacak lari...';
-  document.getElementById('lariStartBtn').textContent = '⏸️ Jeda';
-  document.getElementById('lariStartBtn').onclick = pauseLari;
-  speak('Lari dimulai');
+  st.running = true;
+  st.lastTick = Date.now();
+  document.getElementById(gpsId(type, 'Info')).textContent = GPS_ACT[type].trackingMsg;
+  const btn = document.getElementById(gpsId(type, 'StartBtn'));
+  btn.textContent = '⏸️ Jeda';
+  btn.onclick = () => pauseGps(type);
+  speak(GPS_ACT[type].startMsg);
   Shenx.vibrate(100);
-  lariWatchPosition();
-  lariTimer = setInterval(() => {
-    lariElapsedMs += Date.now() - lariLastTick;
-    lariLastTick = Date.now();
-    updateLariDuration();
+  gpsWatchPosition(type);
+  st.timer = setInterval(() => {
+    st.elapsedMs += Date.now() - st.lastTick;
+    st.lastTick = Date.now();
+    updateGpsDuration(type);
   }, 1000);
 }
-function pauseLari() {
-  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
-  lariClearWatch();
+function pauseGps(type) {
+  const st = gpsState[type];
+  clearInterval(st.timer); st.timer = null; st.running = false;
+  gpsClearWatch(type);
   Shenx.stopSpeak();
-  document.getElementById('lariStartBtn').textContent = '▶️ Lanjutkan';
-  document.getElementById('lariStartBtn').onclick = resumeLari;
+  const btn = document.getElementById(gpsId(type, 'StartBtn'));
+  btn.textContent = '▶️ Lanjutkan';
+  btn.onclick = () => resumeGps(type);
 }
-function resumeLari() {
-  if (lariRunning) return;
-  lariRunning = true;
-  lariLastTick = Date.now();
-  document.getElementById('lariStartBtn').textContent = '⏸️ Jeda';
-  document.getElementById('lariStartBtn').onclick = pauseLari;
-  lariWatchPosition();
-  lariTimer = setInterval(() => {
-    lariElapsedMs += Date.now() - lariLastTick;
-    lariLastTick = Date.now();
-    updateLariDuration();
+function resumeGps(type) {
+  const st = gpsState[type];
+  if (st.running) return;
+  st.running = true;
+  st.lastTick = Date.now();
+  const btn = document.getElementById(gpsId(type, 'StartBtn'));
+  btn.textContent = '⏸️ Jeda';
+  btn.onclick = () => pauseGps(type);
+  gpsWatchPosition(type);
+  st.timer = setInterval(() => {
+    st.elapsedMs += Date.now() - st.lastTick;
+    st.lastTick = Date.now();
+    updateGpsDuration(type);
   }, 1000);
 }
-function stopLari() {
-  const _was = lariRunning || lariElapsedMs > 0;
-  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
-  lariClearWatch();
+function stopGps(type) {
+  const st = gpsState[type];
+  const _was = st.running || st.elapsedMs > 0;
+  clearInterval(st.timer); st.timer = null; st.running = false;
+  gpsClearWatch(type);
   Shenx.stopSpeak();
   if (_was) {
     markExerciseDoneToday();
-    addHistory('Lari: ' + lariDistanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(lariElapsedMs / 1000)));
-    saveLariRun();
+    addHistory(GPS_ACT[type].label + ': ' + st.distanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(st.elapsedMs / 1000)));
+    saveGpsRun(type);
   }
-  resetLariUI();
+  resetGpsUI(type);
 }
-function getLariRuns() {
-  try { return JSON.parse(localStorage.getItem('lariRuns')) || []; } catch (e) { return []; }
+function getGpsRuns(type) {
+  try { return JSON.parse(localStorage.getItem(GPS_ACT[type].historyKey)) || []; } catch (e) { return []; }
 }
-function saveLariRun() {
-  if (lariDistanceKm < 0.01 && lariPath.length < 2) return;
-  let path = lariPath;
+function saveGpsRun(type) {
+  const st = gpsState[type];
+  if (st.distanceKm < 0.01 && st.path.length < 2) return;
+  let path = st.path;
   if (path.length > 300) {
     const step = Math.ceil(path.length / 300);
     path = path.filter((_, i) => i % step === 0);
   }
-  const runs = getLariRuns();
+  const runs = getGpsRuns(type);
   runs.unshift({
     id: Date.now(),
     date: todayStr(),
     time: new Date().toLocaleString('id-ID'),
-    distanceKm: lariDistanceKm,
-    durationSec: Math.floor(lariElapsedMs / 1000),
+    distanceKm: st.distanceKm,
+    durationSec: Math.floor(st.elapsedMs / 1000),
     path: path
   });
   if (runs.length > 30) runs.length = 30;
-  localStorage.setItem('lariRuns', JSON.stringify(runs));
+  localStorage.setItem(GPS_ACT[type].historyKey, JSON.stringify(runs));
 }
-function renderLariHistory() {
-  const el = document.getElementById('lariHistoryList');
-  const runs = getLariRuns();
-  if (runs.length === 0) { el.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat lari</p>'; return; }
+function renderGpsHistory(type) {
+  const el = document.getElementById(gpsId(type, 'HistoryList'));
+  const runs = getGpsRuns(type);
+  if (runs.length === 0) { el.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p>'; return; }
   el.innerHTML = runs.map(r => {
     const pace = r.distanceKm > 0.02 ? (r.durationSec / 60 / r.distanceKm) : 0;
     const pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
     const paceTxt = pace > 0 ? (pm + ':' + String(ps).padStart(2, '0') + ' /km') : '-';
-    return '<div class="history-item" style="cursor:pointer;" onclick="viewLariRun(' + r.id + ')"><strong>' +
+    return '<div class="history-item" style="cursor:pointer;" onclick="viewGpsRun(\'' + type + '\',' + r.id + ')"><strong>' +
       r.distanceKm.toFixed(2) + ' km — ' + fmt(r.durationSec) + '</strong> <span style="color:#888;">(' + paceTxt + ')</span><br><small>' + r.time + '</small></div>';
   }).join('');
 }
-let lariDetailMapObj = null, lariDetailRunId = null;
-function viewLariRun(id) { lariDetailRunId = id; navigateTo('laridetail'); }
-function renderLariDetail() {
-  const runs = getLariRuns();
-  const r = runs.find(x => x.id === lariDetailRunId);
-  document.getElementById('lariDetailDistance').textContent = r ? r.distanceKm.toFixed(2) : '0.00';
-  document.getElementById('lariDetailDuration').textContent = r ? fmt(r.durationSec) : '00:00';
+function viewGpsRun(type, id) { gpsDetailRunId[type] = id; navigateTo(GPS_ACT[type].detailTab); }
+function renderGpsDetail(type) {
+  const runs = getGpsRuns(type);
+  const r = runs.find(x => x.id === gpsDetailRunId[type]);
+  document.getElementById(gpsId(type, 'DetailDistance')).textContent = r ? r.distanceKm.toFixed(2) : '0.00';
+  document.getElementById(gpsId(type, 'DetailDuration')).textContent = r ? fmt(r.durationSec) : '00:00';
   if (r && r.distanceKm > 0.02) {
     const pace = r.durationSec / 60 / r.distanceKm, pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
-    document.getElementById('lariDetailPace').textContent = pm + ':' + String(ps).padStart(2, '0');
+    document.getElementById(gpsId(type, 'DetailPace')).textContent = pm + ':' + String(ps).padStart(2, '0');
   } else {
-    document.getElementById('lariDetailPace').textContent = '0:00';
+    document.getElementById(gpsId(type, 'DetailPace')).textContent = '0:00';
   }
-  document.getElementById('lariDetailTitle').textContent = r ? ('🏃 Lari — ' + r.time) : '🏃 Detail Lari';
+  document.getElementById(gpsId(type, 'DetailTitle')).textContent = r ? (GPS_ACT[type].emoji + ' ' + GPS_ACT[type].label + ' — ' + r.time) : (GPS_ACT[type].emoji + ' Detail');
   loadLeaflet().then(() => {
-    if (lariDetailMapObj) { lariDetailMapObj.remove(); lariDetailMapObj = null; }
+    if (gpsDetailMapObj[type]) { gpsDetailMapObj[type].remove(); gpsDetailMapObj[type] = null; }
     if (!r || !r.path || r.path.length === 0) return;
-    lariDetailMapObj = L.map('lariDetailMap');
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(lariDetailMapObj);
-    const line = L.polyline(r.path, { color: '#2e7d32', weight: 4 }).addTo(lariDetailMapObj);
-    lariDetailMapObj.fitBounds(line.getBounds(), { padding: [20, 20] });
-    L.circleMarker(r.path[0], { radius: 6, color: '#2e7d32', fillColor: '#2e7d32', fillOpacity: 1 }).addTo(lariDetailMapObj);
-    L.circleMarker(r.path[r.path.length - 1], { radius: 6, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(lariDetailMapObj);
+    const map = L.map(gpsId(type, 'DetailMap'));
+    gpsDetailMapObj[type] = map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(map);
+    const line = L.polyline(r.path, { color: '#2e7d32', weight: 4 }).addTo(map);
+    map.fitBounds(line.getBounds(), { padding: [20, 20] });
+    L.circleMarker(r.path[0], { radius: 6, color: '#2e7d32', fillColor: '#2e7d32', fillOpacity: 1 }).addTo(map);
+    L.circleMarker(r.path[r.path.length - 1], { radius: 6, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(map);
   });
 }
 
@@ -1920,7 +1989,7 @@ function renderExerciseCategories() {
   const walkCards = WALK_CARDS.map(w => {
     const m = walkModes[w.key], stats = estimateWalkStats(w.key);
     return modeCardHtml({ onclick:"goToWalkMode('" + w.key + "')", photo:'images/bg-jalan.jpg', badge: w.icon + ' Interval', title: m.name, minutes: stats.minutes, kcal: stats.kcal });
-  }).join('');
+  }).join('') + modeCardHtml({ onclick:"navigateTo('jalanbebas')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Jalan Bebas', stat1:'📏 Jarak', stat2:'⏱ Waktu' });
   html += '<div class="mode-cat-title">🚶 Jalan</div><div class="mode-cat-row">' + walkCards + '</div>';
   const lariCard = modeCardHtml({ onclick:"navigateTo('lari')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Lari', stat1:'📏 Jarak', stat2:'⚡ Kecepatan' });
   html += '<div class="mode-cat-title">🏃 Lari</div><div class="mode-cat-row">' + lariCard + '</div>';
