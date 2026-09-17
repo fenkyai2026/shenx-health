@@ -176,38 +176,22 @@
       <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
       <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
     </div>
+    <div class="exercise-tile" onclick="navigateTo('napas')">
+      <div class="tile-bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
+      <div class="tile-tint tint-napas"></div>
+      <div class="tile-content">
+        <div style="font-size:3rem;">🫁</div>
+        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pernapasan</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
+      </div>
+    </div>
   </div>
 
   <!-- TAB_EXERCISE -->
   <div id="tab-exercise" class="tab-content"><div class="card" style="padding:12px;">
   <h2 style="margin-bottom:12px;padding-left:8px;">🏋️ Olahraga</h2>
-  <div class="exercise-tile" onclick="navigateTo('jalan')">
-    <div class="tile-bg-photo" style="background-image:url('images/bg-jalan.jpg');"></div>
-    <div class="tile-tint tint-jalan"></div>
-    <div class="tile-content">
-      <div style="font-size:3rem;">🚶</div>
-      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Jalan</div>
-      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Interval jalan santai & cepat</div>
-    </div>
-  </div>
-  <div class="exercise-tile" onclick="navigateTo('napas')">
-    <div class="tile-bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
-    <div class="tile-tint tint-napas"></div>
-    <div class="tile-content">
-      <div style="font-size:3rem;">🫁</div>
-      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Pernapasan</div>
-      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
-    </div>
-  </div>
-  <div class="exercise-tile" onclick="navigateTo('bodyweight')">
-    <div class="tile-bg-photo" style="background-image:url('images/bg-bodyweight.jpg');"></div>
-    <div class="tile-tint tint-bodyweight"></div>
-    <div class="tile-content">
-      <div style="font-size:3rem;">💪</div>
-      <div style="font-weight:700;color:#fff;font-size:1.1rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Latihan Bodyweight</div>
-      <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Circuit push-up, squat, plank, dll</div>
-    </div>
-  </div></div></div>
+  <div id="exerciseCategoryPicker"></div>
+  </div></div>
 
   <!-- TAB_SETTINGMENU -->
   <div id="tab-settingmenu" class="tab-content"><div class="card">
@@ -240,16 +224,7 @@
   <!-- TAB_JALAN -->
   <div id="tab-jalan" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Olahraga</button>
-  <h2>🚶 Latihan Jalan</h2>
-  <div class="form-group">
-    <label>Pilih Mode</label>
-    <select id="walkModeSelect" onchange="selectWalkMode(this.value)">
-      <option value="basic">🔄 3:3 Dasar — 3 mnt santai | 3 mnt cepat</option>
-      <option value="interval1">⚡ Interval 1:2 — 1 mnt santai | 2 mnt cepat</option>
-      <option value="interval2">🔥 Interval 2:1 — 2 mnt santai | 1 mnt cepat</option>
-      <option value="march">🦵 Jalan di Tempat — Angkat lutut | indoor</option>
-    </select>
-  </div>
+  <h2 id="walkScreenTitle">🚶 Latihan Jalan</h2>
   <div class="guide-section" id="walkGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="phase-indicator phase-rest" id="phaseText">Siap untuk mulai?</div>
   <div class="timer-display" id="timerDisplay">00:00</div>
@@ -262,8 +237,7 @@
   <!-- TAB_BODYWEIGHT -->
   <div id="tab-bodyweight" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Olahraga</button>
-  <h2>💪 Latihan Bodyweight</h2>
-  <div id="bwModePicker"></div>
+  <h2 id="bwScreenTitle">💪 Latihan Bodyweight</h2>
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="bw-anim-stage" id="bwAnimStage">
     <video class="bw-anim-video" id="bwAnimVideo" muted loop autoplay playsinline style="display:none;"></video>
@@ -279,7 +253,7 @@
 
   <!-- TAB_NAPAS -->
   <div id="tab-napas" class="tab-content"><div class="card">
-  <button class="back-btn" onclick="goBack()">← Olahraga</button>
+  <button class="back-btn" onclick="goBack()">← Beranda</button>
   <h2>🫁 Latihan Pernapasan</h2>
   <div class="form-group">
     <label>Pilih Mode</label>
@@ -560,8 +534,8 @@ function renderBodyweightGuide() {
 
 // TAB NAVIGATION
 const NAV_PARENT = {
-  dashboard: 'dashboard', bmidetail: 'dashboard',
-  exercise: 'exercise', jalan: 'exercise', napas: 'exercise', bodyweight: 'exercise',
+  dashboard: 'dashboard', bmidetail: 'dashboard', napas: 'dashboard',
+  exercise: 'exercise', jalan: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
   settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu'
 };
@@ -584,9 +558,10 @@ function switchTab(tab) {
   if (tab === 'riwayat') { trackerSelectedDate = todayStr(); renderTrackerTab(); }
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
-  if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
+  if (tab === 'exercise') renderExerciseCategories();
+  if (tab === 'jalan') renderWalkGuide();
   if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
-  if (tab === 'bodyweight') { renderModePicker(); renderBodyweightGuide(); }
+  if (tab === 'bodyweight') renderBodyweightGuide();
   if (!onboardingActive) renderBottomNav(tab);
   window.scrollTo(0, 0);
 }
@@ -1277,15 +1252,17 @@ let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, w
 // Suara
 function speak(text) { Shenx.speak(text); }
 
-function selectWalkMode(m) {
-  if (isWalking) { document.getElementById('walkModeSelect').value = walkMode; return; }
-  walkMode = m;
+function goToWalkMode(key) {
+  walkMode = key;
   resetWalkUI();
   renderWalkGuide();
+  navigateTo('jalan');
 }
 function resetWalkUI() {
   const m = walkModes[walkMode]; walkSec = m.slow + m.fast; walkTotal = walkSec; isWalking = false;
   clearInterval(walkTimer); walkTimer = null;
+  const titleEl = document.getElementById('walkScreenTitle');
+  if (titleEl) titleEl.textContent = '🚶 ' + m.name;
   document.getElementById('timerDisplay').textContent = fmt(walkSec);
   document.getElementById('progressFill').style.width = '0%';
   document.getElementById('phaseText').textContent = 'Siap untuk mulai?';
@@ -1462,38 +1439,57 @@ function estimateModeStats(modeKey) {
   });
   return { minutes: Math.round(totalSec * rounds / 60), kcal: Math.round(kcal * rounds) };
 }
-function renderModePicker() {
-  const el = document.getElementById('bwModePicker');
+const WALK_CARDS = [
+  { key:'basic', icon:'🔄' }, { key:'interval1', icon:'⚡' }, { key:'interval2', icon:'🔥' }, { key:'march', icon:'🦵' }
+];
+function estimateWalkStats(key) {
+  const m = walkModes[key];
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  const w = (b && parseFloat(b.weight)) || 60;
+  const kcal = (m.slowMET * 3.5 * w / 200 / 60 * m.slow) + (m.fastMET * 3.5 * w / 200 / 60 * m.fast);
+  return { minutes: Math.round((m.slow + m.fast) / 60), kcal: Math.round(kcal) };
+}
+function modeCardHtml(opts) {
+  return '<div class="mode-card' + (opts.repsMode ? ' reps-mode' : '') + '" onclick="' + opts.onclick + '">' +
+    '<div class="mode-bg-photo" style="background-image:url(\'' + opts.photo + '\');"></div>' +
+    '<div class="mode-tint"></div>' +
+    '<div class="mode-badge">' + opts.badge + '</div>' +
+    '<div class="mode-content">' +
+      '<div class="mode-title">' + opts.title + '</div>' +
+      '<div class="mode-stats"><span>⏱ ' + opts.minutes + ' mnt</span><span>🔥 ~' + opts.kcal + ' cal</span></div>' +
+    '</div>' +
+  '</div>';
+}
+function renderExerciseCategories() {
+  const el = document.getElementById('exerciseCategoryPicker');
   if (!el) return;
-  el.innerHTML = BW_CATEGORIES.map(cat => {
+  let html = '';
+  const walkCards = WALK_CARDS.map(w => {
+    const m = walkModes[w.key], stats = estimateWalkStats(w.key);
+    return modeCardHtml({ onclick:"goToWalkMode('" + w.key + "')", photo:'images/bg-jalan.jpg', badge: w.icon + ' Interval', title: m.name, minutes: stats.minutes, kcal: stats.kcal });
+  }).join('');
+  html += '<div class="mode-cat-title">🚶 Jalan</div><div class="mode-cat-row">' + walkCards + '</div>';
+  BW_CATEGORIES.forEach(cat => {
     const cards = cat.keys.map(key => {
       const mode = bodyweightModes[key];
       const stats = estimateModeStats(key);
       const isReps = mode.exercises.some(e => e.reps);
-      const active = key === bwMode ? ' active' : '';
-      const repsCls = isReps ? ' reps-mode' : '';
-      return '<div class="mode-card' + active + repsCls + '" onclick="selectBodyweightMode(\'' + key + '\')">' +
-        '<div class="mode-bg-photo" style="background-image:url(\'images/bg-bodyweight.jpg\');"></div>' +
-        '<div class="mode-tint"></div>' +
-        '<div class="mode-badge">' + (isReps ? '🔁 Reps' : '⏱️ Waktu') + '</div>' +
-        '<div class="mode-content">' +
-          '<div class="mode-title">' + mode.name + '</div>' +
-          '<div class="mode-stats"><span>⏱ ' + stats.minutes + ' mnt</span><span>🔥 ~' + stats.kcal + ' cal</span></div>' +
-        '</div>' +
-      '</div>';
+      return modeCardHtml({ onclick:"goToBodyweightMode('" + key + "')", photo:'images/bg-bodyweight.jpg', badge: isReps ? '🔁 Reps' : '⏱️ Waktu', repsMode: isReps, title: mode.name, minutes: stats.minutes, kcal: stats.kcal });
     }).join('');
-    return '<div class="mode-cat-title">' + cat.title + '</div><div class="mode-cat-row">' + cards + '</div>';
-  }).join('');
+    html += '<div class="mode-cat-title">' + cat.title + '</div><div class="mode-cat-row">' + cards + '</div>';
+  });
+  el.innerHTML = html;
 }
-function selectBodyweightMode(mode) {
-  if (bwRunning) { renderModePicker(); return; }
-  bwMode = mode;
+function goToBodyweightMode(key) {
+  bwMode = key;
   resetBodyweightUI();
   renderBodyweightGuide();
-  renderModePicker();
+  navigateTo('bodyweight');
 }
 function resetBodyweightUI() {
   clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0; bwRounds = 0;
+  const titleEl = document.getElementById('bwScreenTitle');
+  if (titleEl) titleEl.textContent = '💪 ' + bodyweightModes[bwMode].name;
   document.getElementById('bwPhaseText').textContent = 'Siap untuk mulai?';
   document.getElementById('bwPhaseText').className = 'phase-indicator phase-rest';
   document.getElementById('bwTimerDisplay').textContent = '00:00';
