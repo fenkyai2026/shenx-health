@@ -1,6 +1,6 @@
 /* SHENX HEALTH — service worker (khusus versi web/PWA).
    Cache-first supaya aplikasi tetap jalan tanpa internet. */
-const CACHE = 'shenx-health-v5';
+const CACHE = 'shenx-health-v6';
 const ASSETS = [
   './',
   './index.html',
