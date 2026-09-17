@@ -55,6 +55,10 @@
   .phase-fast { background: #fff3e0; color: #e65100; }
   .phase-rest { background: #f3e5f5; color: #6a1b9a; }
   .phase-section { background: #e3f2fd; color: #1565c0; }
+  .nutrisi-result-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+  .nutrisi-result-item:last-child { border-bottom: none; }
+  .nutrisi-result-item .arrow { color: #ccc; font-size: 1.2rem; }
+  .nutrisi-result-item:active { background: #f5f5f5; }
   .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
   .progress-fill { height: 100%; background: #2e7d32; border-radius: 8px; transition: width 1s linear; }
   .bw-anim-stage { position: relative; width: 220px; max-width: 100%; aspect-ratio: 1 / 1; margin: 4px auto 12px; border-radius: 20px; overflow: hidden; background: linear-gradient(160deg, rgba(233,64,87,0.18), rgba(240,152,25,0.14)); box-shadow: 0 4px 14px rgba(233,64,87,0.15); }
@@ -205,6 +209,7 @@
   <h2>👤 Profil</h2>
   <div class="pengaturan-menu">
     <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon">🔍</span> Info Kalori & Nutrisi<span class="arrow">›</span></button>
     <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
     <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
     <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
@@ -217,6 +222,18 @@
   <button class="back-btn" onclick="goBack()">← Beranda</button>
   <h2>📋 Detail Perhitungan Kesehatan</h2>
   <div id="bmiDetailContent"></div>
+  </div></div>
+
+  <!-- TAB_NUTRISIINFO -->
+  <div id="tab-nutrisiinfo" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Profil</button>
+  <h2>🔍 Kalori & Nutrisi</h2>
+  <div class="form-group">
+    <input type="text" id="nutrisiSearchInput" placeholder="Cari makanan, misal: nasi merah" autocomplete="off" oninput="onNutrisiSearchInput()">
+  </div>
+  <div id="nutrisiSearchStatus" style="font-size:0.85rem;color:#999;text-align:center;padding:8px 0;"></div>
+  <div id="nutrisiSearchResults"></div>
+  <div id="nutrisiDetailView" style="display:none;"></div>
   </div></div>
 
   <!-- TAB_KALORI -->
@@ -530,7 +547,7 @@ const NAV_PARENT = {
   dashboard: 'dashboard', bmidetail: 'dashboard', napashub: 'dashboard', napas: 'dashboard',
   exercise: 'exercise', jalan: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
-  settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu'
+  settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu'
 };
 function renderBottomNav(tab) {
   const parent = NAV_PARENT[tab] || 'dashboard';
@@ -551,6 +568,7 @@ function switchTab(tab) {
   if (tab === 'riwayat') { trackerSelectedDate = todayStr(); renderTrackerTab(); }
   if (tab === 'about') renderAboutVersion();
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
+  if (tab === 'nutrisiinfo') resetNutrisiInfo();
   if (tab === 'exercise') renderExerciseCategories();
   if (tab === 'jalan') renderWalkGuide();
   if (tab === 'napashub') renderBreathCategories();
@@ -923,6 +941,137 @@ function renderMealList(meal) {
 function renderKaloriTotals() {
   renderKaloriRings();
 }
+
+// ===== INFO KALORI & NUTRISI (pencarian bebas via proxy Gemini) =====
+// Isi URL Worker (nutrition-proxy/) di sini setelah `npx wrangler deploy`.
+const NUTRISI_PROXY_URL = 'https://shenx-nutrition-proxy.fenky-ai2026.workers.dev';
+const NUTRISI_APP_SECRET = '';
+let nutrisiSearchTimer = null;
+let nutrisiCurrentResults = [];
+let nutrisiSelectedFood = null;
+
+function resetNutrisiInfo() {
+  clearTimeout(nutrisiSearchTimer);
+  const input = document.getElementById('nutrisiSearchInput');
+  if (input) input.value = '';
+  document.getElementById('nutrisiSearchResults').innerHTML = '';
+  document.getElementById('nutrisiSearchResults').style.display = '';
+  document.getElementById('nutrisiSearchStatus').textContent = '';
+  document.getElementById('nutrisiDetailView').style.display = 'none';
+}
+function onNutrisiSearchInput() {
+  clearTimeout(nutrisiSearchTimer);
+  const q = document.getElementById('nutrisiSearchInput').value.trim();
+  document.getElementById('nutrisiDetailView').style.display = 'none';
+  document.getElementById('nutrisiSearchResults').style.display = '';
+  if (!q) {
+    document.getElementById('nutrisiSearchResults').innerHTML = '';
+    document.getElementById('nutrisiSearchStatus').textContent = '';
+    return;
+  }
+  document.getElementById('nutrisiSearchStatus').textContent = 'Mengetik...';
+  nutrisiSearchTimer = setTimeout(function () { runNutrisiSearch(q); }, 700);
+}
+function getNutrisiCache() {
+  try { return JSON.parse(localStorage.getItem('nutrisiSearchCache')) || {}; } catch (e) { return {}; }
+}
+function saveNutrisiCache(cache) {
+  try {
+    const keys = Object.keys(cache);
+    while (keys.length > 50) { delete cache[keys.shift()]; }
+    localStorage.setItem('nutrisiSearchCache', JSON.stringify(cache));
+  } catch (e) {}
+}
+async function runNutrisiSearch(q) {
+  const statusEl = document.getElementById('nutrisiSearchStatus');
+  const listEl = document.getElementById('nutrisiSearchResults');
+  const cacheKey = q.toLowerCase();
+  const cache = getNutrisiCache();
+  if (cache[cacheKey]) {
+    renderNutrisiResults(cache[cacheKey]);
+    statusEl.textContent = cache[cacheKey].length ? '' : 'Tidak ditemukan. Coba nama lain.';
+    return;
+  }
+  if (!NUTRISI_PROXY_URL || NUTRISI_PROXY_URL.indexOf('GANTI_URL') === 0) {
+    statusEl.textContent = '⚠️ Proxy belum disetel (lihat nutrition-proxy/README.md).';
+    return;
+  }
+  statusEl.textContent = '🔎 Mencari "' + q + '"...';
+  listEl.innerHTML = '';
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (NUTRISI_APP_SECRET) headers['X-App-Secret'] = NUTRISI_APP_SECRET;
+    const res = await fetch(NUTRISI_PROXY_URL, { method: 'POST', headers: headers, body: JSON.stringify({ query: q }) });
+    if (!res.ok) throw new Error('status ' + res.status);
+    const data = await res.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    cache[cacheKey] = results;
+    saveNutrisiCache(cache);
+    renderNutrisiResults(results);
+    statusEl.textContent = results.length ? '' : 'Tidak ditemukan. Coba nama lain.';
+  } catch (e) {
+    statusEl.textContent = '⚠️ Gagal mencari. Cek koneksi internet.';
+  }
+}
+function renderNutrisiResults(results) {
+  nutrisiCurrentResults = results;
+  document.getElementById('nutrisiSearchResults').innerHTML = results.map(function (r, i) {
+    return '<div class="nutrisi-result-item" onclick="showNutrisiDetail(' + i + ')"><span>' + r.name + '</span><span class="arrow">›</span></div>';
+  }).join('');
+}
+function showNutrisiDetail(idx) {
+  nutrisiSelectedFood = nutrisiCurrentResults[idx];
+  if (!nutrisiSelectedFood) return;
+  document.getElementById('nutrisiSearchResults').style.display = 'none';
+  document.getElementById('nutrisiSearchStatus').textContent = '';
+  document.getElementById('nutrisiDetailView').style.display = 'block';
+  renderNutrisiDetail(100);
+}
+function backToNutrisiResults() {
+  document.getElementById('nutrisiDetailView').style.display = 'none';
+  document.getElementById('nutrisiSearchResults').style.display = '';
+}
+function nutrisiMacroRing(label, grams, cal, totalMacroCal, color, icon) {
+  const pct = Math.max(0, Math.min(1, cal / totalMacroCal));
+  const circumference = 176;
+  const offset = circumference * (1 - pct);
+  return '<div style="text-align:center;flex:1;">' +
+    '<div style="position:relative;width:70px;height:70px;margin:0 auto 6px;">' +
+      '<svg viewBox="0 0 70 70" width="70" height="70">' +
+        '<circle cx="35" cy="35" r="28" stroke="#eee" stroke-width="7" fill="none"/>' +
+        '<circle cx="35" cy="35" r="28" stroke="' + color + '" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" transform="rotate(-90 35 35)"/>' +
+      '</svg>' +
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">' + icon + '</div>' +
+    '</div>' +
+    '<div style="font-size:0.7rem;color:#888;font-weight:700;">' + label + '</div>' +
+    '<div style="font-weight:700;">' + grams + 'g</div>' +
+    '<div style="font-size:0.7rem;color:#999;">(' + (Math.round(pct * 1000) / 10) + '%)</div>' +
+  '</div>';
+}
+function renderNutrisiDetail(gram) {
+  const f = nutrisiSelectedFood;
+  if (!f) return;
+  gram = gram || 0;
+  const factor = gram / 100;
+  const kal = Math.round((f.kal || 0) * factor);
+  const karbo = Math.round((f.karbo || 0) * factor * 10) / 10;
+  const protein = Math.round((f.protein || 0) * factor * 10) / 10;
+  const lemak = Math.round((f.lemak || 0) * factor * 10) / 10;
+  const karboCal = karbo * 4, proteinCal = protein * 4, lemakCal = lemak * 9;
+  const totalMacroCal = (karboCal + proteinCal + lemakCal) || 1;
+  document.getElementById('nutrisiDetailView').innerHTML =
+    '<button class="back-btn" onclick="backToNutrisiResults()" style="padding:0 0 8px;">← Hasil pencarian</button>' +
+    '<h2 style="margin-bottom:12px;">' + f.name + '</h2>' +
+    '<div class="form-group"><label>Jumlah (gram)</label><input type="number" id="nutrisiGramInput" value="' + gram + '" min="1" oninput="renderNutrisiDetail(parseFloat(this.value)||0)"></div>' +
+    '<div class="result warning" style="margin:16px 0;text-align:center;"><strong>🔥 ' + kal + ' Kalori</strong></div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:16px;">' +
+      nutrisiMacroRing('KARBO', karbo, karboCal, totalMacroCal, '#26a69a', '🌾') +
+      nutrisiMacroRing('PROTEIN', protein, proteinCal, totalMacroCal, '#ffa726', '🍗') +
+      nutrisiMacroRing('LEMAK', lemak, lemakCal, totalMacroCal, '#ff7043', '💧') +
+    '</div>' +
+    '<p style="font-size:0.7rem;color:#999;text-align:center;">Estimasi dari AI (Gemini) — bisa sedikit meleset dari data resmi.</p>';
+}
+
 // ===== KALORI TERBAKAR (estimasi dari sesi Latihan Jalan, MET x berat x durasi) =====
 function getBurnedState(dateStr) {
   dateStr = dateStr || todayStr();

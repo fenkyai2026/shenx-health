@@ -11,3 +11,5 @@ android/*.keystore
 .DS_Store
 out/
 .claude/
+nutrition-proxy/.dev.vars
+nutrition-proxy/.wrangler/
