@@ -292,6 +292,20 @@
   <div class="exercise-info" id="walkInfo" style="margin-top:4px;">3:3 Dasar — Total 6 menit per putaran</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
+  <!-- TAB_LARI -->
+  <div id="tab-lari" class="tab-content"><div class="card">
+  <button class="back-btn" onclick="goBack()">← Olahraga</button>
+  <h2>🏃 Lari</h2>
+  <div id="lariMap" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:#e0e0e0;"></div>
+  <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:16px;">
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+  </div>
+  <div class="row"><button class="btn" id="lariStartBtn" onclick="startLari()" style="flex:2;">▶️ Mulai</button><button class="btn" id="lariStopBtn" onclick="stopLari()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
+  <div class="exercise-info" id="lariInfo">Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)</div>
+  </div></div>
+
   <!-- TAB_BODYWEIGHT -->
   <div id="tab-bodyweight" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Olahraga</button>
@@ -574,7 +588,7 @@ function renderBodyweightGuide() {
 // TAB NAVIGATION
 const NAV_PARENT = {
   dashboard: 'dashboard', bmidetail: 'dashboard', napashub: 'dashboard', napas: 'dashboard',
-  exercise: 'exercise', jalan: 'exercise', bodyweight: 'exercise',
+  exercise: 'exercise', jalan: 'exercise', lari: 'exercise', bodyweight: 'exercise',
   riwayat: 'riwayat', kalori: 'riwayat',
   settingmenu: 'settingmenu', biodata: 'settingmenu', datamgmt: 'settingmenu', about: 'settingmenu', nutrisiinfo: 'settingmenu', logaktivitas: 'settingmenu'
 };
@@ -590,6 +604,7 @@ function switchTab(tab) {
   if (el) el.classList.add('active');
   if (tab !== 'napas') stopBreath();
   if (tab !== 'jalan') stopWalk();
+  if (tab !== 'lari') stopLari();
   if (tab !== 'bodyweight') stopBodyweight();
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'bmidetail') renderBmiDetail();
@@ -601,6 +616,7 @@ function switchTab(tab) {
   if (tab === 'logaktivitas') renderHistory();
   if (tab === 'exercise') renderExerciseCategories();
   if (tab === 'jalan') renderWalkGuide();
+  if (tab === 'lari') resetLariUI();
   if (tab === 'napashub') renderBreathCategories();
   if (tab === 'napas') renderBreathGuide();
   if (tab === 'bodyweight') renderBodyweightGuide();
@@ -1499,6 +1515,165 @@ function startWalk() {
 function pauseWalk() { clearInterval(walkTimer); walkTimer = null; isWalking = false; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Lanjutkan'; document.getElementById('startBtn').onclick = startWalk; }
 function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan'); }
 
+// ===== LARI (GPS run tracking dengan peta) =====
+const LARI_MET = 9.0;
+let lariRunning = false, lariTimer = null, lariWatchId = null, lariMap = null, lariPolyline = null, lariMarker = null;
+let lariElapsedMs = 0, lariLastTick = 0, lariDistanceKm = 0, lariPath = [];
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function loadLeaflet() {
+  if (window.L) return Promise.resolve();
+  if (window._leafletLoading) return window._leafletLoading;
+  window._leafletLoading = new Promise((resolve, reject) => {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = resolve; script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  return window._leafletLoading;
+}
+function ensureLariMap(lat, lon) {
+  const el = document.getElementById('lariMap');
+  if (!el || !window.L) return;
+  if (!lariMap) {
+    lariMap = L.map('lariMap').setView([lat, lon], 17);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '' }).addTo(lariMap);
+    lariPolyline = L.polyline([], { color: '#2e7d32', weight: 4 }).addTo(lariMap);
+    lariMarker = L.circleMarker([lat, lon], { radius: 7, color: '#c62828', fillColor: '#c62828', fillOpacity: 1 }).addTo(lariMap);
+  } else {
+    setTimeout(() => lariMap.invalidateSize(), 200);
+  }
+}
+function getGeoPlugin() {
+  return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Geolocation) || null;
+}
+async function ensureLocationPermission() {
+  const plugin = getGeoPlugin();
+  if (!plugin) return true; // browser: navigator.geolocation akan minta izin sendiri
+  try {
+    const status = await plugin.checkPermissions();
+    if (status.location === 'granted') return true;
+    const req = await plugin.requestPermissions();
+    return req.location === 'granted';
+  } catch (e) { return true; }
+}
+function onLariPosition(pos) {
+  const lat = pos.coords.latitude, lon = pos.coords.longitude;
+  if (lariPath.length > 0) {
+    const last = lariPath[lariPath.length - 1];
+    const d = haversineKm(last[0], last[1], lat, lon);
+    if (d > 0.0015 && d < 0.2) lariDistanceKm += d; // saring noise GPS diam & lompatan tidak wajar
+  }
+  lariPath.push([lat, lon]);
+  ensureLariMap(lat, lon);
+  if (lariMap) {
+    lariPolyline.setLatLngs(lariPath);
+    lariMarker.setLatLng([lat, lon]);
+    lariMap.panTo([lat, lon]);
+  }
+  updateLariStats();
+}
+function lariWatchPosition() {
+  const plugin = getGeoPlugin();
+  const opts = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+  if (plugin) {
+    plugin.watchPosition(opts, (pos, err) => { if (pos) onLariPosition(pos); })
+      .then(id => { lariWatchId = id; });
+  } else if (navigator.geolocation) {
+    lariWatchId = navigator.geolocation.watchPosition(onLariPosition, () => {}, opts);
+  }
+}
+function lariClearWatch() {
+  const plugin = getGeoPlugin();
+  if (lariWatchId == null) return;
+  if (plugin) plugin.clearWatch({ id: lariWatchId }).catch(() => {});
+  else if (navigator.geolocation) navigator.geolocation.clearWatch(lariWatchId);
+  lariWatchId = null;
+}
+function updateLariDuration() {
+  const totalSec = Math.floor(lariElapsedMs / 1000);
+  document.getElementById('lariDuration').textContent = fmt(totalSec);
+  addBurnedTick(LARI_MET);
+}
+function updateLariStats() {
+  document.getElementById('lariDistance').textContent = lariDistanceKm.toFixed(2);
+  const totalMin = lariElapsedMs / 60000;
+  if (lariDistanceKm > 0.02 && totalMin > 0) {
+    const paceMinPerKm = totalMin / lariDistanceKm;
+    const pm = Math.floor(paceMinPerKm), ps = Math.round((paceMinPerKm - pm) * 60);
+    document.getElementById('lariPace').textContent = pm + ':' + String(ps).padStart(2, '0');
+  }
+}
+function resetLariUI() {
+  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
+  lariElapsedMs = 0; lariDistanceKm = 0; lariPath = [];
+  if (lariPolyline) lariPolyline.setLatLngs([]);
+  document.getElementById('lariDistance').textContent = '0.00';
+  document.getElementById('lariDuration').textContent = '00:00';
+  document.getElementById('lariPace').textContent = '0:00';
+  document.getElementById('lariInfo').textContent = 'Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)';
+  document.getElementById('lariStartBtn').textContent = '▶️ Mulai';
+  document.getElementById('lariStartBtn').onclick = startLari;
+  loadLeaflet().catch(() => {});
+}
+async function startLari() {
+  if (lariRunning) return;
+  const ok = await ensureLocationPermission();
+  if (!ok) { document.getElementById('lariInfo').textContent = 'Izin lokasi ditolak — aktifkan di pengaturan HP.'; return; }
+  await loadLeaflet();
+  lariRunning = true;
+  lariLastTick = Date.now();
+  document.getElementById('lariInfo').textContent = 'Melacak lari...';
+  document.getElementById('lariStartBtn').textContent = '⏸️ Jeda';
+  document.getElementById('lariStartBtn').onclick = pauseLari;
+  speak('Lari dimulai');
+  Shenx.vibrate(100);
+  lariWatchPosition();
+  lariTimer = setInterval(() => {
+    lariElapsedMs += Date.now() - lariLastTick;
+    lariLastTick = Date.now();
+    updateLariDuration();
+  }, 1000);
+}
+function pauseLari() {
+  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
+  lariClearWatch();
+  Shenx.stopSpeak();
+  document.getElementById('lariStartBtn').textContent = '▶️ Lanjutkan';
+  document.getElementById('lariStartBtn').onclick = resumeLari;
+}
+function resumeLari() {
+  if (lariRunning) return;
+  lariRunning = true;
+  lariLastTick = Date.now();
+  document.getElementById('lariStartBtn').textContent = '⏸️ Jeda';
+  document.getElementById('lariStartBtn').onclick = pauseLari;
+  lariWatchPosition();
+  lariTimer = setInterval(() => {
+    lariElapsedMs += Date.now() - lariLastTick;
+    lariLastTick = Date.now();
+    updateLariDuration();
+  }, 1000);
+}
+function stopLari() {
+  const _was = lariRunning || lariElapsedMs > 0;
+  clearInterval(lariTimer); lariTimer = null; lariRunning = false;
+  lariClearWatch();
+  Shenx.stopSpeak();
+  if (_was) {
+    markExerciseDoneToday();
+    addHistory('Lari: ' + lariDistanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(lariElapsedMs / 1000)));
+  }
+  resetLariUI();
+}
+
 // ===== BODYWEIGHT (circuit push-up/squat/plank/dll) =====
 const bodyweightModes = {
   pemula: { name:'Dasar', met:5.0, max:3, main:[
@@ -1613,6 +1788,13 @@ const BW_CATEGORIES = [
   { title: '💪 Bodyweight', keys: ['pemula', 'hiit', 'core'] },
   { title: '🏋️ Program Beban', keys: ['barbel'] }
 ];
+const BW_MODE_PHOTOS = {
+  pemula: 'images/bg-bodyweight.jpg',
+  hiit: 'images/bg-bodyweight.jpg',
+  core: 'images/bg-bodyweight.jpg',
+  barbel: 'images/bg-bodyweight.jpg',
+  quickbeginner: 'images/bg-bodyweight.jpg'
+};
 function estimateModeStats(modeKey) {
   const mode = bodyweightModes[modeKey];
   let totalSec = 0, kcal = 0;
@@ -1658,12 +1840,14 @@ function renderExerciseCategories() {
     return modeCardHtml({ onclick:"goToWalkMode('" + w.key + "')", photo:'images/bg-jalan.jpg', badge: w.icon + ' Interval', title: m.name, minutes: stats.minutes, kcal: stats.kcal });
   }).join('');
   html += '<div class="mode-cat-title">🚶 Jalan</div><div class="mode-cat-row">' + walkCards + '</div>';
+  const lariCard = modeCardHtml({ onclick:"navigateTo('lari')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Lari', stat1:'📏 Jarak', stat2:'⚡ Kecepatan' });
+  html += '<div class="mode-cat-title">🏃 Lari</div><div class="mode-cat-row">' + lariCard + '</div>';
   BW_CATEGORIES.forEach(cat => {
     const cards = cat.keys.map(key => {
       const mode = bodyweightModes[key];
       const stats = estimateModeStats(key);
       const isReps = mode.main.some(e => e.reps);
-      return modeCardHtml({ onclick:"goToBodyweightMode('" + key + "')", photo:'images/bg-bodyweight.jpg', badge: isReps ? '🔁 Reps' : '⏱️ Waktu', repsMode: isReps, title: mode.name, minutes: stats.minutes, kcal: stats.kcal });
+      return modeCardHtml({ onclick:"goToBodyweightMode('" + key + "')", photo: BW_MODE_PHOTOS[key] || 'images/bg-bodyweight.jpg', badge: isReps ? '🔁 Reps' : '⏱️ Waktu', repsMode: isReps, title: mode.name, minutes: stats.minutes, kcal: stats.kcal });
     }).join('');
     html += '<div class="mode-cat-title">' + cat.title + '</div><div class="mode-cat-row">' + cards + '</div>';
   });

@@ -1,7 +1,7 @@
 {
   "name": "shenx-health",
   "version": "1.0.0",
-  "description": "SHENX HEALTH \u2014 aplikasi kesehatan harian (kalori, BMI, latihan jalan & pernapasan)",
+  "description": "SHENX HEALTH — aplikasi kesehatan harian (kalori, BMI, latihan jalan & pernapasan)",
   "main": "index.js",
   "scripts": {
     "sync": "cap sync android",
@@ -17,7 +17,8 @@
     "@capacitor-community/text-to-speech": "^8.0.2",
     "@capacitor/android": "^8.5.2",
     "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.5.2"
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/geolocation": "^8.2.2"
   },
   "private": true
 }
