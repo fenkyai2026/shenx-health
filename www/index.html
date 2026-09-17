@@ -59,6 +59,17 @@
   .bw-anim-stage { position: relative; width: 220px; max-width: 100%; aspect-ratio: 1 / 1; margin: 4px auto 12px; border-radius: 20px; overflow: hidden; background: linear-gradient(160deg, rgba(233,64,87,0.18), rgba(240,152,25,0.14)); box-shadow: 0 4px 14px rgba(233,64,87,0.15); }
   .bw-anim-video { width: 100%; height: 100%; object-fit: cover; display: block; }
   .bw-anim-idle { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 16px; font-weight: 600; color: #b3324a; font-size: 0.95rem; }
+  .mode-cat-title { font-weight: 700; font-size: 1rem; color: #1b5e20; margin: 4px 0 10px; }
+  .mode-cat-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 22px; }
+  .mode-card { flex: 0 0 auto; width: 148px; height: 168px; position: relative; border-radius: 16px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2); border: 3px solid transparent; }
+  .mode-card.active { border-color: #2e7d32; }
+  .mode-card .mode-bg-photo { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .mode-card .mode-tint { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.85) 100%); }
+  .mode-card .mode-badge { position: absolute; top: 10px; left: 10px; z-index: 1; background: #2e7d32; color: #fff; font-size: 0.62rem; font-weight: 700; padding: 4px 9px; border-radius: 20px; }
+  .mode-card.reps-mode .mode-badge { background: #1565c0; }
+  .mode-card .mode-content { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 10px; color: #fff; }
+  .mode-card .mode-title { font-weight: 700; font-size: 0.9rem; line-height: 1.2; margin-bottom: 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+  .mode-card .mode-stats { display: flex; gap: 10px; font-size: 0.68rem; opacity: 0.92; }
   .kal-date-strip { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 4px; }
   .kal-date-chip { flex: 0 0 auto; min-width: 42px; text-align: center; padding: 8px 6px; border-radius: 12px; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; }
   .kal-date-chip .dow { font-size: 0.65rem; color: #888; font-weight: 600; text-transform: uppercase; }
@@ -252,16 +263,7 @@
   <div id="tab-bodyweight" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Olahraga</button>
   <h2>💪 Latihan Bodyweight</h2>
-  <div class="form-group">
-    <label>Pilih Mode</label>
-    <select id="bwModeSelect" onchange="selectBodyweightMode(this.value)">
-      <option value="pemula">🔰 Dasar — Push-up, Squat, Plank, Sit-up, Lunges</option>
-      <option value="hiit">🔥 HIIT Kardio — Jumping Jack, Mountain Climber, Burpee, High Knees</option>
-      <option value="core">🧘 Core Fokus — Plank, Russian Twist, Leg Raise, Bicycle Crunch</option>
-      <option value="barbel">🏋️ Barbel — Squat, Deadlift, Bench Press, Overhead Press, Row</option>
-      <option value="quickbeginner">⏱️ Quick Beginner 7 Menit — Pemanasan, Inti, Pendinginan</option>
-    </select>
-  </div>
+  <div id="bwModePicker"></div>
   <div class="guide-section" id="bwGuideInfo" style="margin-bottom:16px;padding:12px;background:#f5f5f5;border-radius:12px;border-bottom:none;"></div>
   <div class="bw-anim-stage" id="bwAnimStage">
     <video class="bw-anim-video" id="bwAnimVideo" muted loop autoplay playsinline style="display:none;"></video>
@@ -584,7 +586,7 @@ function switchTab(tab) {
   if (tab === 'biodata' && !onboardingActive) renderBiodataView();
   if (tab === 'jalan') { document.getElementById('walkModeSelect').value = walkMode; renderWalkGuide(); }
   if (tab === 'napas') { document.getElementById('breathModeSelect').value = breathMode; renderBreathGuide(); }
-  if (tab === 'bodyweight') { document.getElementById('bwModeSelect').value = bwMode; renderBodyweightGuide(); }
+  if (tab === 'bodyweight') { renderModePicker(); renderBodyweightGuide(); }
   if (!onboardingActive) renderBottomNav(tab);
   window.scrollTo(0, 0);
 }
@@ -1441,11 +1443,54 @@ function setBwAnim(exerciseName) {
   video.play().catch(function () {});
 }
 
+const BW_CATEGORIES = [
+  { title: '⚡ Olahraga Singkat', keys: ['quickbeginner'] },
+  { title: '💪 Bodyweight', keys: ['pemula', 'hiit', 'core'] },
+  { title: '🏋️ Program Beban', keys: ['barbel'] }
+];
+function estimateModeStats(modeKey) {
+  const mode = bodyweightModes[modeKey];
+  const rounds = mode.max || 1;
+  let totalSec = 0, kcal = 0;
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  const w = (b && parseFloat(b.weight)) || 60;
+  mode.exercises.forEach(ph => {
+    const sec = ph.sec || (ph.reps ? ph.reps * 3 : 0);
+    const met = ph.rest ? 1.5 : mode.met;
+    totalSec += sec;
+    kcal += met * 3.5 * w / 200 / 60 * sec;
+  });
+  return { minutes: Math.round(totalSec * rounds / 60), kcal: Math.round(kcal * rounds) };
+}
+function renderModePicker() {
+  const el = document.getElementById('bwModePicker');
+  if (!el) return;
+  el.innerHTML = BW_CATEGORIES.map(cat => {
+    const cards = cat.keys.map(key => {
+      const mode = bodyweightModes[key];
+      const stats = estimateModeStats(key);
+      const isReps = mode.exercises.some(e => e.reps);
+      const active = key === bwMode ? ' active' : '';
+      const repsCls = isReps ? ' reps-mode' : '';
+      return '<div class="mode-card' + active + repsCls + '" onclick="selectBodyweightMode(\'' + key + '\')">' +
+        '<div class="mode-bg-photo" style="background-image:url(\'images/bg-bodyweight.jpg\');"></div>' +
+        '<div class="mode-tint"></div>' +
+        '<div class="mode-badge">' + (isReps ? '🔁 Reps' : '⏱️ Waktu') + '</div>' +
+        '<div class="mode-content">' +
+          '<div class="mode-title">' + mode.name + '</div>' +
+          '<div class="mode-stats"><span>⏱ ' + stats.minutes + ' mnt</span><span>🔥 ~' + stats.kcal + ' cal</span></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="mode-cat-title">' + cat.title + '</div><div class="mode-cat-row">' + cards + '</div>';
+  }).join('');
+}
 function selectBodyweightMode(mode) {
-  if (bwRunning) { document.getElementById('bwModeSelect').value = bwMode; return; }
+  if (bwRunning) { renderModePicker(); return; }
   bwMode = mode;
   resetBodyweightUI();
   renderBodyweightGuide();
+  renderModePicker();
 }
 function resetBodyweightUI() {
   clearInterval(bwTimer); bwTimer = null; bwRunning = false; bwPhaseIdx = 0; bwRounds = 0;
