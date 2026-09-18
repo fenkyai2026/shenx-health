@@ -288,7 +288,7 @@
   <div class="timer-display" id="timerDisplay">00:00</div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   <div class="row"><button class="btn" id="startBtn" onclick="startWalk()" style="flex:2;">▶️ Mulai</button><button class="btn" id="stopBtn" onclick="stopWalk()" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
-  <div class="exercise-info"><span id="stepEstimate">± 0 langkah</span></div>
+  <div class="exercise-info"><span id="stepEstimate">± 0 langkah</span> · <span id="walkKcalDisplay">🔥 0 kcal</span></div>
   <div class="exercise-info" id="walkInfo" style="margin-top:4px;">3:3 Dasar — Total 6 menit per putaran</div>
   <div style="text-align:center;margin-top:10px;"><button class="voice-toggle" onclick="toggleVoice()">🔊 Suara panduan: ON</button></div></div></div>
 
@@ -301,6 +301,7 @@
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#e65100;" id="jalanBebasKcal">0</div><div style="font-size:0.7rem;color:#888;">🔥 kcal</div></div>
   </div>
   <div class="row"><button class="btn" id="jalanBebasStartBtn" onclick="startGps('jalanbebas')" style="flex:2;">▶️ Mulai</button><button class="btn" id="jalanBebasStopBtn" onclick="stopGps('jalanbebas')" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info" id="jalanBebasInfo">Tekan Mulai untuk melacak jalan kamu (butuh izin lokasi)</div>
@@ -323,6 +324,7 @@
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="jalanBebasDetailPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#e65100;" id="jalanBebasDetailKcal">-</div><div style="font-size:0.7rem;color:#888;">🔥 kcal</div></div>
   </div>
   </div></div>
 
@@ -335,6 +337,7 @@
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#e65100;" id="lariKcal">0</div><div style="font-size:0.7rem;color:#888;">🔥 kcal</div></div>
   </div>
   <div class="row"><button class="btn" id="lariStartBtn" onclick="startGps('lari')" style="flex:2;">▶️ Mulai</button><button class="btn" id="lariStopBtn" onclick="stopGps('lari')" style="flex:1;background:#c62828;color:#fff;">⏹️ Selesai</button></div>
   <div class="exercise-info" id="lariInfo">Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)</div>
@@ -357,6 +360,7 @@
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailDistance">0.00</div><div style="font-size:0.7rem;color:#888;">km</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailDuration">00:00</div><div style="font-size:0.7rem;color:#888;">waktu</div></div>
     <div><div style="font-size:1.5rem;font-weight:700;color:#2e7d32;" id="lariDetailPace">0:00</div><div style="font-size:0.7rem;color:#888;">/km</div></div>
+    <div><div style="font-size:1.5rem;font-weight:700;color:#e65100;" id="lariDetailKcal">-</div><div style="font-size:0.7rem;color:#888;">🔥 kcal</div></div>
   </div>
   </div></div>
 
@@ -1185,15 +1189,26 @@ function saveBurnedState(s) {
     localStorage.setItem('burnedByDate', JSON.stringify(all));
   } catch (e) {}
 }
+function addBurnedDelta(delta) {
+  try {
+    const s = getBurnedState();
+    s.kcal += delta;
+    saveBurnedState(s);
+    renderKaloriRings();
+  } catch (e) {}
+}
 function addBurnedTick(met) {
   try {
     const b = JSON.parse(localStorage.getItem('biodata'));
     const w = (b && parseFloat(b.weight)) || 60;
-    const s = getBurnedState();
-    s.kcal += (met * 3.5 * w / 200 / 60); // kkal untuk 1 detik pada MET ini
-    saveBurnedState(s);
-    renderKaloriRings();
-  } catch (e) {}
+    const delta = met * 3.5 * w / 200 / 60; // kkal untuk 1 detik pada MET ini
+    addBurnedDelta(delta);
+    return delta;
+  } catch (e) { return 0; }
+}
+function getUserWeightKg() {
+  const b = JSON.parse(localStorage.getItem('biodata') || 'null');
+  return (b && parseFloat(b.weight)) || 60;
 }
 function markExerciseDoneToday(info) {
   try {
@@ -1525,7 +1540,7 @@ const walkModes = {
   interval2: { name:'Interval 2:1', slow:120, fast:60, slowL:'🚶 Jalan Santai', fastL:'🔥 Jalan Cepat', slowV:'Jalan santai', fastV:'Jalan cepat', slowR:100, fastR:155, slowMET:3.0, fastMET:4.8 },
   march: { name:'Jalan di Tempat', slow:90, fast:90, slowL:'🦵 Angkat Lutut Pelan', fastL:'🦵🦵 Angkat Lutut Cepat', slowV:'Angkat lutut pelan', fastV:'Angkat lutut cepat', slowR:80, fastR:120, slowMET:3.5, fastMET:5.5 }
 };
-let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, walkRound=0;
+let walkMode='basic', walkTimer=null, walkSec=0, walkTotal=0, isWalking=false, walkRound=0, walkKcal=0;
 
 // Suara
 function speak(text) { Shenx.speak(text); }
@@ -1537,7 +1552,7 @@ function goToWalkMode(key) {
   navigateTo('jalan');
 }
 function resetWalkUI() {
-  const m = walkModes[walkMode]; walkSec = m.slow + m.fast; walkTotal = walkSec; isWalking = false;
+  const m = walkModes[walkMode]; walkSec = m.slow + m.fast; walkTotal = walkSec; isWalking = false; walkKcal = 0;
   clearInterval(walkTimer); walkTimer = null;
   const titleEl = document.getElementById('walkScreenTitle');
   if (titleEl) titleEl.textContent = '🚶 ' + m.name;
@@ -1546,6 +1561,7 @@ function resetWalkUI() {
   document.getElementById('phaseText').textContent = 'Siap untuk mulai?';
   document.getElementById('phaseText').className = 'phase-indicator phase-rest';
   document.getElementById('stepEstimate').textContent = '± 0 langkah';
+  document.getElementById('walkKcalDisplay').textContent = '🔥 0 kcal';
   document.getElementById('startBtn').textContent = '▶️ Mulai';
   document.getElementById('startBtn').onclick = startWalk;
   document.getElementById('walkInfo').textContent = m.name + ' — Santai ' + (m.slow/60) + ' mnt | Cepat ' + (m.fast/60) + ' mnt';
@@ -1573,7 +1589,7 @@ function startWalk() {
 
   // Aba-aba saat tombol ditekan: sebut fase yang sedang berjalan
   const m0 = walkModes[walkMode];
-  if (walkSec === walkTotal) { walkRound = 0; speak('Mulai. ' + m0.slowV); }
+  if (walkSec === walkTotal) { walkRound = 0; walkKcal = 0; speak('Mulai. ' + m0.slowV); }
   else { speak('Lanjut. ' + (walkSec > m0.fast ? m0.slowV : m0.fastV)); }
   Shenx.vibrate(100);
 
@@ -1581,7 +1597,8 @@ function startWalk() {
     const m = walkModes[walkMode];
     walkSec--;
     updateWalkDisplay();
-    addBurnedTick(walkSec > m.fast ? m.slowMET : m.fastMET);
+    walkKcal += addBurnedTick(walkSec > m.fast ? m.slowMET : m.fastMET);
+    document.getElementById('walkKcalDisplay').textContent = '🔥 ' + Math.round(walkKcal) + ' kcal';
 
     if (walkSec === m.fast) {
       // fase santai habis -> masuk fase cepat
@@ -1597,30 +1614,30 @@ function startWalk() {
     if (walkSec <= 0) {
       walkRound++;
       walkSec = walkTotal;
-      markExerciseDoneToday({ key: 'jalan-' + walkMode, name: 'Jalan ' + m.name, photo: 'images/bg-jalan.jpg', detail: walkRound + ' putaran' });
-      addHistory('Jalan ' + m.name + ': selesai putaran ' + walkRound);
+      markExerciseDoneToday({ key: 'jalan-' + walkMode, name: 'Jalan ' + m.name, photo: 'images/bg-jalan.jpg', detail: walkRound + ' putaran · 🔥 ' + Math.round(walkKcal) + ' kcal' });
+      addHistory('Jalan ' + m.name + ': selesai putaran ' + walkRound + ' (🔥 ' + Math.round(walkKcal) + ' kcal)');
       speak('Putaran ' + walkRound + ' selesai. Lanjut. ' + m.slowV);
       Shenx.vibrate([200, 100, 200]);
     }
   }, 1000);
 }
 function pauseWalk() { clearInterval(walkTimer); walkTimer = null; isWalking = false; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Lanjutkan'; document.getElementById('startBtn').onclick = startWalk; }
-function stopWalk() { const _was = isWalking || walkSec !== walkTotal; walkRound = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan'); }
+function stopWalk() { const _was = isWalking || walkSec !== walkTotal; const _kcal = Math.round(walkKcal); walkRound = 0; walkKcal = 0; clearInterval(walkTimer); walkTimer = null; isWalking = false; walkSec = walkModes[walkMode].slow + walkModes[walkMode].fast; walkTotal = walkSec; updateWalkDisplay(); document.getElementById('walkKcalDisplay').textContent = '🔥 0 kcal'; Shenx.stopSpeak(); document.getElementById('startBtn').textContent = '▶️ Mulai'; document.getElementById('startBtn').onclick = startWalk; if (_was) addHistory('Jalan ' + walkModes[walkMode].name + ': dihentikan (🔥 ' + _kcal + ' kcal)'); }
 
 // ===== GPS TRACKING (Lari & Jalan Bebas — peta, jarak, waktu, pace, riwayat rute) =====
 const GPS_ACT = {
-  lari: { idPrefix: 'lari', met: 9.0, label: 'Lari', emoji: '🏃',
+  lari: { idPrefix: 'lari', kcalCoef: 0.2, label: 'Lari', emoji: '🏃',
     startMsg: 'Lari dimulai', trackingMsg: 'Melacak lari...',
     idleMsg: 'Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)',
     historyKey: 'lariRuns', historyTab: 'larihistory', detailTab: 'laridetail' },
-  jalanbebas: { idPrefix: 'jalanBebas', met: 3.8, label: 'Jalan Bebas', emoji: '🚶',
+  jalanbebas: { idPrefix: 'jalanBebas', kcalCoef: 0.1, label: 'Jalan Bebas', emoji: '🚶',
     startMsg: 'Jalan bebas dimulai', trackingMsg: 'Melacak jalan...',
     idleMsg: 'Tekan Mulai untuk melacak jalan kamu (butuh izin lokasi)',
     historyKey: 'jalanBebasRuns', historyTab: 'jalanbebashistory', detailTab: 'jalanbebasdetail' }
 };
 const gpsState = {
-  lari: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [] },
-  jalanbebas: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [] }
+  lari: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [], kcal: 0 },
+  jalanbebas: { running: false, timer: null, watchId: null, map: null, polyline: null, marker: null, elapsedMs: 0, lastTick: 0, distanceKm: 0, path: [], kcal: 0 }
 };
 const gpsDetailMapObj = {}, gpsDetailRunId = {};
 function gpsId(type, field) { return GPS_ACT[type].idPrefix + field; }
@@ -1707,11 +1724,25 @@ function gpsClearWatch(type) {
   else if (navigator.geolocation) navigator.geolocation.clearWatch(st.watchId);
   st.watchId = null;
 }
+function computeGpsKcal(type) {
+  // Rumus VO2 ACSM (lari/jalan): VO2 = koef * kecepatan(m/menit) + 3.5, diintegrasikan
+  // terhadap waktu jadi (koef * jarak_meter + 3.5 * menit) — otomatis memperhitungkan
+  // jarak tempuh GPS sekaligus lama latihan, bukan cuma kecepatan rata-rata.
+  const st = gpsState[type];
+  const distM = st.distanceKm * 1000;
+  const minutes = st.elapsedMs / 60000;
+  const vo2Total = GPS_ACT[type].kcalCoef * distM + 3.5 * minutes;
+  return Math.max(0, vo2Total * getUserWeightKg() / 200);
+}
 function updateGpsDuration(type) {
   const st = gpsState[type];
   const totalSec = Math.floor(st.elapsedMs / 1000);
   document.getElementById(gpsId(type, 'Duration')).textContent = fmt(totalSec);
-  addBurnedTick(GPS_ACT[type].met);
+  const newKcal = computeGpsKcal(type);
+  const delta = newKcal - st.kcal;
+  st.kcal = newKcal;
+  if (delta > 0) addBurnedDelta(delta);
+  document.getElementById(gpsId(type, 'Kcal')).textContent = Math.round(st.kcal);
 }
 function updateGpsStats(type) {
   const st = gpsState[type];
@@ -1726,11 +1757,12 @@ function updateGpsStats(type) {
 function resetGpsUI(type) {
   const st = gpsState[type];
   clearInterval(st.timer); st.timer = null; st.running = false;
-  st.elapsedMs = 0; st.distanceKm = 0; st.path = [];
+  st.elapsedMs = 0; st.distanceKm = 0; st.path = []; st.kcal = 0;
   if (st.polyline) st.polyline.setLatLngs([]);
   document.getElementById(gpsId(type, 'Distance')).textContent = '0.00';
   document.getElementById(gpsId(type, 'Duration')).textContent = '00:00';
   document.getElementById(gpsId(type, 'Pace')).textContent = '0:00';
+  document.getElementById(gpsId(type, 'Kcal')).textContent = '0';
   document.getElementById(gpsId(type, 'Info')).textContent = GPS_ACT[type].idleMsg;
   const btn = document.getElementById(gpsId(type, 'StartBtn'));
   btn.textContent = '▶️ Mulai';
@@ -1789,8 +1821,9 @@ function stopGps(type) {
   gpsClearWatch(type);
   Shenx.stopSpeak();
   if (_was) {
-    markExerciseDoneToday({ key: type, name: GPS_ACT[type].label, photo: 'images/bg-jalan.jpg', detail: st.distanceKm.toFixed(2) + ' km · ' + fmt(Math.floor(st.elapsedMs / 1000)) });
-    addHistory(GPS_ACT[type].label + ': ' + st.distanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(st.elapsedMs / 1000)));
+    const kcalTxt = Math.round(st.kcal) + ' kcal';
+    markExerciseDoneToday({ key: type, name: GPS_ACT[type].label, photo: 'images/bg-jalan.jpg', detail: st.distanceKm.toFixed(2) + ' km · ' + fmt(Math.floor(st.elapsedMs / 1000)) + ' · 🔥 ' + kcalTxt });
+    addHistory(GPS_ACT[type].label + ': ' + st.distanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(st.elapsedMs / 1000)) + ' (' + kcalTxt + ')');
     saveGpsRun(type);
   }
   resetGpsUI(type);
@@ -1813,6 +1846,7 @@ function saveGpsRun(type) {
     time: new Date().toLocaleString('id-ID'),
     distanceKm: st.distanceKm,
     durationSec: Math.floor(st.elapsedMs / 1000),
+    kcal: Math.round(st.kcal),
     path: path
   });
   if (runs.length > 30) runs.length = 30;
@@ -1826,8 +1860,9 @@ function renderGpsHistory(type) {
     const pace = r.distanceKm > 0.02 ? (r.durationSec / 60 / r.distanceKm) : 0;
     const pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
     const paceTxt = pace > 0 ? (pm + ':' + String(ps).padStart(2, '0') + ' /km') : '-';
+    const kcalTxt = (r.kcal != null) ? (' · 🔥 ' + r.kcal + ' kcal') : '';
     return '<div class="history-item" style="cursor:pointer;" onclick="viewGpsRun(\'' + type + '\',' + r.id + ')"><strong>' +
-      r.distanceKm.toFixed(2) + ' km — ' + fmt(r.durationSec) + '</strong> <span style="color:#888;">(' + paceTxt + ')</span><br><small>' + r.time + '</small></div>';
+      r.distanceKm.toFixed(2) + ' km — ' + fmt(r.durationSec) + kcalTxt + '</strong> <span style="color:#888;">(' + paceTxt + ')</span><br><small>' + r.time + '</small></div>';
   }).join('');
 }
 function viewGpsRun(type, id) { gpsDetailRunId[type] = id; navigateTo(GPS_ACT[type].detailTab); }
@@ -1836,6 +1871,7 @@ function renderGpsDetail(type) {
   const r = runs.find(x => x.id === gpsDetailRunId[type]);
   document.getElementById(gpsId(type, 'DetailDistance')).textContent = r ? r.distanceKm.toFixed(2) : '0.00';
   document.getElementById(gpsId(type, 'DetailDuration')).textContent = r ? fmt(r.durationSec) : '00:00';
+  document.getElementById(gpsId(type, 'DetailKcal')).textContent = (r && r.kcal != null) ? r.kcal : '-';
   if (r && r.distanceKm > 0.02) {
     const pace = r.durationSec / 60 / r.distanceKm, pm = Math.floor(pace), ps = Math.round((pace - pm) * 60);
     document.getElementById(gpsId(type, 'DetailPace')).textContent = pm + ':' + String(ps).padStart(2, '0');
