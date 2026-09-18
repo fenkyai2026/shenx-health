@@ -1,3 +1,7 @@
 name = "shenx-nutrition-proxy"
 main = "worker.js"
 compatibility_date = "2026-09-01"
+
+[[kv_namespaces]]
+binding = "INSTALLS"
+id = "86975231672545c39a28af749f626d92"

@@ -2548,6 +2548,17 @@ function clearHistory() { if (confirm('Hapus semua riwayat?')) { localStorage.re
 // Init
 renderHistory(); resetWalkUI(); renderVoiceToggle(); initApp();
 
+// ===== PING INSTALL (anonim, sekali per device — cuma nambah 1 angka, tanpa nama/identitas apa pun) =====
+(function pingInstallOnce() {
+  try {
+    if (localStorage.getItem('installPingSent')) return;
+    localStorage.setItem('installPingSent', '1');
+    const headers = { 'Content-Type': 'application/json' };
+    if (typeof NUTRISI_APP_SECRET !== 'undefined' && NUTRISI_APP_SECRET) headers['X-App-Secret'] = NUTRISI_APP_SECRET;
+    fetch(NUTRISI_PROXY_URL + '/install-ping', { method: 'POST', headers: headers }).catch(() => {});
+  } catch (e) {}
+})();
+
 // ===== PWA SERVICE WORKER (hanya di web; di APK aset sudah dibundel) =====
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !Shenx.isNative()) {
   window.addEventListener('load', function () {

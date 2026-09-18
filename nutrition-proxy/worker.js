@@ -8,7 +8,7 @@ const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-App-Secret'
   };
 }
@@ -20,11 +20,36 @@ function jsonResponse(obj, status) {
   });
 }
 
+// Hitung jumlah install: app kirim ping anonim sekali per device (tanpa nama/identitas
+// apa pun), cuma menambah satu angka di KV. Dilihat lewat /install-count?key=ADMIN_KEY.
+async function handleInstallPing(request, env) {
+  if (env.APP_SECRET && request.headers.get('X-App-Secret') !== env.APP_SECRET) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+  const current = parseInt((await env.INSTALLS.get('count')) || '0', 10) || 0;
+  await env.INSTALLS.put('count', String(current + 1));
+  return jsonResponse({ ok: true }, 200);
+}
+
+async function handleInstallCount(request, env) {
+  const url = new URL(request.url);
+  if (!env.ADMIN_KEY || url.searchParams.get('key') !== env.ADMIN_KEY) {
+    return jsonResponse({ error: 'Unauthorized' }, 401);
+  }
+  const count = parseInt((await env.INSTALLS.get('count')) || '0', 10) || 0;
+  return jsonResponse({ count }, 200);
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders() });
     }
+
+    const path = new URL(request.url).pathname;
+    if (path === '/install-ping' && request.method === 'POST') return handleInstallPing(request, env);
+    if (path === '/install-count' && request.method === 'GET') return handleInstallCount(request, env);
+
     if (request.method !== 'POST') {
       return jsonResponse({ error: 'Method not allowed' }, 405);
     }

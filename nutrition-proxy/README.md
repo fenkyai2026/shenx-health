@@ -42,3 +42,20 @@ npx wrangler deploy
 ```
 
 Tidak perlu ulangi langkah `secret put` — secret tetap tersimpan di Cloudflare.
+
+## Hitung jumlah install (anonim)
+
+Worker ini juga menyimpan satu angka hitungan install di Cloudflare KV
+(namespace `INSTALLS`) — app mengirim ping sekali per device (tanpa nama,
+tanpa identitas apa pun) lewat `POST /install-ping` saat pertama kali dibuka.
+
+Untuk melihat angkanya, buka di browser (termasuk dari HP):
+```
+https://shenx-nutrition-proxy.<subdomain-kamu>.workers.dev/install-count?key=<ADMIN_KEY>
+```
+
+`ADMIN_KEY` adalah secret terpisah, di-set sekali lewat:
+```bash
+npx wrangler secret put ADMIN_KEY
+```
+Simpan nilainya sendiri — siapa pun yang tahu key ini bisa lihat hitungannya.
