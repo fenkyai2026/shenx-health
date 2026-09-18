@@ -1,6 +1,6 @@
 /* SHENX HEALTH — service worker (khusus versi web/PWA).
    Cache-first supaya aplikasi tetap jalan tanpa internet. */
-const CACHE = 'shenx-health-v7';
+const CACHE = 'shenx-health-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -14,9 +14,15 @@ const ASSETS = [
   './images/bg-kalori.jpg',
   './images/bg-exercise.jpg',
   './images/bg-jalan.jpg',
+  './images/bg-lari.jpg',
   './images/bg-napas.jpg',
   './images/bg-setting.jpg',
   './images/bg-bodyweight.jpg',
+  './images/bg-bw-dasar.jpg',
+  './images/bg-bw-hiit.jpg',
+  './images/bg-bw-core.jpg',
+  './images/bg-barbel.jpg',
+  './images/bg-quickbeginner.jpg',
   './images/bg-tidur.jpg',
   './images/bg-positif.jpg',
   './images/bg-nutrisi.jpg',

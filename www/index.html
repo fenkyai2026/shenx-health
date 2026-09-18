@@ -1626,11 +1626,11 @@ function stopWalk() { const _was = isWalking || walkSec !== walkTotal; const _kc
 
 // ===== GPS TRACKING (Lari & Jalan Bebas — peta, jarak, waktu, pace, riwayat rute) =====
 const GPS_ACT = {
-  lari: { idPrefix: 'lari', kcalCoef: 0.2, label: 'Lari', emoji: '🏃',
+  lari: { idPrefix: 'lari', kcalCoef: 0.2, label: 'Lari', emoji: '🏃', photo: 'images/bg-lari.jpg',
     startMsg: 'Lari dimulai', trackingMsg: 'Melacak lari...',
     idleMsg: 'Tekan Mulai untuk melacak lari kamu (butuh izin lokasi)',
     historyKey: 'lariRuns', historyTab: 'larihistory', detailTab: 'laridetail' },
-  jalanbebas: { idPrefix: 'jalanBebas', kcalCoef: 0.1, label: 'Jalan Bebas', emoji: '🚶',
+  jalanbebas: { idPrefix: 'jalanBebas', kcalCoef: 0.1, label: 'Jalan Bebas', emoji: '🚶', photo: 'images/bg-jalan.jpg',
     startMsg: 'Jalan bebas dimulai', trackingMsg: 'Melacak jalan...',
     idleMsg: 'Tekan Mulai untuk melacak jalan kamu (butuh izin lokasi)',
     historyKey: 'jalanBebasRuns', historyTab: 'jalanbebashistory', detailTab: 'jalanbebasdetail' }
@@ -1822,7 +1822,7 @@ function stopGps(type) {
   Shenx.stopSpeak();
   if (_was) {
     const kcalTxt = Math.round(st.kcal) + ' kcal';
-    markExerciseDoneToday({ key: type, name: GPS_ACT[type].label, photo: 'images/bg-jalan.jpg', detail: st.distanceKm.toFixed(2) + ' km · ' + fmt(Math.floor(st.elapsedMs / 1000)) + ' · 🔥 ' + kcalTxt });
+    markExerciseDoneToday({ key: type, name: GPS_ACT[type].label, photo: GPS_ACT[type].photo, detail: st.distanceKm.toFixed(2) + ' km · ' + fmt(Math.floor(st.elapsedMs / 1000)) + ' · 🔥 ' + kcalTxt });
     addHistory(GPS_ACT[type].label + ': ' + st.distanceKm.toFixed(2) + ' km dalam ' + fmt(Math.floor(st.elapsedMs / 1000)) + ' (' + kcalTxt + ')');
     saveGpsRun(type);
   }
@@ -2007,11 +2007,11 @@ const BW_CATEGORIES = [
   { title: '🏋️ Program Beban', keys: ['barbel'] }
 ];
 const BW_MODE_PHOTOS = {
-  pemula: 'images/bg-bodyweight.jpg',
-  hiit: 'images/bg-bodyweight.jpg',
-  core: 'images/bg-bodyweight.jpg',
-  barbel: 'images/bg-bodyweight.jpg',
-  quickbeginner: 'images/bg-bodyweight.jpg'
+  pemula: 'images/bg-bw-dasar.jpg',
+  hiit: 'images/bg-bw-hiit.jpg',
+  core: 'images/bg-bw-core.jpg',
+  barbel: 'images/bg-barbel.jpg',
+  quickbeginner: 'images/bg-quickbeginner.jpg'
 };
 function estimateModeStats(modeKey) {
   const mode = bodyweightModes[modeKey];
@@ -2058,7 +2058,7 @@ function renderExerciseCategories() {
     return modeCardHtml({ onclick:"goToWalkMode('" + w.key + "')", photo:'images/bg-jalan.jpg', badge: w.icon + ' Interval', title: m.name, minutes: stats.minutes, kcal: stats.kcal });
   }).join('');
   html += '<div class="mode-cat-title">🚶 Jalan</div><div class="mode-cat-row">' + walkCards + '</div>';
-  const lariCard = modeCardHtml({ onclick:"navigateTo('lari')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Lari', stat1:'📏 Jarak', stat2:'⚡ Kecepatan' });
+  const lariCard = modeCardHtml({ onclick:"navigateTo('lari')", photo:'images/bg-lari.jpg', badge:'📍 GPS', title:'Lari', stat1:'📏 Jarak', stat2:'⚡ Kecepatan' });
   html += '<div class="mode-cat-title">🏃 Lari</div><div class="mode-cat-row">' + lariCard + '</div>';
   BW_CATEGORIES.forEach(cat => {
     const cards = cat.keys.map(key => {
