@@ -2017,10 +2017,10 @@ function renderExerciseCategories() {
   const el = document.getElementById('exerciseCategoryPicker');
   if (!el) return;
   let html = '';
-  const walkCards = WALK_CARDS.map(w => {
+  const walkCards = modeCardHtml({ onclick:"navigateTo('jalanbebas')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Jalan Bebas', stat1:'📏 Jarak', stat2:'⏱ Waktu' }) + WALK_CARDS.map(w => {
     const m = walkModes[w.key], stats = estimateWalkStats(w.key);
     return modeCardHtml({ onclick:"goToWalkMode('" + w.key + "')", photo:'images/bg-jalan.jpg', badge: w.icon + ' Interval', title: m.name, minutes: stats.minutes, kcal: stats.kcal });
-  }).join('') + modeCardHtml({ onclick:"navigateTo('jalanbebas')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Jalan Bebas', stat1:'📏 Jarak', stat2:'⏱ Waktu' });
+  }).join('');
   html += '<div class="mode-cat-title">🚶 Jalan</div><div class="mode-cat-row">' + walkCards + '</div>';
   const lariCard = modeCardHtml({ onclick:"navigateTo('lari')", photo:'images/bg-jalan.jpg', badge:'📍 GPS', title:'Lari', stat1:'📏 Jarak', stat2:'⚡ Kecepatan' });
   html += '<div class="mode-cat-title">🏃 Lari</div><div class="mode-cat-row">' + lariCard + '</div>';
