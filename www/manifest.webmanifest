@@ -1,6 +1,6 @@
 {
-  "name": "SHENX HEALTH",
-  "short_name": "Shenx",
+  "name": "SHENX Life",
+  "short_name": "SHENX Life",
   "description": "Pantau kesehatanmu setiap hari — hitung kalori, BMI, latihan jalan & pernapasan",
   "start_url": "./",
   "scope": "./",

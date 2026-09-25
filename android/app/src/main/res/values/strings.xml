@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SHENX HEALTH</string>
-    <string name="title_activity_main">SHENX HEALTH</string>
+    <string name="app_name">SHENX Life</string>
+    <string name="title_activity_main">SHENX Life</string>
     <string name="package_name">id.shenx.health</string>
     <string name="custom_url_scheme">id.shenx.health</string>
 </resources>

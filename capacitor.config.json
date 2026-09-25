@@ -1,6 +1,6 @@
 {
   "appId": "id.shenx.health",
-  "appName": "SHENX HEALTH",
+  "appName": "SHENX Life",
   "webDir": "www",
   "android": {
     "allowMixedContent": false,
