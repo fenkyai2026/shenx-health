@@ -154,6 +154,7 @@
   .tint-positif { background: linear-gradient(135deg, rgba(255,193,7,0.55), rgba(255,145,0,0.55)); }
 
   /* ===== MODERN UI (gaya SHENX Life): token, kartu lembut, nav melayang ===== */
+  .ic { display: inline-block; vertical-align: middle; object-fit: contain; }
   :root { --bg:#f3faf6; --text:#173c2c; --muted:#718079; --green:#2f8f68; --green-dark:#1f6e4d; --mint:#dff5e9; --line:rgba(24,70,50,.09); --shadow:0 14px 40px rgba(32,87,63,.10); --radius:26px; }
   body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--text); padding: 0 14px;
     background: radial-gradient(circle at 10% 0%, rgba(111,203,158,.20), transparent 30%), radial-gradient(circle at 95% 12%, rgba(86,173,216,.14), transparent 28%), linear-gradient(180deg,#eef9f2 0%,#f7fbf8 55%,#edf7f2 100%); background-attachment: fixed; }
@@ -322,7 +323,7 @@
   <div class="hero-card" style="text-align:center;">
     <div class="bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
     <div class="hero-tint tint-napas"></div>
-    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🫁 Pernapasan</h2></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;"><img class="ic" src="images/icons/20_pernapasan.png" width="22" height="22" alt=""> Pernapasan</h2></div>
   </div>
   <div class="card" style="padding:12px;">
   <div id="breathCategoryPicker"></div>
@@ -333,7 +334,7 @@
   <div class="hero-card" style="text-align:center;">
     <div class="bg-photo" style="background-image:url('images/bg-exercise.jpg');"></div>
     <div class="hero-tint tint-exercise"></div>
-    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🏋️ Olahraga</h2></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;"><img class="ic" src="images/icons/02_olahraga.png" width="22" height="22" alt=""> Olahraga</h2></div>
   </div>
   <div class="card" style="padding:12px;">
   <div id="exerciseCategoryPicker"></div>
@@ -341,22 +342,22 @@
 
   <!-- TAB_SETTINGMENU -->
   <div id="tab-settingmenu" class="tab-content"><div class="card">
-  <h2>👤 Profil</h2>
+  <h2><img class="ic" src="images/icons/05_profil.png" width="22" height="22" alt=""> Profil</h2>
   <div class="pengaturan-menu">
-    <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon">👤</span> Biodata Diri<span class="arrow">›</span></button>
-    <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon">🔍</span> Nutrisi & Kalori<span class="arrow">›</span></button>
-    <button class="menu-item" onclick="navigateTo('logaktivitas')"><span class="icon">📋</span> Log Aktivitas<span class="arrow">›</span></button>
-    <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon">💾</span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('biodata')"><span class="icon"><img class="ic" src="images/icons/73_pengguna.png" width="26" height="26" alt=""></span> Biodata Diri<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('nutrisiinfo')"><span class="icon"><img class="ic" src="images/icons/54_cari.png" width="26" height="26" alt=""></span> Nutrisi & Kalori<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('logaktivitas')"><span class="icon"><img class="ic" src="images/icons/76_dokumen.png" width="26" height="26" alt=""></span> Log Aktivitas<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('datamgmt')"><span class="icon"><img class="ic" src="images/icons/77_folder.png" width="26" height="26" alt=""></span> Ekspor / Impor / Reset Data<span class="arrow">›</span></button>
     <button class="menu-item" onclick="checkForUpdate(false)"><span class="icon">🔄</span> Cek Update<span class="arrow">›</span></button>
     <div id="updateCheckMsg" style="font-size:0.8rem;color:#666;padding:0 16px;"></div>
-    <button class="menu-item" onclick="navigateTo('about')"><span class="icon">ℹ️</span> Tentang Aplikasi<span class="arrow">›</span></button>
+    <button class="menu-item" onclick="navigateTo('about')"><span class="icon"><img class="ic" src="images/icons/55_info.png" width="26" height="26" alt=""></span> Tentang Aplikasi<span class="arrow">›</span></button>
   </div>
   </div></div>
 
   <!-- TAB_LOGAKTIVITAS -->
   <div id="tab-logaktivitas" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Profil</button>
-  <h2>📋 Log Aktivitas</h2>
+  <h2><img class="ic" src="images/icons/76_dokumen.png" width="22" height="22" alt=""> Log Aktivitas</h2>
   <div class="history" id="historyList"><p style="color:#999;text-align:center;padding:20px;">Belum ada riwayat</p></div>
   <button class="btn" style="margin-top:12px;background:#c62828;" onclick="clearHistory()">🗑️ Hapus Riwayat</button>
   </div></div>
@@ -364,7 +365,7 @@
   <!-- TAB_BMIDETAIL -->
   <div id="tab-bmidetail" class="tab-content"><div class="card">
   <button class="back-btn" onclick="goBack()">← Beranda</button>
-  <h2>📋 Detail Perhitungan Kesehatan</h2>
+  <h2><img class="ic" src="images/icons/33_detail.png" width="22" height="22" alt=""> Detail Perhitungan Kesehatan</h2>
   <div id="bmiDetailContent"></div>
   </div></div>
 
@@ -374,7 +375,7 @@
   <div class="hero-card" style="text-align:center;">
     <div class="bg-photo" style="background-image:url('images/bg-nutrisi.jpg');"></div>
     <div class="hero-tint tint-nutrisi"></div>
-    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;">🔍 Nutrisi & Kalori</h2></div>
+    <div class="hero-panel"><h2 style="margin:0;font-size:1.2rem;color:#1b5e20;"><img class="ic" src="images/icons/04_nutrisi.png" width="22" height="22" alt=""> Nutrisi & Kalori</h2></div>
   </div>
   <div class="card">
   <div class="form-group">
@@ -518,7 +519,7 @@
   </div>
 
   <div id="biodataView">
-    <h2>👤 Biodata Diri</h2>
+    <h2><img class="ic" src="images/icons/73_pengguna.png" width="22" height="22" alt=""> Biodata Diri</h2>
     <div id="biodataViewContent"></div>
     <button class="btn" style="margin-top:12px;" onclick="editBiodata()">✏️ Edit Biodata</button>
   </div>
@@ -551,29 +552,29 @@
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-kalori.jpg');"></div>
       <div class="hero-tint tint-kalori"></div>
-      <h2 class="hero-title">🔥 Kalori</h2>
+      <h2 class="hero-title"><img class="ic" src="images/icons/40_kalori.png" width="20" height="20" alt=""> Kalori</h2>
       <div class="hero-panel"><div id="trackerKalori"></div></div>
     </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-water.jpg');"></div>
       <div class="hero-tint tint-water"></div>
-      <h2 class="hero-title">💧 Air Minum</h2>
+      <h2 class="hero-title"><img class="ic" src="images/icons/17_air.png" width="20" height="20" alt=""> Air Minum</h2>
       <div class="hero-panel"><div id="waterWidget"></div></div>
     </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-tidur.jpg');"></div>
       <div class="hero-tint tint-tidur"></div>
-      <h2 class="hero-title">😴 Tidur</h2>
+      <h2 class="hero-title"><img class="ic" src="images/icons/18_tidur.png" width="20" height="20" alt=""> Tidur</h2>
       <div class="hero-panel"><div id="dashTidur"></div></div>
     </div>
     <div class="hero-card">
       <div class="bg-photo" style="background-image:url('images/bg-positif.jpg');"></div>
       <div class="hero-tint tint-positif"></div>
-      <h2 class="hero-title">😊 Positif</h2>
+      <h2 class="hero-title"><img class="ic" src="images/icons/19_positif.png" width="20" height="20" alt=""> Positif</h2>
       <div class="hero-panel"><div id="dashPositif"></div></div>
     </div>
     <div class="card" style="box-shadow:none;border:1px solid #eee;padding:14px;">
-      <h2 style="font-size:1rem;margin-bottom:8px;">🏃 Olahraga</h2>
+      <h2 style="font-size:1rem;margin-bottom:8px;"><img class="ic" src="images/icons/02_olahraga.png" width="18" height="18" alt=""> Olahraga</h2>
       <div id="trackerOlahraga"></div>
     </div>
   </div>
@@ -581,7 +582,7 @@
   <!-- TAB_DATAMGMT -->
   <div id="tab-datamgmt" class="tab-content"><div class="card">
     <button class="back-btn" onclick="goBack()">← Profil</button>
-    <h2>💾 Data & Cadangan</h2>
+    <h2><img class="ic" src="images/icons/77_folder.png" width="22" height="22" alt=""> Data & Cadangan</h2>
     <p style="color:#666;margin-bottom:16px;">Kelola data aplikasi — ekspor untuk cadangan, impor untuk memulihkan, atau reset ke pengaturan awal.</p>
     <button class="btn" onclick="exportData()" style="margin-bottom:8px;">📤 Ekspor Data (JSON)</button>
     <button class="btn" onclick="importData()" style="margin-bottom:8px;background:#1565c0;">📥 Impor Data (JSON)</button>
@@ -602,14 +603,20 @@
 </div>
 <nav class="bottom-nav" id="bottomNav">
   <div class="bottom-nav-inner">
-    <button class="bottom-nav-item" data-tab="dashboard" onclick="navBarGoto('dashboard')"><span class="bn-icon">🏠</span><span class="bn-label">Beranda</span></button>
-    <button class="bottom-nav-item" data-tab="exercise" onclick="navBarGoto('exercise')"><span class="bn-icon">🏋️</span><span class="bn-label">Olahraga</span></button>
-    <button class="bottom-nav-item" data-tab="riwayat" onclick="navBarGoto('riwayat')"><span class="bn-icon">📊</span><span class="bn-label">Tracker</span></button>
-    <button class="bottom-nav-item" data-tab="settingmenu" onclick="navBarGoto('settingmenu')"><span class="bn-icon">👤</span><span class="bn-label">Profil</span></button>
-    <button class="bottom-nav-item exit-item" onclick="exitApp()"><span class="bn-icon">🚪</span><span class="bn-label">Keluar</span></button>
+    <button class="bottom-nav-item" data-tab="dashboard" onclick="navBarGoto('dashboard')"><span class="bn-icon"><img class="ic" src="images/icons/01_home.png" width="22" height="22" alt=""></span><span class="bn-label">Beranda</span></button>
+    <button class="bottom-nav-item" data-tab="exercise" onclick="navBarGoto('exercise')"><span class="bn-icon"><img class="ic" src="images/icons/02_olahraga.png" width="22" height="22" alt=""></span><span class="bn-label">Olahraga</span></button>
+    <button class="bottom-nav-item" data-tab="riwayat" onclick="navBarGoto('riwayat')"><span class="bn-icon"><img class="ic" src="images/icons/03_tracker.png" width="22" height="22" alt=""></span><span class="bn-label">Tracker</span></button>
+    <button class="bottom-nav-item" data-tab="settingmenu" onclick="navBarGoto('settingmenu')"><span class="bn-icon"><img class="ic" src="images/icons/05_profil.png" width="22" height="22" alt=""></span><span class="bn-label">Profil</span></button>
+    <button class="bottom-nav-item exit-item" onclick="exitApp()"><span class="bn-icon"><img class="ic" src="images/icons/06_keluar.png" width="22" height="22" alt=""></span><span class="bn-label">Keluar</span></button>
   </div>
 </nav>
 <script>
+// Ikon pack SHENX Modern — PNG kecil menggantikan emoji di titik-titik utama UI.
+function icon(name, size) {
+  size = size || 22;
+  return '<img class="ic" src="images/icons/' + name + '.png" width="' + size + '" height="' + size + '" alt="">';
+}
+
 /* ===== SHENX NATIVE BRIDGE =====
    Jembatan ke fitur native saat jalan sebagai APK (Capacitor),
    dengan fallback otomatis ke API browser saat dibuka di web. */
@@ -1473,18 +1480,18 @@ function renderHabitTracker() {
   if (!el) return;
   const water = getWaterState().glasses, waterTarget = getWaterTarget(), sleepH = getSleepState().hours;
   const items = [
-    { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), prog: isExerciseDoneToday() ? '1 / 1' : '0 / 1', action:"navigateTo('exercise')" },
-    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, prog: grandFoodTotals().kal > 0 ? 'Tercatat' : 'Belum', action:"navigateTo('riwayat')" },
-    { icon:'💧', label:'Air', done: water >= waterTarget, prog: water + ' / ' + waterTarget, action:"navigateTo('riwayat')" },
-    { icon:'😴', label:'Tidur', done: sleepH >= SLEEP_TARGET, prog: sleepH + ' / ' + SLEEP_TARGET + ' j', action:"navigateTo('riwayat')" },
-    { icon:'😊', label:'Positif', done: !!getMoodState().mood, prog: getMoodState().mood ? '1 / 1' : '0 / 1', action:"navigateTo('riwayat')" }
+    { icon:'02_olahraga', label:'Olahraga', done: isExerciseDoneToday(), prog: isExerciseDoneToday() ? '1 / 1' : '0 / 1', action:"navigateTo('exercise')" },
+    { icon:'04_nutrisi', label:'Nutrisi', done: grandFoodTotals().kal > 0, prog: grandFoodTotals().kal > 0 ? 'Tercatat' : 'Belum', action:"navigateTo('riwayat')" },
+    { icon:'17_air', label:'Air', done: water >= waterTarget, prog: water + ' / ' + waterTarget, action:"navigateTo('riwayat')" },
+    { icon:'18_tidur', label:'Tidur', done: sleepH >= SLEEP_TARGET, prog: sleepH + ' / ' + SLEEP_TARGET + ' j', action:"navigateTo('riwayat')" },
+    { icon:'19_positif', label:'Positif', done: !!getMoodState().mood, prog: getMoodState().mood ? '1 / 1' : '0 / 1', action:"navigateTo('riwayat')" }
   ];
   const doneCount = items.filter(i => i.done).length;
   const countEl = document.getElementById('habitCount');
   if (countEl) countEl.textContent = doneCount + ' / 5 selesai';
   el.innerHTML = items.map(i =>
     '<button class="m-habit' + (i.done ? ' done' : '') + '" onclick="' + i.action + '">' +
-      '<div class="m-habit-icon">' + i.icon + '</div>' +
+      '<div class="m-habit-icon">' + icon(i.icon, 24) + '</div>' +
       '<div class="m-habit-name">' + i.label + '</div>' +
       '<div class="m-habit-progress">' + i.prog + '</div>' +
     '</button>'
@@ -1507,9 +1514,9 @@ function renderWellness() {
       '<div class="m-score-copy"><h2>' + label + '</h2><p>Jaga ritme sehatmu. Sedikit konsisten setiap hari akan memberi hasil besar.</p></div>' +
     '</div>' +
     '<div class="m-metrics">' +
-      '<div class="m-metric"><div class="m-metric-icon">🏃</div><div class="m-metric-value">' + activity + '</div><div class="m-metric-name">Aktivitas</div></div>' +
-      '<div class="m-metric"><div class="m-metric-icon">💧</div><div class="m-metric-value">' + hydration + '</div><div class="m-metric-name">Hidrasi</div></div>' +
-      '<div class="m-metric"><div class="m-metric-icon">🌙</div><div class="m-metric-value">' + sleep + '</div><div class="m-metric-name">Tidur</div></div>' +
+      '<div class="m-metric"><div class="m-metric-icon">' + icon('02_olahraga', 18) + '</div><div class="m-metric-value">' + activity + '</div><div class="m-metric-name">Aktivitas</div></div>' +
+      '<div class="m-metric"><div class="m-metric-icon">' + icon('17_air', 18) + '</div><div class="m-metric-value">' + hydration + '</div><div class="m-metric-name">Hidrasi</div></div>' +
+      '<div class="m-metric"><div class="m-metric-icon">' + icon('18_tidur', 18) + '</div><div class="m-metric-value">' + sleep + '</div><div class="m-metric-name">Tidur</div></div>' +
     '</div>';
 }
 function renderDashPlan() {
@@ -1572,7 +1579,7 @@ function renderBmiDetail() {
   const bmiInfo = computeBMI(parseFloat(b.weight), parseFloat(b.height));
   const f1 = n => Math.round(n * 10) / 10;
   el.innerHTML =
-    '<div class="guide-section"><h3 style="color:#1565c0;">📋 Detail Perhitungan</h3>' +
+    '<div class="guide-section"><h3 style="color:#1565c0;">' + icon('33_detail',18) + ' Detail Perhitungan</h3>' +
       healthRow('Berat Ideal', f1(m.idealWeight) + ' kg') +
       healthRow('Berat Sehat (BMI Normal)', f1(m.healthyMin) + ' - ' + f1(m.healthyMax) + ' kg') +
       healthRow('Massa Tanpa Lemak', f1(m.leanMass) + ' kg') +
@@ -1598,9 +1605,9 @@ function renderDashboard() {
   document.getElementById('dashGreeting').textContent = 'Halo, ' + firstName + '! 👋';
   document.getElementById('dashDate').textContent = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   const hr = new Date().getHours();
-  const part = hr < 11 ? ['PAGI','☀️','Hari yang baik'] : hr < 15 ? ['SIANG','🌤️','Tetap semangat'] : hr < 18 ? ['SORE','🌇','Sore yang tenang'] : ['MALAM','🌙','Waktunya rileks'];
+  const part = hr < 11 ? ['PAGI','07_pagi','Hari yang baik'] : hr < 15 ? ['SIANG','08_siang','Tetap semangat'] : hr < 18 ? ['SORE','09_sore','Sore yang tenang'] : ['MALAM','10_malam','Waktunya rileks'];
   document.getElementById('dashEyebrow').textContent = 'SELAMAT ' + part[0];
-  document.getElementById('dashWeather').textContent = part[1];
+  document.getElementById('dashWeather').innerHTML = icon(part[1], 34);
   document.getElementById('dashWeatherTxt').textContent = part[2];
   const av = document.getElementById('topAvatar');
   if (av) av.textContent = (b && b.name ? b.name.trim().charAt(0) : 'S').toUpperCase();
@@ -2169,7 +2176,7 @@ function setBwAnim(exerciseName) {
 const BW_CATEGORIES = [
   { title: '⚡ Olahraga Singkat', keys: ['quickbeginner'] },
   { title: '💪 Bodyweight', keys: ['pemula', 'hiit', 'core'] },
-  { title: '🏋️ Program Beban', keys: ['barbel'] }
+  { title: icon('15_olahraga_alt',18) + ' Program Beban', keys: ['barbel'] }
 ];
 const BW_MODE_PHOTOS = {
   pemula: 'images/bg-bw-dasar.jpg',

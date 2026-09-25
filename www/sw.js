@@ -1,6 +1,6 @@
 /* SHENX HEALTH — service worker (khusus versi web/PWA).
    Cache-first supaya aplikasi tetap jalan tanpa internet. */
-const CACHE = 'shenx-health-v9';
+const CACHE = 'shenx-health-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,28 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
+  './images/icons/01_home.png',
+  './images/icons/02_olahraga.png',
+  './images/icons/03_tracker.png',
+  './images/icons/04_nutrisi.png',
+  './images/icons/05_profil.png',
+  './images/icons/06_keluar.png',
+  './images/icons/07_pagi.png',
+  './images/icons/08_siang.png',
+  './images/icons/09_sore.png',
+  './images/icons/10_malam.png',
+  './images/icons/15_olahraga_alt.png',
+  './images/icons/17_air.png',
+  './images/icons/18_tidur.png',
+  './images/icons/19_positif.png',
+  './images/icons/20_pernapasan.png',
+  './images/icons/33_detail.png',
+  './images/icons/40_kalori.png',
+  './images/icons/54_cari.png',
+  './images/icons/55_info.png',
+  './images/icons/73_pengguna.png',
+  './images/icons/76_dokumen.png',
+  './images/icons/77_folder.png',
   './images/bg-greeting.jpg',
   './images/bg-bmi.jpg',
   './images/bg-water.jpg',
