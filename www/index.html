@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SHENX HEALTH</title>
 <meta name="description" content="Pantau kesehatanmu setiap hari — hitung kalori, BMI, latihan jalan & pernapasan">
-<meta name="theme-color" content="#2e7d32">
+<meta name="theme-color" content="#f3faf6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SHENX HEALTH">
@@ -152,52 +152,167 @@
   .tint-bodyweight { background: linear-gradient(135deg, rgba(233,64,87,0.65), rgba(240,152,25,0.6)); }
   .tint-tidur { background: linear-gradient(135deg, rgba(63,55,120,0.68), rgba(96,86,170,0.6)); }
   .tint-positif { background: linear-gradient(135deg, rgba(255,193,7,0.55), rgba(255,145,0,0.55)); }
+
+  /* ===== MODERN UI (gaya SHENX Life): token, kartu lembut, nav melayang ===== */
+  :root { --bg:#f3faf6; --text:#173c2c; --muted:#718079; --green:#2f8f68; --green-dark:#1f6e4d; --mint:#dff5e9; --line:rgba(24,70,50,.09); --shadow:0 14px 40px rgba(32,87,63,.10); --radius:26px; }
+  body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--text); padding: 0 14px;
+    background: radial-gradient(circle at 10% 0%, rgba(111,203,158,.20), transparent 30%), radial-gradient(circle at 95% 12%, rgba(86,173,216,.14), transparent 28%), linear-gradient(180deg,#eef9f2 0%,#f7fbf8 55%,#edf7f2 100%); background-attachment: fixed; }
+  .app { max-width: 460px; padding-bottom: 104px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 4px 12px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand-mark { width: 44px; height: 44px; border-radius: 15px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 19px; background: linear-gradient(145deg,#43b783,#247454); box-shadow: 0 8px 20px rgba(38,128,88,.22); }
+  .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
+  .brand-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: #e4f5ec; color: var(--green-dark); font-weight: 800; border: 1px solid rgba(47,143,104,.12); cursor: pointer; }
+  .card { background: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.9); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card h2 { color: var(--text); font-weight: 800; letter-spacing: -.2px; }
+  .btn { background: linear-gradient(135deg,#2f8f68,#1f6e4d); border-radius: 16px; box-shadow: 0 8px 18px rgba(38,128,88,.22); }
+  .btn:hover { background: linear-gradient(135deg,#1f6e4d,#175a3f); }
+  .form-group input, .form-group select { border: 1.5px solid #dbe8e1; border-radius: 14px; background: #fbfdfc; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--green); }
+  .result { border-radius: 18px; }
+  .progress-bar, .progress-fill { border-radius: 999px; }
+  .progress-fill { background: linear-gradient(90deg,#43b783,#2f8f68); }
+  .hero-card { border-radius: var(--radius); box-shadow: var(--shadow); }
+  .hero-panel { border-radius: 20px; }
+  .hero-panel h2 { color: var(--text) !important; font-weight: 800; letter-spacing: -.3px; }
+  .mode-cat-title { color: var(--text); font-weight: 800; letter-spacing: -.2px; }
+  .mode-card { border-radius: 22px; box-shadow: 0 10px 24px rgba(20,60,44,.18); }
+  .exercise-tile { border-radius: 25px; box-shadow: var(--shadow); }
+  .back-btn { color: var(--green-dark); }
+  .menu-item { border-radius: 16px; background: rgba(255,255,255,.9); }
+  .kal-date-chip { border-radius: 16px; }
+  .kal-date-chip.active { border-color: var(--green); background: #e5f5ed; }
+  .voice-toggle { background: #e5f5ed; color: var(--green-dark); }
+  .bottom-nav { left: 50%; right: auto; transform: translateX(-50%); width: min(100%,520px); background: rgba(255,255,255,.94); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-top: 1px solid rgba(28,75,53,.08); box-shadow: 0 -6px 24px rgba(32,87,63,.08); padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0)); }
+  .bottom-nav-inner { max-width: none; }
+  .bottom-nav-item { color: #83918b; }
+  .bottom-nav-item .bn-icon { width: 38px; height: 30px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin-bottom: 3px; }
+  .bottom-nav-item .bn-label { font-size: 0.62rem; font-weight: 700; }
+  .bottom-nav-item.active { color: var(--green-dark); }
+  .bottom-nav-item.active .bn-icon { background: #e5f5ed; }
+  .bottom-nav-item.exit-item { color: #d05b5b; }
+  @media (min-width: 700px) { .bottom-nav { bottom: 18px; border: 1px solid var(--line); border-radius: 24px; } }
+
+  /* --- Beranda --- */
+  .m-greeting { position: relative; overflow: hidden; padding: 23px 22px; border-radius: 28px; background: linear-gradient(135deg,#1f7654,#3fae7d); color: #fff; box-shadow: var(--shadow); }
+  .m-greeting:after { content: ""; position: absolute; width: 190px; height: 190px; border-radius: 50%; right: -60px; top: -95px; background: rgba(255,255,255,.11); }
+  .m-eyebrow { font-size: 12px; opacity: .76; font-weight: 700; letter-spacing: .4px; }
+  .m-greeting h1 { margin: 5px 0 4px; font-size: 27px; line-height: 1.12; letter-spacing: -.8px; }
+  .m-date { font-size: 13px; opacity: .78; }
+  .m-greeting-right { position: absolute; right: 20px; bottom: 19px; text-align: right; z-index: 1; }
+  .m-weather { font-size: 25px; font-weight: 800; }
+  .m-greeting-right small { font-size: 11px; font-weight: 600; opacity: .8; }
+  .m-section { margin-top: 18px; }
+  .m-section-head { display: flex; justify-content: space-between; align-items: center; margin: 0 3px 10px; }
+  .m-section-title { font-size: 15px; font-weight: 800; letter-spacing: -.2px; }
+  .m-section-link { font-size: 11px; color: var(--green-dark); font-weight: 700; }
+  .m-card { background: rgba(255,255,255,.9); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.85); border-radius: var(--radius); padding: 19px; box-shadow: var(--shadow); }
+  .m-score-top { display: flex; align-items: center; gap: 18px; }
+  .m-score-ring { position: relative; width: 92px; height: 92px; border-radius: 50%; flex: none; display: grid; place-items: center; background: conic-gradient(var(--green) calc(var(--p) * 1%), #dfeee7 0); }
+  .m-score-ring:after { content: ""; position: absolute; width: 70px; height: 70px; border-radius: 50%; background: #fff; }
+  .m-score-number { position: relative; z-index: 1; font-size: 26px; font-weight: 800; }
+  .m-score-copy h2 { font-size: 17px; margin: 0 0 4px; font-weight: 800; color: var(--text); }
+  .m-score-copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  .m-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 16px; }
+  .m-metric { padding: 11px 8px; border-radius: 16px; background: #f5faf7; text-align: center; border: 1px solid var(--line); }
+  .m-metric-icon { font-size: 17px; }
+  .m-metric-value { font-size: 14px; font-weight: 800; margin-top: 3px; }
+  .m-metric-name { font-size: 9px; color: var(--muted); margin-top: 1px; }
+  .m-habits { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
+  .m-habit { text-align: center; padding: 6px 2px 8px; border-radius: 18px; background: none; border: none; cursor: pointer; color: inherit; font: inherit; }
+  .m-habit-icon { position: relative; width: 48px; height: 48px; margin: 0 auto 7px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; background: #eef7f2; border: 1.5px solid var(--line); }
+  .m-habit:nth-child(2) .m-habit-icon { background: #fff7e8; }
+  .m-habit:nth-child(3) .m-habit-icon { background: #edf8fc; }
+  .m-habit:nth-child(4) .m-habit-icon { background: #f0effc; }
+  .m-habit:nth-child(5) .m-habit-icon { background: #fff0f0; }
+  .m-habit.done .m-habit-icon { border-color: var(--green); }
+  .m-habit.done .m-habit-icon:after { content: "✓"; position: absolute; right: -5px; top: -5px; width: 17px; height: 17px; border-radius: 50%; background: var(--green); color: #fff; font-size: 10px; font-weight: 800; display: grid; place-items: center; }
+  .m-habit-name { font-size: 9px; font-weight: 700; color: #53645c; }
+  .m-habit-progress { font-size: 8px; color: var(--muted); margin-top: 3px; }
+  .m-bmi-card { border-radius: var(--radius); padding: 19px; background: linear-gradient(135deg,#eaf8f2,#d9f0ea); box-shadow: var(--shadow); }
+  .m-bmi-header { display: flex; justify-content: space-between; align-items: center; }
+  .m-bmi-label { font-size: 13px; font-weight: 800; }
+  .m-bmi-badge { font-size: 9px; font-weight: 800; padding: 6px 9px; border-radius: 999px; background: #e3f5e8; color: #2a7a45; }
+  .m-bmi-badge.warning { background: #fff3e7; color: #b96916; }
+  .m-bmi-badge.danger { background: #ffe9e9; color: #b53a3a; }
+  .m-bmi-value { font-size: 43px; font-weight: 800; letter-spacing: -2px; margin-top: 8px; }
+  .m-bmi-desc { font-size: 12px; color: #65766e; margin-top: -2px; }
+  .m-bmi-bar { position: relative; height: 9px; border-radius: 999px; margin-top: 17px; background: linear-gradient(90deg,#5aaee0 0 14%,#65ba72 14% 40%,#f0a644 40% 60%,#e56d6d 60%); }
+  .m-bmi-dot { position: absolute; top: 50%; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 3px solid var(--green-dark); transform: translate(-50%,-50%); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .m-bmi-scale { display: flex; justify-content: space-between; color: #809089; font-size: 8px; margin-top: 5px; }
+  .m-bmi-link { display: inline-flex; margin-top: 13px; color: var(--green-dark); font-size: 11px; font-weight: 800; cursor: pointer; }
+  .m-bmi-empty { color: #65766e; font-size: 12px; line-height: 1.5; }
+  .m-plan { background: #fff; border-radius: var(--radius); padding: 8px 17px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .m-plan-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #edf2ef; cursor: pointer; }
+  .m-plan-row:last-child { border-bottom: 0; }
+  .m-check { width: 24px; height: 24px; border-radius: 8px; border: 1.5px solid #cbdad3; display: grid; place-items: center; color: #fff; font-size: 12px; flex: none; }
+  .m-check.done { background: var(--green); border-color: var(--green); }
+  .m-plan-text { font-size: 12px; font-weight: 700; }
+  .m-plan-note { font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .exercise-tile.m-feature { text-align: left; min-height: 118px; display: flex; align-items: flex-end; padding: 20px; margin: 18px 0 0; }
+  .exercise-tile.m-feature .tile-tint { background: linear-gradient(90deg,rgba(14,71,52,.74),rgba(24,126,99,.14)); }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <h1>🩺 SHENX HEALTH</h1>
-    <p>Pantau kesehatanmu setiap hari</p>
-  </div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <div class="brand-name">SHENX HEALTH</div>
+        <div class="brand-sub">Pantau kesehatanmu setiap hari</div>
+      </div>
+    </div>
+    <div class="avatar" id="topAvatar" onclick="navBarGoto('settingmenu')">S</div>
+  </header>
 
   <!-- TAB_DASHBOARD -->
   <div id="tab-dashboard" class="tab-content active">
-    <div class="hero-card" style="text-align:center;">
-      <div class="bg-photo" style="background-image:url('images/bg-greeting.jpg');"></div>
-      <div class="hero-tint tint-greeting"></div>
-      <div class="hero-panel">
-        <h2 id="dashGreeting" style="font-size:1.3rem;color:#1b5e20;">Halo! 👋</h2>
-        <p style="color:#888;font-size:0.85rem;" id="dashDate"></p>
-      </div>
-    </div>
-    <div class="card">
-      <h2 id="habitCount" style="margin-bottom:14px;">Track 0 dari 5</h2>
-      <div style="display:flex;justify-content:space-between;" id="habitTracker"></div>
-    </div>
-    <div class="hero-card">
-      <div class="bg-photo" style="background-image:url('images/bg-bmi.jpg');"></div>
-      <div class="hero-tint tint-bmi"></div>
-      <h2 class="hero-title">⚖️ BMI Kamu</h2>
-      <div class="hero-panel">
+    <section class="m-greeting">
+      <div class="m-eyebrow" id="dashEyebrow">SELAMAT PAGI</div>
+      <h1 id="dashGreeting">Halo! 👋</h1>
+      <div class="m-date" id="dashDate"></div>
+      <div class="m-greeting-right"><div class="m-weather" id="dashWeather">☀️</div><small id="dashWeatherTxt">Hari yang baik</small></div>
+    </section>
+
+    <section class="m-section">
+      <div class="m-section-head"><div class="m-section-title">Wellness Score</div><div class="m-section-link" onclick="navBarGoto('riwayat')" style="cursor:pointer;">Detail →</div></div>
+      <div class="m-card" id="dashWellness"></div>
+    </section>
+
+    <section class="m-section">
+      <div class="m-section-head"><div class="m-section-title">Daily Habits</div><div class="m-section-link" id="habitCount">0 / 5 selesai</div></div>
+      <div class="m-card" style="padding:15px 12px;"><div class="m-habits" id="habitTracker"></div></div>
+    </section>
+
+    <section class="m-section">
+      <div class="m-section-head"><div class="m-section-title">BMI Kamu</div><div class="m-section-link" onclick="navigateTo('bmidetail')" style="cursor:pointer;">Lihat detail →</div></div>
+      <div class="m-bmi-card">
         <div id="dashBmi"></div>
-        <div style="text-align:left;margin-top:6px;"><a href="javascript:void(0)" onclick="navigateTo('bmidetail')" style="font-size:0.75rem;color:#2e7d32;text-decoration:underline;">klik untuk detail</a></div>
+        <a class="m-bmi-link" onclick="navigateTo('bmidetail')">Klik untuk detail →</a>
       </div>
-    </div>
-    <div class="exercise-tile" onclick="navigateTo('napashub')">
+    </section>
+
+    <section class="m-section">
+      <div class="m-section-head"><div class="m-section-title">Today's Plan</div><div class="m-section-link" id="planCount">0 / 3 selesai</div></div>
+      <div class="m-plan" id="dashPlan"></div>
+    </section>
+
+    <div class="exercise-tile m-feature" onclick="navigateTo('napashub')">
       <div class="tile-bg-photo" style="background-image:url('images/bg-napas.jpg');"></div>
       <div class="tile-tint tint-napas"></div>
       <div class="tile-content">
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pernapasan</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">9 teknik pernapasan terpandu</div>
+        <div style="font-weight:800;color:#fff;font-size:1.15rem;letter-spacing:-.4px;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Pernapasan</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.9);margin-top:3px;">9 teknik pernapasan terpandu</div>
       </div>
     </div>
-    <div class="exercise-tile" onclick="navigateTo('nutrisiinfo')">
+    <div class="exercise-tile m-feature" onclick="navigateTo('nutrisiinfo')">
       <div class="tile-bg-photo" style="background-image:url('images/bg-nutrisi.jpg');"></div>
       <div class="tile-tint tint-nutrisi"></div>
       <div class="tile-content">
-        <div style="font-weight:700;color:#fff;font-size:1.2rem;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Nutrisi & Kalori</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">Cari info gizi makanan apa saja</div>
+        <div style="font-weight:800;color:#fff;font-size:1.15rem;letter-spacing:-.4px;text-shadow:0 1px 4px rgba(0,0,0,0.25);">Nutrisi & Kalori</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.9);margin-top:3px;">Cari info gizi makanan apa saja</div>
       </div>
     </div>
   </div>
@@ -1356,21 +1471,61 @@ function renderDashPositif() {
 function renderHabitTracker() {
   const el = document.getElementById('habitTracker');
   if (!el) return;
+  const water = getWaterState().glasses, waterTarget = getWaterTarget(), sleepH = getSleepState().hours;
   const items = [
-    { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), action:"navigateTo('exercise')" },
-    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, action:"navigateTo('riwayat')" },
-    { icon:'💧', label:'Air', done: getWaterState().glasses >= getWaterTarget(), action:"navigateTo('riwayat')" },
-    { icon:'😴', label:'Tidur', done: getSleepState().hours >= SLEEP_TARGET, action:"navigateTo('riwayat')" },
-    { icon:'😊', label:'Positif', done: !!getMoodState().mood, action:"navigateTo('riwayat')" }
+    { icon:'🏃', label:'Olahraga', done: isExerciseDoneToday(), prog: isExerciseDoneToday() ? '1 / 1' : '0 / 1', action:"navigateTo('exercise')" },
+    { icon:'🥗', label:'Nutrisi', done: grandFoodTotals().kal > 0, prog: grandFoodTotals().kal > 0 ? 'Tercatat' : 'Belum', action:"navigateTo('riwayat')" },
+    { icon:'💧', label:'Air', done: water >= waterTarget, prog: water + ' / ' + waterTarget, action:"navigateTo('riwayat')" },
+    { icon:'😴', label:'Tidur', done: sleepH >= SLEEP_TARGET, prog: sleepH + ' / ' + SLEEP_TARGET + ' j', action:"navigateTo('riwayat')" },
+    { icon:'😊', label:'Positif', done: !!getMoodState().mood, prog: getMoodState().mood ? '1 / 1' : '0 / 1', action:"navigateTo('riwayat')" }
   ];
   const doneCount = items.filter(i => i.done).length;
   const countEl = document.getElementById('habitCount');
-  if (countEl) countEl.textContent = 'Track ' + doneCount + ' dari 5';
+  if (countEl) countEl.textContent = doneCount + ' / 5 selesai';
   el.innerHTML = items.map(i =>
-    '<button onclick="' + i.action + '" style="background:none;border:none;text-align:center;flex:1;cursor:pointer;padding:4px;">' +
-      '<div style="width:52px;height:52px;border-radius:50%;background:' + (i.done ? '#e8f5e9' : '#f5f5f5') + ';display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 6px;border:2px solid ' + (i.done ? '#66bb6a' : '#e0e0e0') + ';">' + i.icon + '</div>' +
-      '<div style="font-size:0.72rem;color:#666;">' + i.label + '</div>' +
+    '<button class="m-habit' + (i.done ? ' done' : '') + '" onclick="' + i.action + '">' +
+      '<div class="m-habit-icon">' + i.icon + '</div>' +
+      '<div class="m-habit-name">' + i.label + '</div>' +
+      '<div class="m-habit-progress">' + i.prog + '</div>' +
     '</button>'
+  ).join('');
+}
+
+// ===== WELLNESS SCORE + TODAY'S PLAN (dihitung dari data yang sudah ada) =====
+function renderWellness() {
+  const el = document.getElementById('dashWellness');
+  if (!el) return;
+  const burned = getBurnedState().kcal;
+  const activity = isExerciseDoneToday() ? 100 : Math.min(100, Math.round(burned / 150 * 100));
+  const hydration = Math.min(100, Math.round(getWaterState().glasses / getWaterTarget() * 100));
+  const sleep = Math.min(100, Math.round(getSleepState().hours / SLEEP_TARGET * 100));
+  const score = Math.round((activity + hydration + sleep) / 3);
+  const label = score >= 80 ? 'Luar biasa hari ini!' : score >= 60 ? 'Kondisi baik' : score >= 30 ? 'Ayo lanjutkan' : 'Mulai harimu';
+  el.innerHTML =
+    '<div class="m-score-top">' +
+      '<div class="m-score-ring" style="--p:' + score + ';"><div class="m-score-number">' + score + '</div></div>' +
+      '<div class="m-score-copy"><h2>' + label + '</h2><p>Jaga ritme sehatmu. Sedikit konsisten setiap hari akan memberi hasil besar.</p></div>' +
+    '</div>' +
+    '<div class="m-metrics">' +
+      '<div class="m-metric"><div class="m-metric-icon">🏃</div><div class="m-metric-value">' + activity + '</div><div class="m-metric-name">Aktivitas</div></div>' +
+      '<div class="m-metric"><div class="m-metric-icon">💧</div><div class="m-metric-value">' + hydration + '</div><div class="m-metric-name">Hidrasi</div></div>' +
+      '<div class="m-metric"><div class="m-metric-icon">🌙</div><div class="m-metric-value">' + sleep + '</div><div class="m-metric-name">Tidur</div></div>' +
+    '</div>';
+}
+function renderDashPlan() {
+  const el = document.getElementById('dashPlan');
+  if (!el) return;
+  const water = getWaterState().glasses, waterTarget = getWaterTarget();
+  const rows = [
+    { done: water >= waterTarget, text: 'Minum air sampai target', note: water + ' / ' + waterTarget + ' gelas hari ini', action: "navBarGoto('riwayat')" },
+    { done: isExerciseDoneToday(), text: 'Olahraga hari ini', note: 'Jalan, lari, atau latihan bodyweight', action: "navBarGoto('exercise')" },
+    { done: getExerciseLog(todayStr()).some(e => String(e.key).indexOf('napas-') === 0), text: 'Latihan pernapasan', note: 'Beberapa menit untuk relaksasi', action: "navigateTo('napashub')" }
+  ];
+  const countEl = document.getElementById('planCount');
+  if (countEl) countEl.textContent = rows.filter(r => r.done).length + ' / 3 selesai';
+  el.innerHTML = rows.map(r =>
+    '<div class="m-plan-row" onclick="' + r.action + '"><div class="m-check' + (r.done ? ' done' : '') + '">' + (r.done ? '✓' : '') + '</div>' +
+    '<div><div class="m-plan-text">' + r.text + '</div><div class="m-plan-note">' + r.note + '</div></div></div>'
   ).join('');
 }
 
@@ -1442,19 +1597,29 @@ function renderDashboard() {
   const firstName = b && b.name ? b.name.trim().split(' ')[0] : 'Sobat Sehat';
   document.getElementById('dashGreeting').textContent = 'Halo, ' + firstName + '! 👋';
   document.getElementById('dashDate').textContent = new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const hr = new Date().getHours();
+  const part = hr < 11 ? ['PAGI','☀️','Hari yang baik'] : hr < 15 ? ['SIANG','🌤️','Tetap semangat'] : hr < 18 ? ['SORE','🌇','Sore yang tenang'] : ['MALAM','🌙','Waktunya rileks'];
+  document.getElementById('dashEyebrow').textContent = 'SELAMAT ' + part[0];
+  document.getElementById('dashWeather').textContent = part[1];
+  document.getElementById('dashWeatherTxt').textContent = part[2];
+  const av = document.getElementById('topAvatar');
+  if (av) av.textContent = (b && b.name ? b.name.trim().charAt(0) : 'S').toUpperCase();
 
   const bmiEl = document.getElementById('dashBmi');
   if (b && b.weight && b.height) {
     const r = computeBMI(parseFloat(b.weight), parseFloat(b.height));
+    const pos = Math.max(2, Math.min(98, (parseFloat(r.bmi) - 15) / 25 * 100));
     bmiEl.innerHTML =
-      '<div class="result ' + r.cls + '"><div style="font-size:2.5rem;font-weight:700;">' + r.bmi + '</div><div>BMI: ' + r.cat + '</div>' +
-      '<div style="font-size:0.85rem;margin-top:8px;font-weight:400;">' + r.advice + '</div>' +
-      '<div class="bmi-scale" style="margin-top:12px;"><div style="flex:1;background:#42a5f5;"></div><div style="flex:2;background:#66bb6a;"></div><div style="flex:1.5;background:#ffa726;"></div><div style="flex:1;background:#ef5350;"></div></div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-top:2px;"><span>Kurus</span><span>Normal</span><span>Berlebih</span><span>Obesitas</span></div></div>';
+      '<div class="m-bmi-header"><div class="m-bmi-label">Body Mass Index</div><div class="m-bmi-badge ' + r.cls + '">' + r.cat + '</div></div>' +
+      '<div class="m-bmi-value">' + r.bmi + '</div><div class="m-bmi-desc">' + r.advice + '</div>' +
+      '<div class="m-bmi-bar"><div class="m-bmi-dot" style="left:' + pos + '%;"></div></div>' +
+      '<div class="m-bmi-scale"><span>Kurus</span><span>Normal</span><span>Berlebih</span><span>Obesitas</span></div>';
   } else {
-    bmiEl.innerHTML = '<p style="color:#999;text-align:center;padding:12px;">Lengkapi berat & tinggi badan di <strong>Biodata</strong> untuk melihat BMI.</p>';
+    bmiEl.innerHTML = '<p class="m-bmi-empty">Lengkapi berat & tinggi badan di <strong>Biodata</strong> untuk melihat BMI.</p>';
   }
   renderHabitTracker();
+  renderWellness();
+  renderDashPlan();
 }
 
 // ===== AIR MINUM =====
